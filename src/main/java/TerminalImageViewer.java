@@ -80,7 +80,7 @@ public class TerminalImageViewer {
   }
 
   /**
-   * Converts 4x8 RGB pixel to a unicode character and a foreground and background character.
+   * Converts 4x8 RGB pixel to a unicode character and a foreground and background color:
    * Uses a variation of the median cut algorithm to determine a two-color palette for the
    * character, then creates a corresponding bitmap for the partial image covered by the
    * character and finds the best match in the character bitmap table.
