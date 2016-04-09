@@ -18,50 +18,91 @@ public class TerminalImageViewer {
       return;
     }
 
+    int start = 0;
     int w = 80 * 4;
+    if (args[0].equals("-w") && args.length > 2) {
+      w = 4 * Integer.parseInt(args[1]);
+      start = 2;
+    }
 
-    for (int i = 0; i < args.length; i++) {
-      String name = args[i];
-      if (name.equals("-w")) {
-        w = 4 * Integer.parseInt(args[++i]);
-        continue;
-      }
+    if (start == args.length - 1) {
+      String name = args[start];
 
-      BufferedImage original;
-      if (name.startsWith("http://") || name.startsWith("https://")) {
-        URL url = new URL(name);
-        original = ImageIO.read(url);
-      } else {
-        original = ImageIO.read(new File(args[0]));
-      }
+      BufferedImage original = loadImage(args[start]);
 
       int ow = original.getWidth();
       int oh = original.getHeight();
       int h = oh * w / ow;
 
-      BufferedImage image = original;
-      if (w != ow) {
-        image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+      if (w == ow) {
+        dump(original);
+      } else {
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         graphics.drawImage(original, 0, 0, w, h, null);
+        dump(image);
       }
-
-      ImageData imageData = new ImageData(w, h);
-      byte[] data = imageData.data;
-      int[] rgbArray = new int[w];
-      for (int y = 0; y < image.getHeight(); y++) {
-        image.getRGB(0, y, image.getWidth(), 1, rgbArray, 0, w);
-        int pos = y * w * 4;
-        for (int x = 0; x < w; x++) {
-          int rgb = rgbArray[x];
-          data[pos++] = (byte) (rgb >> 16);
-          data[pos++] = (byte) (rgb >> 8);
-          data[pos++] = (byte) rgb;
-          pos++;
+    } else {
+      // Directory-style rendering.
+      int index = 0;
+      int cw = (w - 2 * 3 * 4) / 16;
+      int tw = cw * 4;
+      while (index < args.length) {
+        BufferedImage image = new BufferedImage(tw * 4 + 24, tw, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        int count = 0;
+        StringBuilder sb = new StringBuilder();
+        while (index < args.length && count < 4) {
+          String name = args[index++];
+          try {
+            BufferedImage original = loadImage(name);
+            int cut = name.lastIndexOf('/');
+            sb.append(name.substring(cut + 1));
+            int th = original.getHeight() * tw / original.getWidth();
+            graphics.drawImage(original, count * (tw + 8), (tw - th) / 2, tw, th, null);
+            count++;
+            int sl = count * (cw + 2);
+            while (sb.length() < sl - 2) {
+              sb.append(' ');
+            }
+            sb.setLength(sl - 2);
+            sb.append("  ");
+          } catch (Exception e) {
+            // Probably no image; ignore.
+          }
         }
+        dump(image);
+        System.out.println(sb.toString());
+        System.out.println();
       }
-      System.out.println(imageData.dump());
     }
+  }
+
+  static BufferedImage loadImage(String name) throws IOException {
+    if (name.startsWith("http://") || name.startsWith("https://")) {
+      URL url = new URL(name);
+      return ImageIO.read(url);
+    }
+    return ImageIO.read(new File(name));
+  }
+
+  static void dump(BufferedImage image) {
+    int w = image.getWidth();
+    ImageData imageData = new ImageData(w, image.getHeight());
+    byte[] data = imageData.data;
+    int[] rgbArray = new int[w];
+    for (int y = 0; y < image.getHeight(); y++) {
+      image.getRGB(0, y, image.getWidth(), 1, rgbArray, 0, w);
+      int pos = y * w * 4;
+      for (int x = 0; x < w; x++) {
+        int rgb = rgbArray[x];
+        data[pos++] = (byte) (rgb >> 16);
+        data[pos++] = (byte) (rgb >> 8);
+        data[pos++] = (byte) rgb;
+        pos++;
+      }
+    }
+    System.out.print(imageData.dump());
   }
 
   /**
