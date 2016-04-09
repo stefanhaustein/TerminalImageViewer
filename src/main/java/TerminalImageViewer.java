@@ -134,7 +134,9 @@ public class TerminalImageViewer {
     static int[] BITMAPS = new int[] {
         0x00000000, ' ',
 
-        // 0xffff0000, '\u2580',  // upper 1/2
+        // Block graphics
+
+     // 0xffff0000, '\u2580',  // upper 1/2; redundant with inverse lower 1/2
 
         0x0000000f, '\u2581',  // lower 1/8
         0x000000ff, '\u2582',  // lower 1/4
@@ -143,7 +145,7 @@ public class TerminalImageViewer {
         0x000fffff, '\u2585',
         0x00ffffff, '\u2586',  // lower 3/4
         0x0fffffff, '\u2587',
-        0xffffffff, '\u2588',  // full
+     // 0xffffffff, '\u2588',  // full; redundant with inverse space
 
         0xeeeeeeee, '\u258a',  // left 3/4
         0xcccccccc, '\u258c',  // left 1/2
@@ -152,15 +154,18 @@ public class TerminalImageViewer {
         0x0000cccc, '\u2596',  // quadrant lower left
         0x00003333, '\u2597',  // quadrant lower right
         0xcccc0000, '\u2598',  // quadrant upper left
-        0xccccffff, '\u2599',  // ...
-        0xcccc3333, '\u259a',
-        0xffffcccc, '\u259b',
-        0xffff3333, '\u259c',
-        0x33330000, '\u259d',
-        0x3333cccc, '\u259e',
-        0x3333ffff, '\u259f',
+     // 0xccccffff, '\u2599',  // 3/4 redundant with inverse 1/4
+        0xcccc3333, '\u259a',  // diagonal 1/2
+     // 0xffffcccc, '\u259b',  // 3/4 redundant
+     // 0xffff3333, '\u259c',  // 3/4 redundant
+        0x33330000, '\u259d',  // quadrant upper right
+     // 0x3333cccc, '\u259e',  // 3/4 redundant
+     // 0x3333ffff, '\u259f',  // 3/4 redundant
 
-        0x000ff000, '\u2501',  // Bold horizontal
+        // Line drawing subset: no double lines, no complex light lines
+        // Simple light lines duplicated because there is no center pixel int the 4x8 matrix
+
+        0x000ff000, '\u2501',  // Heavy horizontal
         0x66666666, '\u2503',  // Heavy vertical
 
         0x00077666, '\u250f',  // Heavy down and right
@@ -194,24 +199,28 @@ public class TerminalImageViewer {
         0x00003000, '\u2576',  // light right
         0x00004444, '\u2575',  // light down
         0x00002222, '\u2575',  // light down
-/*
-        0x11224488, '\u2571',  // diagonals
-        0x88442211, '\u2572',
-        0x99666699, '\u2573',
-*/
+
+        // Misc technical
+
         0x44444444, '\u23a2',  // [ extension
         0x22222222, '\u23a5',  // ] extension
 
         //12345678
-        0x0f000000, '\u23ba',  // 1
-        0x00f00000, '\u23bb',  // 3
-        0x00000f00, '\u23bc',  // 7
-        0x000000f0, '\u23bd',  // 9
+        0x0f000000, '\u23ba',  // Horizontal scanline 1
+        0x00f00000, '\u23bb',  // Horizontal scanline 3
+        0x00000f00, '\u23bc',  // Horizontal scanline 7
+        0x000000f0, '\u23bd',  // Horizontal scanline 9
 
-//        0x00ffff00, '\u25fe',  // Black medium small square
+        // Geometrical shapes. Tricky because some of them are too wide.
+
+//      0x00ffff00, '\u25fe',  // Black medium small square
         0x00066000, '\u25aa',  // Black small square
 
 /*
+        0x11224488, '\u2571',  // diagonals
+        0x88442211, '\u2572',
+        0x99666699, '\u2573',
+
         0x000137f0, '\u25e2',  // Triangles
         0x0008cef0, '\u25e3',
         0x000fec80, '\u25e4',
@@ -327,7 +336,7 @@ public class TerminalImageViewer {
       }
 
       // If the match is quite bad, use a shade image instead.
-      if (bestDiff > 12) {
+      if (bestDiff > 10) {
         invert = false;
         character = " \u2591\u2592\u2593\u2588".charAt(Math.min(4, fgCount * 5 / 32));
       }
