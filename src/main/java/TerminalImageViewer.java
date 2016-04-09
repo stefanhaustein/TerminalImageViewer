@@ -134,11 +134,7 @@ public class TerminalImageViewer {
     static int[] BITMAPS = new int[] {
         0x00000000, ' ',
 
-        0x000ff000, '\u2501',
-        0x000cc000, '\u2578',
-        0x00033000, '\u257a',
-
-        0xffff0000, '\u2580',  // upper 1/2
+        // 0xffff0000, '\u2580',  // upper 1/2
 
         0x0000000f, '\u2581',  // lower 1/8
         0x000000ff, '\u2582',  // lower 1/4
@@ -164,12 +160,63 @@ public class TerminalImageViewer {
         0x3333cccc, '\u259e',
         0x3333ffff, '\u259f',
 
-        0x0006ff60, '\u25cf',  // Black circle
+        0x000ff000, '\u2501',  // Bold horizontal
+        0x66666666, '\u2503',  // Heavy vertical
 
+        0x00077666, '\u250f',  // Heavy down and right
+        0x000ee666, '\u2513',  // Heavy down and left
+        0x66677000, '\u2517',  // Heavy up and right
+        0x666ee000, '\u251b',  // Heavy up and left
+
+        0x66677666, '\u2523',  // Heavy vertical and right
+        0x666ee666, '\u252b',  // Heavy vertical and left
+        0x000ff666, '\u2533',  // Heavy down and horizontal
+        0x666ff000, '\u253b',  // Heavy up and horizontal
+        0x666ff666, '\u254b',  // Heavy cross
+
+        0x000cc000, '\u2578',  // Bold horizontal left
+        0x00066000, '\u2579',  // Bold horizontal up
+        0x00033000, '\u257a',  // Bold horizontal right
+        0x00066000, '\u257b',  // Bold horizontal down
+
+        0x06600660, '\u254f',  // Heavy double dash vertical
+
+        0x000f0000, '\u2500',  // Light horizontal
+        0x0000f000, '\u2500',  //
+        0x44444444, '\u2502',  // Light vertical
+        0x22222222, '\u2502',
+
+        0x000e0000, '\u2574',  // light left
+        0x0000e000, '\u2574',  // light left
+        0x44440000, '\u2575',  // light up
+        0x22220000, '\u2575',  // light up
+        0x00030000, '\u2576',  // light right
+        0x00003000, '\u2576',  // light right
+        0x00004444, '\u2575',  // light down
+        0x00002222, '\u2575',  // light down
+/*
+        0x11224488, '\u2571',  // diagonals
+        0x88442211, '\u2572',
+        0x99666699, '\u2573',
+*/
+        0x44444444, '\u23a2',  // [ extension
+        0x22222222, '\u23a5',  // ] extension
+
+        //12345678
+        0x0f000000, '\u23ba',  // 1
+        0x00f00000, '\u23bb',  // 3
+        0x00000f00, '\u23bc',  // 7
+        0x000000f0, '\u23bd',  // 9
+
+//        0x00ffff00, '\u25fe',  // Black medium small square
+        0x00066000, '\u25aa',  // Black small square
+
+/*
         0x000137f0, '\u25e2',  // Triangles
         0x0008cef0, '\u25e3',
         0x000fec80, '\u25e4',
         0x000f7310, '\u25e5'
+*/
     };
 
     /** Minimum value for each color channel. */
