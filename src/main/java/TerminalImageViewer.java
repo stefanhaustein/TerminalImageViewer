@@ -7,6 +7,12 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+/**
+ * Simple program to print images to the shell using 24 bit ANSI color codes and Unicode block graphics characters.
+ * 
+ * License: Apache 2.0
+ * @author Stefan Haustein
+ */
 public class TerminalImageViewer {
 
   /**
