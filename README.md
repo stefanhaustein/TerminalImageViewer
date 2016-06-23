@@ -19,7 +19,8 @@ java TerminalImageViewer [-w <width-in-characters>] <image-filename-or-url>
 
 ```
 
-If multiple images match the filename spec, thumbnails are shown.
-
 ![Examples](http://i.imgur.com/8UyGjg8.png)
 
+If multiple images match the filename spec, thumbnails are shown.
+
+![Thumbnails](http://i.imgur.com/PTYgSqz.png)
