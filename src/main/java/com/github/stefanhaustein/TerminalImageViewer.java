@@ -1,8 +1,5 @@
 package com.github.stefanhaustein;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,14 +14,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 public class TerminalImageViewer {
-  @Parameter private List<String> mParameters = new ArrayList<>();
-  @SuppressWarnings("FieldCanBeLocal")
-  @Parameter(names = {"-h", "--height", "-height"},
-             description = "Maximum height in terminal columns")
   private Integer mHeight = 24;
-  @SuppressWarnings("FieldCanBeLocal")
-  @Parameter(names = {"-w", "--width", "-width"},
-             description = "Maximum width in terminal columns")
   private Integer mWidth = 80;
 
   /**
@@ -32,10 +22,11 @@ public class TerminalImageViewer {
    */
   public static void main(String... args) {
     TerminalImageViewer main = new TerminalImageViewer();
-    JCommander commander = new JCommander(main, args);
     try {
-      main.run(commander);
-    } catch (IOException e) {
+      main.run(args);
+    } catch (NumberFormatException e) {
+      System.out.println("Wrong value provided for argument!");
+    } catch (Exception e) {
       System.out.println(e.getLocalizedMessage());
     }
   }
@@ -86,13 +77,48 @@ public class TerminalImageViewer {
     System.out.print(imageData.dump());
   }
 
-  private void run(JCommander commander) throws IOException {
-    int parametersCount = mParameters.size();
-    if (parametersCount == 0) {
-      commander.setProgramName(TerminalImageViewer.class.getSimpleName());
-      commander.usage();
-    } else if (parametersCount == 1) {
-      String filepath = mParameters.get(0);
+  private int getParameter(List<String> arguments, int index) throws Exception {
+    if (arguments.size() > index) {
+      return Integer.parseInt(arguments.get(index));
+    } else {
+      throw new Exception("Parameter value was not provided!");
+    }
+  }
+
+  private void run(String... args)
+      throws Exception, IOException, NumberFormatException {
+    List<String> arguments = Arrays.asList(args);
+    List<String> files = new ArrayList();
+
+    int index = 0;
+    while (index < arguments.size()) {
+      String argument = arguments.get(index);
+      int nextIndex = index + 1;
+      boolean isWidth = argument.equals("-width");
+      boolean isHeight = argument.equals("-height");
+      if (isWidth || isHeight) {
+        if (isWidth) {
+          mWidth = getParameter(arguments, nextIndex);
+        } else if (isHeight) {
+          mHeight = getParameter(arguments, nextIndex);
+        }
+        index += 1;
+      } else {
+        if (argument.startsWith("-")) {
+          throw new Exception("Unrecognized parameter name!");
+        } else {
+          files.add(argument);
+        }
+      }
+      index += 1;
+    }
+
+    int filesCount = files.size();
+    if (filesCount == 0) {
+      throw new Exception(
+          "Usage:\n\tTerminalImageViewer [-width WIDTH] [-height HEIGHT] FILE...");
+    } else if (filesCount == 1) {
+      String filepath = files.get(0);
       BufferedImage original = loadImage(filepath);
 
       int ow = original.getWidth();
@@ -116,8 +142,7 @@ public class TerminalImageViewer {
         dump(image);
       }
     } else { // Directory-style rendering.
-      List<String> images = mParameters;
-      List<List<String>> imageSlices = slice(images, 4);
+      List<List<String>> imageSlices = slice(files, 4);
 
       int w = mWidth * 4;
       int cw = (w - 2 * 3 * 4) / 16;
@@ -179,7 +204,8 @@ public class TerminalImageViewer {
 
         // Block graphics
 
-        // 0xffff0000, '\u2580',  // upper 1/2; redundant with inverse lower 1/2
+        // 0xffff0000, '\u2580',  // upper 1/2; redundant with inverse lower
+        // 1/2
 
         0x0000000f, '\u2581',                       // lower 1/8
         0x000000ff, '\u2582',                       // lower 1/4
@@ -204,8 +230,8 @@ public class TerminalImageViewer {
         // 0x3333ffff, '\u259f',  // 3/4 redundant
 
         // Line drawing subset: no double lines, no complex light lines.
-        // Simple light lines duplicated because there is no center pixel in the
-        //4x8 matrix.
+        // Simple light lines duplicated because there is no center pixel in
+        // the 4x8 matrix.
 
         0x000ff000, '\u2501', // Heavy horizontal
         0x66666666, '\u2503', // Heavy vertical
@@ -330,11 +356,11 @@ public class TerminalImageViewer {
         }
       }
       // We just slice at the middle of the interval instead of computing the
-      //median.
+      // median.
       int splitValue = min[splitIndex] + bestSplit / 2;
 
       // Compute a bitmap using the given slice and sum the color values for
-      //both buckets.
+      // both buckets.
       int bits = 0;
       int fgCount = 0;
       int bgCount = 0;
@@ -371,7 +397,7 @@ public class TerminalImageViewer {
       }
 
       // Find the best bitmap match by counting the bits that don't match,
-      //including
+      // including
       // the inverted bitmaps.
       int bestDiff = Integer.MAX_VALUE;
       boolean invert = false;
@@ -421,7 +447,8 @@ public class TerminalImageViewer {
     }
 
     /**
-     * Convert the image to an Ansi control character string setting the colors.
+     * Convert the image to an Ansi control character string setting the
+     * colors.
      */
     public String dump() {
       StringBuilder sb = new StringBuilder();

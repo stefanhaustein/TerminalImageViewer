@@ -30,6 +30,6 @@ sleep 2
 while true
 do
   clear
-  ./tiv.sh -w "$cols" -h "$rows" http://thecatapi.com/api/images/get
+  ./tiv.sh -width "$cols" -height "$rows" http://thecatapi.com/api/images/get
   sleep "$interval_seconds"
 done
