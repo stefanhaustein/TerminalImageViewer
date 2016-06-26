@@ -16,14 +16,14 @@ For each 4x8 pixel cell mapped to a unicode block graphics character:
 
 ```
 javac TerminalImageViewer.java
-java TerminalImageViewer [-w <width-in-characters>] <image-filename-or-url>
+java TerminalImageViewer [-weight <width-in-characters>] [-height <max-height-in-characters>] <image-filename-or-url>
 ```
 
 ### gradle & bash
 
 ```
 ./gradlew build
-./tiv.sh [-w <width-in-characters>] [-h <max-height-in-characters>] <image-filename-or-url>
+./tiv.sh [-width <width-in-characters>] [-height <max-height-in-characters>] <image-filename-or-url>
 ```
 
 ## Examples
