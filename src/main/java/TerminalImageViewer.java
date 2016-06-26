@@ -26,27 +26,33 @@ public class TerminalImageViewer {
 
     int start = 0;
     int w = 80 * 4;
-    if (args[0].equals("-w") && args.length > 2) {
-      w = 4 * Integer.parseInt(args[1]);
-      start = 2;
+    int mode = Ansi.MODE_24BIT;
+    while (start < args.length && args[start].startsWith("-")) {
+      String option = args[start];
+      if (option.equals("-w") && args.length > start + 1) {
+        w = 4 * Integer.parseInt(args[++start]);
+      } else if (option.equals("-256")) {
+        mode = Ansi.MODE_256;
+      }
+      start++;
     }
 
     if (start == args.length - 1) {
       String name = args[start];
 
-      BufferedImage original = loadImage(args[start]);
+      BufferedImage original = loadImage(name);
 
       int ow = original.getWidth();
       int oh = original.getHeight();
       int h = oh * w / ow;
 
       if (w == ow) {
-        dump(original);
+        dump(original, mode);
       } else {
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         graphics.drawImage(original, 0, 0, w, h, null);
-        dump(image);
+        dump(image, mode);
       }
     } else {
       // Directory-style rendering.
@@ -77,7 +83,7 @@ public class TerminalImageViewer {
             // Probably no image; ignore.
           }
         }
-        dump(image);
+        dump(image, mode);
         System.out.println(sb.toString());
         System.out.println();
       }
@@ -92,7 +98,7 @@ public class TerminalImageViewer {
     return ImageIO.read(new File(name));
   }
 
-  static void dump(BufferedImage image) {
+  static void dump(BufferedImage image, int mode) {
     int w = image.getWidth();
     ImageData imageData = new ImageData(w, image.getHeight());
     byte[] data = imageData.data;
@@ -108,7 +114,7 @@ public class TerminalImageViewer {
         pos++;
       }
     }
-    System.out.print(imageData.dump());
+    System.out.print(imageData.dump(mode));
   }
 
   /**
@@ -116,13 +122,30 @@ public class TerminalImageViewer {
    */
   static class Ansi {
     public static final String RESET = "\u001b[0m";
+    public static int FG = 0;
+    public static int BG = 1;
+    public static int MODE_256 = 2;
+    public static int MODE_24BIT = 0;
 
-    public static String fgColor(int r, int g, int b) {
-      return "\u001b[38;2;" + (r & 255) + ";" + (g & 255) + ";" + (b & 255) + "m";
+    public static int clamp(int value, int min, int max) {
+      return Math.min(Math.max(value, min), max);
     }
 
-    public static String bgColor(int r, int g, int b) {
-      return "\u001b[48;2;" + (r & 255) + ";" + (g & 255) + ";" + (b & 255) + "m";
+    public static String color(int flags, int r, int g, int b) {
+      r = clamp(r, 0, 255);
+      g = clamp(g, 0, 255);
+      b = clamp(b, 0, 255);
+
+      boolean bg = (flags & BG) != 0;
+
+      if ((flags & MODE_256) != 0) {
+        r = Math.round(r / 51f);
+        g = Math.round(g / 51f);
+        b = Math.round(b / 51f);
+        return (bg ? "\u001B[48;5;" : "\u001B[38;5;") + (16 + 36 * r + 6 * g + b) + "m";
+      } else {
+        return (bg ? "\u001b[48;2;" : "\u001b[38;2;") + r + ";" + g + ";" + b + "m";
+      }
     }
   }
 
@@ -373,7 +396,7 @@ public class TerminalImageViewer {
     /**
      * Convert the image to an Ansi control character string setting the colors
      */
-    public String dump() {
+    public String dump(int mode) {
       StringBuilder sb = new StringBuilder();
       BlockChar blockChar = new BlockChar();
 
@@ -383,8 +406,8 @@ public class TerminalImageViewer {
         String lastBg = "";
         for (int x = 0; x < width - 3; x += 4) {
           blockChar.load(data, pos, width * 4);
-          String fg = Ansi.fgColor(blockChar.fgColor[0], blockChar.fgColor[1], blockChar.fgColor[2]);
-          String bg = Ansi.bgColor(blockChar.bgColor[0], blockChar.bgColor[1], blockChar.bgColor[2]);
+          String fg = Ansi.color(Ansi.FG|mode, blockChar.fgColor[0], blockChar.fgColor[1], blockChar.fgColor[2]);
+          String bg = Ansi.color(Ansi.BG|mode, blockChar.bgColor[0], blockChar.bgColor[1], blockChar.bgColor[2]);
           if (!fg.equals(lastFg)) {
             sb.append(fg);
             lastFg = fg;
