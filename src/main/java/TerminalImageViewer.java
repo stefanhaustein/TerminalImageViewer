@@ -199,9 +199,6 @@ public class TerminalImageViewer {
       int grayIdx = bestIndex(gray, GRAYSCALE);
       int grayQ = GRAYSCALE[grayIdx];
 
-      System.out.println("Reconstructed RGB: " + Integer.toHexString((rQ << 16) | (gQ << 8) | bQ) + " gray:" +
-              Integer.toHexString(grayQ));
-
       int colorIndex;
       if (0.3 * sqr(rQ-r) + 0.59 * sqr(gQ-g) + 0.11 *sqr(bQ-b) <
           0.3 * sqr(grayQ-r) + 0.59 * sqr(grayQ-g) + 0.11 * sqr(grayQ-b)) {
