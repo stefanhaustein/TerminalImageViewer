@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.regex.Matcher;
 
 import javax.imageio.ImageIO;
 
@@ -20,47 +21,61 @@ public class TerminalImageViewer {
    */
   public static void main(String[] args) throws IOException {
     if (args.length == 0) {
-      System.out.println("Image file name required. Use -w to set the width in characters (default: 80).");
+      System.out.println(
+              "Image file name required.\n\n - Use -w and -h to set the maximum width and height in characters" +
+              " (defaults: 80, 24).\n - Use -256 for 256 color mode and -grayscale for grayscale.\n");
       return;
     }
 
     int start = 0;
-    int w = 80 * 4;
+    int maxWidth = 80;
+    int maxHeight = 24;
     int mode = Ansi.MODE_24BIT;
+    boolean grayscale = false;
     while (start < args.length && args[start].startsWith("-")) {
       String option = args[start];
       if (option.equals("-w") && args.length > start + 1) {
-        w = 4 * Integer.parseInt(args[++start]);
+        maxWidth = Integer.parseInt(args[++start]);
+      } else if (option.equals("-h") && args.length > start + 1) {
+          maxHeight = Integer.parseInt(args[++start]);
       } else if (option.equals("-256")) {
-        mode = Ansi.MODE_256;
+        mode = (mode & ~Ansi.MODE_24BIT) | Ansi.MODE_256;
+      } else if (option.equals("-grayscale")) {
+        grayscale = true;
       }
       start++;
     }
 
-    if (start == args.length - 1) {
+    maxWidth *= 4;
+    maxHeight *= 8;
+
+    if (start == args.length - 1 && (isUrl(args[start]) || !new File(args[start]).isDirectory())) {
       String name = args[start];
 
       BufferedImage original = loadImage(name);
 
-      int ow = original.getWidth();
-      int oh = original.getHeight();
-      int h = oh * w / ow;
+      float originalWidth = original.getWidth();
+      float originalHeight = original.getHeight();
+      float scale = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+      int height = (int) (originalHeight * scale);
+      int width = (int) (originalWidth * scale);
 
-      if (w == ow) {
+      if (originalWidth == width && !grayscale) {
         dump(original, mode);
       } else {
-        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(width, height, grayscale ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
-        graphics.drawImage(original, 0, 0, w, h, null);
+        graphics.drawImage(original, 0, 0, width, height, null);
         dump(image, mode);
       }
     } else {
       // Directory-style rendering.
       int index = 0;
-      int cw = (w - 2 * 3 * 4) / 16;
+      int cw = (maxWidth - 2 * 3 * 4) / 16;
       int tw = cw * 4;
+
       while (index < args.length) {
-        BufferedImage image = new BufferedImage(tw * 4 + 24, tw, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(tw * 4 + 24, tw, grayscale ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         int count = 0;
         StringBuilder sb = new StringBuilder();
@@ -90,8 +105,12 @@ public class TerminalImageViewer {
     }
   }
 
+  static boolean isUrl(String name) {
+    return name.startsWith("http://") || name.startsWith("https://");
+  }
+
   static BufferedImage loadImage(String name) throws IOException {
-    if (name.startsWith("http://") || name.startsWith("https://")) {
+    if (isUrl(name)) {
       URL url = new URL(name);
       return ImageIO.read(url);
     }
@@ -122,10 +141,36 @@ public class TerminalImageViewer {
    */
   static class Ansi {
     public static final String RESET = "\u001b[0m";
-    public static int FG = 0;
-    public static int BG = 1;
-    public static int MODE_256 = 2;
-    public static int MODE_24BIT = 0;
+    public static int FG = 1;
+    public static int BG = 2;
+    public static int MODE_256 = 4;
+    public static int MODE_24BIT = 8;
+
+    public static final int[] COLOR_STEPS = {0, 0x5f, 0x87, 0xaf, 0xd7, 0xff};
+    public static final int[] GRAYSCALE = {0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x62, 0x6c, 0x76,
+                                           0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0, 0xda, 0xe4, 0xee};
+
+    static int bestIndex(int v, int[] options) {
+      int index = Arrays.binarySearch(options, v);
+      if (index < 0) {
+        index = -index - 1;
+        // need to check [index] and [index - 1]
+        if (index == options.length) {
+          index = options.length - 1;
+        } else if (index > 0) {
+          int val0 = options[index - 1];
+          int val1 = options[index];
+          if (v - val0 < val1 - v) {
+            index = index - 1;
+          }
+        }
+      }
+      return index;
+    }
+
+    static int sqr(int i) {
+      return i * i;
+    }
 
     public static int clamp(int value, int min, int max) {
       return Math.min(Math.max(value, min), max);
@@ -138,14 +183,33 @@ public class TerminalImageViewer {
 
       boolean bg = (flags & BG) != 0;
 
-      if ((flags & MODE_256) != 0) {
-        r = Math.round(r / 51f);
-        g = Math.round(g / 51f);
-        b = Math.round(b / 51f);
-        return (bg ? "\u001B[48;5;" : "\u001B[38;5;") + (16 + 36 * r + 6 * g + b) + "m";
-      } else {
+      if ((flags & MODE_256) == 0) {
         return (bg ? "\u001b[48;2;" : "\u001b[38;2;") + r + ";" + g + ";" + b + "m";
       }
+      int rIdx = bestIndex(r, COLOR_STEPS);
+      int gIdx = bestIndex(g, COLOR_STEPS);
+      int bIdx = bestIndex(b, COLOR_STEPS);
+
+      int rQ = COLOR_STEPS[rIdx];
+      int gQ = COLOR_STEPS[gIdx];
+      int bQ = COLOR_STEPS[bIdx];
+
+      int gray = Math.round(r * 0.2989f + g * 0.5870f + b * 0.1140f);
+
+      int grayIdx = bestIndex(gray, GRAYSCALE);
+      int grayQ = GRAYSCALE[grayIdx];
+
+      System.out.println("Reconstructed RGB: " + Integer.toHexString((rQ << 16) | (gQ << 8) | bQ) + " gray:" +
+              Integer.toHexString(grayQ));
+
+      int colorIndex;
+      if (0.3 * sqr(rQ-r) + 0.59 * sqr(gQ-g) + 0.11 *sqr(bQ-b) <
+          0.3 * sqr(grayQ-r) + 0.59 * sqr(grayQ-g) + 0.11 * sqr(grayQ-b)) {
+        colorIndex = 16 + 36 * rIdx + 6 * gIdx + bIdx;
+      } else {
+        colorIndex = 232 + grayIdx;  // 1..24 -> 232..255
+      }
+      return (bg ? "\u001B[48;5;" : "\u001B[38;5;") + colorIndex + "m";
     }
   }
 
