@@ -1,7 +1,9 @@
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -16,6 +18,11 @@ import javax.imageio.ImageIO;
  */
 public class TerminalImageViewer {
 
+  static boolean grayscale = false;
+  static int mode = Ansi.MODE_24BIT;
+  static boolean html = false;
+
+
   /**
    * Main method, handles command line arguments and loads and scales images.
    */
@@ -23,15 +30,15 @@ public class TerminalImageViewer {
     if (args.length == 0) {
       System.out.println(
               "Image file name required.\n\n - Use -w and -h to set the maximum width and height in characters" +
-              " (defaults: 80, 24).\n - Use -256 for 256 color mode and -grayscale for grayscale.\n");
+              " (defaults: 80, 24).\n - Use -256 for 256 color mode, -grayscale for grayscale and -stdin to" +
+              " obtain file names from stdin.\n");
       return;
     }
 
     int start = 0;
     int maxWidth = 80;
     int maxHeight = 24;
-    int mode = Ansi.MODE_24BIT;
-    boolean grayscale = false;
+    boolean stdin = false;
     while (start < args.length && args[start].startsWith("-")) {
       String option = args[start];
       if (option.equals("-w") && args.length > start + 1) {
@@ -42,6 +49,10 @@ public class TerminalImageViewer {
         mode = (mode & ~Ansi.MODE_24BIT) | Ansi.MODE_256;
       } else if (option.equals("-grayscale")) {
         grayscale = true;
+      } else if (option.equals("-html")) {
+        html = true;
+      } else if (option.equals("-stdin")) {
+        stdin = true;
       }
       start++;
     }
@@ -49,25 +60,17 @@ public class TerminalImageViewer {
     maxWidth *= 4;
     maxHeight *= 8;
 
-    if (start == args.length - 1 && (isUrl(args[start]) || !new File(args[start]).isDirectory())) {
-      String name = args[start];
-
-      BufferedImage original = loadImage(name);
-
-      float originalWidth = original.getWidth();
-      float originalHeight = original.getHeight();
-      float scale = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
-      int height = (int) (originalHeight * scale);
-      int width = (int) (originalWidth * scale);
-
-      if (originalWidth == width && !grayscale) {
-        dump(original, mode);
-      } else {
-        BufferedImage image = new BufferedImage(width, height, grayscale ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = image.createGraphics();
-        graphics.drawImage(original, 0, 0, width, height, null);
-        dump(image, mode);
+    if (stdin) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+      while (true) {
+        String name = reader.readLine();
+        if (name == null || name.isEmpty()) {
+          break;
+        }
+        convert(name, maxWidth, maxHeight);
       }
+    } else if (start == args.length - 1 && (isUrl(args[start]) || !new File(args[start]).isDirectory())) {
+      convert(args[start], maxWidth, maxHeight);
     } else {
       // Directory-style rendering.
       int index = 0;
@@ -107,6 +110,25 @@ public class TerminalImageViewer {
 
   static boolean isUrl(String name) {
     return name.startsWith("http://") || name.startsWith("https://");
+  }
+
+  static void convert(String name, int maxWidth, int maxHeight) throws IOException {
+    BufferedImage original = loadImage(name);
+
+    float originalWidth = original.getWidth();
+    float originalHeight = original.getHeight();
+    float scale = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+    int height = (int) (originalHeight * scale);
+    int width = (int) (originalWidth * scale);
+
+    if (originalWidth == width && !grayscale) {
+      dump(original, mode);
+    } else {
+      BufferedImage image = new BufferedImage(width, height, grayscale ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_INT_RGB);
+      Graphics2D graphics = image.createGraphics();
+      graphics.drawImage(original, 0, 0, width, height, null);
+      dump(image, mode);
+    }
   }
 
   static BufferedImage loadImage(String name) throws IOException {
@@ -224,7 +246,7 @@ public class TerminalImageViewer {
      * Assumed bitmaps of the supported characters
      */
     static int[] BITMAPS = new int[] {
-        0x00000000, ' ',
+        0x00000000, '\u00a0',
 
         // Block graphics
 
@@ -480,10 +502,12 @@ public class TerminalImageViewer {
                 sb.append("</tt>");
               }
               sb.append("<tt style='").append(style).append("'>");
-
-              sb.append(blockChar.character);
+              last = style;
+            }
+            sb.append("&#" + ((int) blockChar.character) + ";");
             pos += 16;
           }
+          sb.append("</tt><br />\n");
         } else {
           String lastFg = "";
           String lastBg = "";
@@ -502,8 +526,7 @@ public class TerminalImageViewer {
             sb.append(blockChar.character);
             pos += 16;
           }
-        }
-        sb.append(Ansi.RESET).append("\n");
+          sb.append(Ansi.RESET).append("\n");
         }
       }
       return sb.toString();
