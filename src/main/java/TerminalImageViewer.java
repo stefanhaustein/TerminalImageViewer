@@ -28,22 +28,26 @@ public class TerminalImageViewer {
   public static void main(String[] args) throws IOException {
     if (args.length == 0) {
       System.out.println(
-              "Image file name required.\n\n - Use -w and -h to set the maximum width and height in characters" +
-              " (defaults: 80, 24).\n - Use -256 for 256 color mode, -grayscale for grayscale and -stdin to" +
-              " obtain file names from stdin.\n");
+          "Image file name required.\n\n" +
+          " - Use -w and -h to set the maximum width and height in characters (defaults: 80, 24).\n" +
+          " - Use -256 for 256 color mode, -grayscale for grayscale and -stdin to obtain file names from stdin.\n" +
+          " - When multiple files are supplied, -c sets the number of images per row (default: 4).");
       return;
     }
 
     int start = 0;
     int maxWidth = 80;
     int maxHeight = 24;
+    int columns = 4;
     boolean stdin = false;
     while (start < args.length && args[start].startsWith("-")) {
       String option = args[start];
       if (option.equals("-w") && args.length > start + 1) {
         maxWidth = Integer.parseInt(args[++start]);
       } else if (option.equals("-h") && args.length > start + 1) {
-          maxHeight = Integer.parseInt(args[++start]);
+        maxHeight = Integer.parseInt(args[++start]);
+      } else if (option.equals("-c") && args.length > start + 1) {
+        columns = Integer.parseInt(args[++start]);
       } else if (option.equals("-256")) {
         mode = (mode & ~Ansi.MODE_24BIT) | Ansi.MODE_256;
       } else if (option.equals("-grayscale")) {
@@ -71,15 +75,15 @@ public class TerminalImageViewer {
     } else {
       // Directory-style rendering.
       int index = 0;
-      int cw = (maxWidth - 2 * 3 * 4) / 16;
+      int cw = (maxWidth - 2 * (columns - 1) * 4) / (4 * columns);
       int tw = cw * 4;
 
       while (index < args.length) {
-        BufferedImage image = new BufferedImage(tw * 4 + 24, tw, grayscale ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(tw * columns + 24, tw, grayscale ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         int count = 0;
         StringBuilder sb = new StringBuilder();
-        while (index < args.length && count < 4) {
+        while (index < args.length && count < columns) {
           String name = args[index++];
           try {
             BufferedImage original = loadImage(name);
