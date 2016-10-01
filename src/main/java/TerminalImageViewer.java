@@ -20,6 +20,7 @@ public class TerminalImageViewer {
 
   static boolean grayscale = false;
   static int mode = Ansi.MODE_24BIT;
+  static boolean html = false;
 
 
   /**
@@ -52,6 +53,8 @@ public class TerminalImageViewer {
         mode = (mode & ~Ansi.MODE_24BIT) | Ansi.MODE_256;
       } else if (option.equals("-grayscale")) {
         grayscale = true;
+      } else if (option.equals("-html")) {
+        html = true;
       } else if (option.equals("-stdin")) {
         stdin = true;
       }
@@ -159,6 +162,8 @@ public class TerminalImageViewer {
     System.out.print(imageData.dump(mode));
   }
 
+
+
   /**
    * ANSI control code helpers
    */
@@ -245,7 +250,7 @@ public class TerminalImageViewer {
      * Assumed bitmaps of the supported characters
      */
     static int[] BITMAPS = new int[] {
-        0x00000000, ' ',
+        0x00000000, '\u00a0',
 
         // Block graphics
 
@@ -477,6 +482,9 @@ public class TerminalImageViewer {
       this.data = new byte[width * height * 4];
     }
 
+    public String hex6(int r, int g, int b) {
+      return Integer.toHexString((1 << 24) | ((r & 255) << 16) | ((g & 255) << 8) | (b & 255)).substring(1);
+    }
     /**
      * Convert the image to an Ansi control character string setting the colors
      */
@@ -486,24 +494,44 @@ public class TerminalImageViewer {
 
       for (int y = 0; y < height - 7; y += 8) {
         int pos = y * width * 4;
-        String lastFg = "";
-        String lastBg = "";
-        for (int x = 0; x < width - 3; x += 4) {
-          blockChar.load(data, pos, width * 4);
-          String fg = Ansi.color(Ansi.FG|mode, blockChar.fgColor[0], blockChar.fgColor[1], blockChar.fgColor[2]);
-          String bg = Ansi.color(Ansi.BG|mode, blockChar.bgColor[0], blockChar.bgColor[1], blockChar.bgColor[2]);
-          if (!fg.equals(lastFg)) {
-            sb.append(fg);
-            lastFg = fg;
+        if (html) {
+          String last = "";
+          for (int x = 0; x < width - 3; x += 4) {
+            blockChar.load(data, pos, width * 4);
+            String fg = hex6(blockChar.fgColor[0], blockChar.fgColor[1], blockChar.fgColor[2]);
+            String bg = hex6(blockChar.bgColor[0], blockChar.bgColor[1], blockChar.bgColor[2]);
+            String style = "background-color:#" + bg + ";color:#" + fg;
+            if (!style.equals(last)) {
+              if (!last.isEmpty()) {
+                sb.append("</tt>");
+              }
+              sb.append("<tt style='").append(style).append("'>");
+              last = style;
+            }
+            sb.append("&#" + ((int) blockChar.character) + ";");
+            pos += 16;
           }
-          if (!bg.equals(lastBg)) {
-            sb.append(bg);
-            lastBg = bg;
+          sb.append("</tt><br />\n");
+        } else {
+          String lastFg = "";
+          String lastBg = "";
+          for (int x = 0; x < width - 3; x += 4) {
+            blockChar.load(data, pos, width * 4);
+            String fg = Ansi.color(Ansi.FG | mode, blockChar.fgColor[0], blockChar.fgColor[1], blockChar.fgColor[2]);
+            String bg = Ansi.color(Ansi.BG | mode, blockChar.bgColor[0], blockChar.bgColor[1], blockChar.bgColor[2]);
+            if (!fg.equals(lastFg)) {
+              sb.append(fg);
+              lastFg = fg;
+            }
+            if (!bg.equals(lastBg)) {
+              sb.append(bg);
+              lastBg = bg;
+            }
+            sb.append(blockChar.character);
+            pos += 16;
           }
-          sb.append(blockChar.character);
-          pos += 16;
+          sb.append(Ansi.RESET).append("\n");
         }
-        sb.append(Ansi.RESET).append("\n");
       }
       return sb.toString();
     }
