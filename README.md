@@ -19,6 +19,13 @@ java TerminalImageViewer [-w <width-in-characters>] <image-filename-or-url>
 
 ```
 
+Common problems:
+
+ - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
+ - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
+
+Examples:
+
 ![Examples](http://i.imgur.com/8UyGjg8.png)
 
 If multiple images match the filename spec, thumbnails are shown.
