@@ -10,7 +10,7 @@ Algorithm (for each 4x8 pixel cell mapped to a unicode block graphics character)
 3. Compare the bitmap to the assumed bitmaps for various unicode block graphics characters
 
 
-Usage:
+## Usage
 
 ```
 javac TerminalImageViewer.java
@@ -19,12 +19,12 @@ java TerminalImageViewer [-w <width-in-characters>] <image-filename-or-url>
 
 ```
 
-Common problems:
+## Common problems
 
  - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
- - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
+ - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors or -grayscale for grayscale.
 
-Examples:
+## Examples
 
 ![Examples](http://i.imgur.com/8UyGjg8.png)
 
