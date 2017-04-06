@@ -302,7 +302,7 @@ public class TerminalImageViewer {
         0x00033000, '\u257a',  // Bold horizontal right
         0x00066000, '\u257b',  // Bold horizontal down
 
-        0x06600660, '\u254f',  // Heavy double dash vertical
+        0x06600660, '\u254f',  // Heavy double dash vertical
 
         0x000f0000, '\u2500',  // Light horizontal
         0x0000f000, '\u2500',  //
