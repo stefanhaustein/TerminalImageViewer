@@ -1,3 +1,5 @@
+New: Have started a C++ port here: https://github.com/stefanhaustein/tiv
+
 # TerminalImageViewer
 
 Small Java program to display images in a (modern) terminal using RGB ANSI codes and unicode block graphic characters
