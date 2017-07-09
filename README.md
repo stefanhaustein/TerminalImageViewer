@@ -9,7 +9,7 @@ Algorithm (for each 4x8 pixel cell mapped to a unicode block graphics character)
 3. Average the colors above and below and create a corresponding bitmap for the cell
 3. Compare the bitmap to the assumed bitmaps for various unicode block graphics characters
 
-\*) C++ port available at at https://github.com/stefanhaustein/tiv
+\*) **C++ port** available at at https://github.com/stefanhaustein/tiv
 
 ## Usage
 
