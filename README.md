@@ -1,6 +1,6 @@
 # TerminalImageViewer
 
-Small Java program to display images in a (modern) terminal using RGB ANSI codes and unicode block graphic characters
+Small Java\* program to display images in a (modern) terminal using RGB ANSI codes and unicode block graphic characters.
 
 Algorithm (for each 4x8 pixel cell mapped to a unicode block graphics character):
 
@@ -9,8 +9,9 @@ Algorithm (for each 4x8 pixel cell mapped to a unicode block graphics character)
 3. Average the colors above and below and create a corresponding bitmap for the cell
 3. Compare the bitmap to the assumed bitmaps for various unicode block graphics characters
 
+\*) **C++ port** available at at https://github.com/stefanhaustein/tiv
 
-Usage:
+## Usage
 
 ```
 javac TerminalImageViewer.java
@@ -18,6 +19,13 @@ javac TerminalImageViewer.java
 java TerminalImageViewer [-w <width-in-characters>] <image-filename-or-url>
 
 ```
+
+## Common problems
+
+ - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
+ - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors or -grayscale for grayscale.
+
+## Examples
 
 ![Examples](http://i.imgur.com/8UyGjg8.png)
 
