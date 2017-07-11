@@ -12,6 +12,8 @@ For each 4x8 pixel cell mapped to a unicode block graphics character:
 4. Compare the bitmap to the assumed bitmaps for various unicode block graphics characters
 5. Re-calculate the foregound and background colors for the chosen character.
 
+Please find a comparsion image at the end of this file.
+
 ## Installation
 
     git clone https://github.com/stefanhaustein/TerminalImageViewer.git
@@ -35,3 +37,8 @@ For each 4x8 pixel cell mapped to a unicode block graphics character:
 If multiple images match the filename spec, thumbnails are shown.
 
 ![Thumbnails](http://i.imgur.com/PTYgSqz.png)
+
+## Comparison to Using Half-Block Characters Only
+
+![Comparison](http://i.imgur.com/OzdCeh6.png)
+
