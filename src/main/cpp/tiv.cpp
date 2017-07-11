@@ -14,6 +14,7 @@ const int FLAG_FG = 1;
 const int FLAG_BG = 2;
 const int FLAG_MODE_256 = 4;
 const int FLAG_24BIT = 8;
+const int FLAG_NOOPT = 16;
 
 const int COLOR_STEP_COUNT = 6;
 const int COLOR_STEPS[COLOR_STEP_COUNT] = {0, 0x5f, 0x87, 0xaf, 0xd7, 0xff};
@@ -125,11 +126,48 @@ struct CharData {
 };
 
 
+// Return a CharData struct with the given code point and corresponding averag fg and bg colors.
+CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0, int codepoint, int pattern) {
+  CharData result;
+  result.codePoint = codepoint;
+  int fg_count = 0;
+  int bg_count = 0;
+  unsigned int mask = 0x80000000;
+  
+  for (int y = 0; y < 8; y++) {
+    for (int x = 0; x < 4; x++) {
+      int* avg;
+      if (pattern & mask) {
+	avg = result.fgColor;
+	fg_count++;
+      } else {
+	avg = result.bgColor;
+	bg_count++;
+      }
+      for (int i = 0; i < 3; i++) {
+	avg[i] += image(x0 + x, y0 + y, 0, i);
+      }
+      mask = mask >> 1;
+    }
+  }
+
+  // Calculate the average color value for each bucket
+  for (int i = 0; i < 3; i++) {
+    if (bg_count != 0) {
+      result.bgColor[i] /= bg_count;
+    }
+    if (fg_count != 0) {
+      result.fgColor[i] /= fg_count;
+    }
+  }
+  return result;
+}
+
+
+// Find the best character and colors for a 4x8 part of the image at the given position
 CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0) {
   int min[3] = {255, 255, 255};
   int max[3] = {0};
-
-  CharData result;
 
   // Determine the minimum and maximum value for each color channel
   for (int y = 0; y < 8; y++) {
@@ -170,51 +208,21 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
   // including the inverted bitmaps.
   int best_diff = 8;
   unsigned int best_pattern = 0x0000ffff;
-  result.codePoint = 0x2584;
+  int codepoint = 0x2584;
   for (int i = 0; BITMAPS[i + 1] != 0; i += 2) {
     unsigned int pattern = BITMAPS[i];
     for (int j = 0; j < 2; j++) {
       int diff = (std::bitset<32>(pattern ^ bits)).count();
       if (diff < best_diff) {
 	best_pattern = BITMAPS[i];  // pattern might be inverted.
-	result.codePoint = BITMAPS[i + 1];
+	codepoint = BITMAPS[i + 1];
 	best_diff = diff;
       }
       pattern = ~pattern;
     }
   }
 
-  int fg_count = 0;
-  int bg_count = 0;
-  unsigned int mask = 0x80000000;
-  
-  for (int y = 0; y < 8; y++) {
-    for (int x = 0; x < 4; x++) {
-      int* avg;
-      if (best_pattern & mask) {
-	avg = result.fgColor;
-	fg_count++;
-      } else {
-	avg = result.bgColor;
-	bg_count++;
-      }
-      for (int i = 0; i < 3; i++) {
-	avg[i] += image(x0 + x, y0 + y, 0, i);
-      }
-      mask = mask >> 1;
-    }
-  }
-
-  // Calculate the average color value for each bucket
-  for (int i = 0; i < 3; i++) {
-    if (bg_count != 0) {
-      result.bgColor[i] /= bg_count;
-    }
-    if (fg_count != 0) {
-      result.fgColor[i] /= fg_count;
-    }
-  }
-  return result;
+  return getCharData(image, x0, y0, codepoint, best_pattern);
 }
 
 
@@ -295,10 +303,13 @@ void emitCodepoint(int codepoint) {
   }
 }
 
+
 void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
     for (int y = 0; y < image.height() - 8; y += 8) {
       for (int x = 0; x < image.width() - 4; x += 4) {
-        CharData charData = getCharData(image, x, y);
+        CharData charData = flags & FLAG_NOOPT
+	  ? getCharData(image, x, y, 0x2584, 0x0000ffff)
+	  : getCharData(image, x, y);
         emit_color(flags | FLAG_BG, charData.bgColor[0], charData.bgColor[1], charData.bgColor[2]);
         emit_color(flags | FLAG_FG, charData.fgColor[0], charData.fgColor[1], charData.fgColor[2]);
         emitCodepoint(charData.codePoint);
@@ -310,6 +321,7 @@ void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
 void emit_usage() {
   std::cerr << "Terminal Image Viewer" << std::endl << std::endl;
   std::cerr << "usage: tiv [options] <image> [<image>...]" << std::endl << std::endl;
+  std::cerr << "  -0        : No block character adjustment, always use top half block char." << std::endl;
   std::cerr << "  -256      : Use 256 color mode." << std::endl;
   std::cerr << "  -c <num>  : Number of thumbnail columns in 'dir' mode (3)." << std::endl; 
   std::cerr << "  -d        : Force 'dir' mode. Automatially selected for more than one input." << std::endl;
@@ -341,7 +353,9 @@ int main(int argc, char* argv[]) {
 
   for (int i = 1; i < argc; i++) {
     std::string arg(argv[i]);
-    if (arg == "-c") {
+    if (arg == "-0") {
+      flags |= FLAG_NOOPT;
+    } else if (arg == "-c") {
       columns = std::stoi(argv[++i]);
     } else if (arg == "-d") {
       mode = THUMBNAILS;
