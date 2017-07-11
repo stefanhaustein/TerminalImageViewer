@@ -2,7 +2,7 @@
 
 Small C++ program to display images in a (modern) terminal using RGB ANSI codes and unicode block graphic characters.
 
-There are various similar (pre)existing tools such as timg using the unicode half block character to display two 24bit pixels per character cell. This program enhances the resolution by mapping 4x8 pixel cells to different unicode characters, using the following algorithm:
+There are various similar tools (such as `timg`) using the unicode half block character to display two 24bit pixels per character cell. This program enhances the resolution by mapping 4x8 pixel cells to different unicode characters, using the following algorithm:
 
 For each 4x8 pixel cell of the (potentially downscaled) image:
 
