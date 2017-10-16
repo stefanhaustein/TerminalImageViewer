@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <cmath>
+#include <map>
 #include <string>
 #include <vector>
 #include <sys/ioctl.h>
@@ -168,47 +169,91 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
 CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0) {
   int min[3] = {255, 255, 255};
   int max[3] = {0};
-
+  std::map<long,int> count_per_color;
+  
   // Determine the minimum and maximum value for each color channel
   for (int y = 0; y < 8; y++) {
     for (int x = 0; x < 4; x++) {
+      long color = 0;
       for (int i = 0; i < 3; i++) {
 	int d = image(x0 + x, y0 + y, 0, i);
 	min[i] = std::min(min[i], d);
 	max[i] = std::max(max[i], d);
+	color = (color << 8) | d;
       }
-    }
-  }
-  
-  // Determine the color channel with the greatest range.
-  int splitIndex = 0;
-  int bestSplit = 0;
-  for (int i = 0; i < 3; i++) {
-    if (max[i] - min[i] > bestSplit) {
-      bestSplit = max[i] - min[i];
-      splitIndex = i;
+      count_per_color[color]++;
     }
   }
 
-  // We just split at the middle of the interval instead of computing the median.
-  int splitValue = min[splitIndex] + bestSplit / 2;
-  
-  // Compute a bitmap using the given split and sum the color values for both buckets.
+  std::multimap<int,long> color_per_count;
+  for (auto i = count_per_color.begin(); i != count_per_color.end(); ++i) {
+    color_per_count.insert(std::pair<int,long>(i->second, i->first));
+  }
+
+  auto iter = color_per_count.rbegin();
+  int count2 = iter->first;
+  long max_count_color_1 = iter->second;
+  long max_count_color_2 = max_count_color_1;
+  if (iter != color_per_count.rend()) {
+    ++iter;
+    count2 += iter->first;
+    max_count_color_2 = iter->second;
+  }
+
   unsigned int bits = 0;
-  for (int y = 0; y < 8; y++) {
-    for (int x = 0; x < 4; x++) {
-      bits = bits << 1;
-      if (image(x0 + x, y0 + y, 0, splitIndex) > splitValue) {
-	bits |= 1;
+  bool direct = count2 > (8*4) / 2;
+  
+  if (direct) {
+    for (int y = 0; y < 8; y++) {
+      for (int x = 0; x < 4; x++) {
+        bits = bits << 1;
+	int d1 = 0;
+	int d2 = 0;
+	for (int i = 0; i < 3; i++) {
+	  int shift = 16 - 8 * i;
+	  int c1 = (max_count_color_1 >> shift) & 255;
+	  int c2 = (max_count_color_2 >> shift) & 255;
+	  int c = image(x0 + x, y0 + y, 0, i);
+	  d1 += (c1-c) * (c1-c);
+	  d2 += (c2-c) * (c2-c);
+        }
+	if (d1 > d2) {
+          bits |= 1;
+	}
+      }
+    }
+    
+  } else {  
+    // Determine the color channel with the greatest range.
+    int splitIndex = 0;
+    int bestSplit = 0;
+    for (int i = 0; i < 3; i++) {
+      if (max[i] - min[i] > bestSplit) {
+        bestSplit = max[i] - min[i];
+        splitIndex = i;
+      }
+    }
+
+    // We just split at the middle of the interval instead of computing the median.
+    int splitValue = min[splitIndex] + bestSplit / 2;
+  
+    // Compute a bitmap using the given split and sum the color values for both buckets.
+    for (int y = 0; y < 8; y++) {
+      for (int x = 0; x < 4; x++) {
+        bits = bits << 1;
+        if (image(x0 + x, y0 + y, 0, splitIndex) > splitValue) {
+	  bits |= 1;
+        }
       }
     }
   }
-
+  
   // Find the best bitmap match by counting the bits that don't match,
   // including the inverted bitmaps.
   int best_diff = 8;
   unsigned int best_pattern = 0x0000ffff;
   int codepoint = 0x2584;
+  bool inverted = false;
   for (int i = 0; BITMAPS[i + 1] != 0; i += 2) {
     unsigned int pattern = BITMAPS[i];
     for (int j = 0; j < 2; j++) {
@@ -217,11 +262,27 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
 	best_pattern = BITMAPS[i];  // pattern might be inverted.
 	codepoint = BITMAPS[i + 1];
 	best_diff = diff;
+	inverted = best_pattern != pattern;
       }
       pattern = ~pattern;
     }
   }
 
+  if (direct) {
+    CharData result;
+    if (inverted) {
+      long tmp = max_count_color_1;
+      max_count_color_1 = max_count_color_2;
+      max_count_color_2 = tmp;
+    }
+    for (int i = 0; i < 3; i++) {
+      int shift = 16 - 8 * i;
+      result.fgColor[i] = (max_count_color_2 >> shift) & 255;
+      result.bgColor[i] = (max_count_color_1 >> shift) & 255;
+      result.codePoint = codepoint;
+    }
+    return result;
+  }
   return getCharData(image, x0, y0, codepoint, best_pattern);
 }
 
@@ -230,9 +291,11 @@ int clamp_byte(int value) {
   return value < 0 ? 0 : (value > 255 ? 255 : value);
 }
 
+
 double sqr(double n) {
   return n*n;
 }
+
 
 int best_index(int value, const int data[], int count) {
   int best_diff = std::abs(data[0] - value);
@@ -282,7 +345,6 @@ void emit_color(int flags, int r, int g, int b) {
 }
 
 
-
 void emitCodepoint(int codepoint) {
   if (codepoint < 128) {
     std::cout << (char) codepoint;
@@ -317,6 +379,7 @@ void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
       std::cout << "\x1b[0m" << std::endl;
     }
 }
+
 
 void emit_usage() {
   std::cerr << "Terminal Image Viewer" << std::endl << std::endl;
