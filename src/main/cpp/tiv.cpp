@@ -451,7 +451,7 @@ int main(int argc, char* argv[]) {
 	emit_image(image, flags);
       } catch(cimg_library::CImgIOException e) {
 	error = 1;
-	std::cerr << "File format not recogmized for '" << file_names[i] << "'" << std::endl;
+	std::cerr << "File format is not recognized for '" << file_names[i] << "'" << std::endl;
       }
     }
   } else {
