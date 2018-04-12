@@ -15,7 +15,7 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ## Installation
 
-    sudo apt install imagemagick || yum install imagemagick
+    sudo apt install imagemagick || yum install ImageMagick
     git clone https://github.com/stefanhaustein/TerminalImageViewer.git
     cd TerminalImageViewer/src/main/cpp
     make
