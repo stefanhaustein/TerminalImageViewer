@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <sys/ioctl.h>
+#include <experimental/filesystem>
 
 #define cimg_display 0
 #include "CImg.h"
@@ -435,9 +436,18 @@ int main(int argc, char* argv[]) {
     } else if (arg[0] == '-') {
       std::cerr << "Unrecognized argument: " << arg << std::endl;
     } else {
-      file_names.push_back(arg);
+      if (std::experimental::filesystem::is_directory(arg)) {
+         for (auto & p : std::experimental::filesystem::directory_iterator(arg)) {
+           if (std::experimental::filesystem::is_regular_file(p.path())) {
+             file_names.push_back(p.path().string());
+           }
+	 }
+      } else {
+        file_names.push_back(arg);
+      }
     }
   }
+
 
   if (mode == FULL_SIZE || (mode == AUTO && file_names.size() == 1)) {
     for (unsigned int i = 0; i < file_names.size(); i++) {
