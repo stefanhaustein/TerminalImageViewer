@@ -9,9 +9,9 @@ For each 4x8 pixel cell of the (potentially downscaled) image:
 1. Find the color channel (R, G or B) that has the biggest range of values for the current cell
 2. Split this range in the middle and create a corresponding bitmap for the cell
 4. Compare the bitmap to the assumed bitmaps for various unicode block graphics characters
-5. Re-calculate the foregound and background colors for the chosen character.
+5. Re-calculate the foreground and background colors for the chosen character.
 
-See the difference by disabling this optimization using the `-0` option. Or just take a look at the comparsion image at the end of this text.
+See the difference by disabling this optimization using the `-0` option. Or just take a look at the comparison image at the end of this text.
 
 ## Installation
 
@@ -42,7 +42,7 @@ If multiple images match the filename spec, thumbnails are shown.
 
 ## Comparison to Using Half-Block Characters Only
 
-The top image was generated with the character optization diabled via the `-0` option.
+The top image was generated with the character optimization disabled via the `-0` option.
 
 ![Comparison](http://i.imgur.com/OzdCeh6.png)
 
