@@ -1,4 +1,4 @@
-CXX=g++-8
+CXX=g++
 
 default: tiv
 

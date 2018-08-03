@@ -362,7 +362,7 @@ void emitCodepoint(int codepoint) {
     std::cout << (char) (0x80 | ((codepoint >> 6) & 0x3f));
     std::cout << (char) (0x80 | (codepoint & 0x3f));
   } else {
-    std::cout << "ERROR";
+    std::cerr << "ERROR";
   }
 }
 
