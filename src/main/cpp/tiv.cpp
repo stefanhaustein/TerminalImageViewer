@@ -368,8 +368,8 @@ void emitCodepoint(int codepoint) {
 
 
 void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
-    for (int y = 0; y < image.height() - 8; y += 8) {
-      for (int x = 0; x < image.width() - 4; x += 4) {
+    for (int y = 0; y <= image.height() - 8; y += 8) {
+      for (int x = 0; x <= image.width() - 4; x += 4) {
         CharData charData = flags & FLAG_NOOPT
 	  ? getCharData(image, x, y, 0x2584, 0x0000ffff)
 	  : getCharData(image, x, y);
