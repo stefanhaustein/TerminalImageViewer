@@ -34,15 +34,15 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
  
 ## Examples
 
-![Examples](http://i.imgur.com/8UyGjg8.png)
+![Examples](https://i.imgur.com/8UyGjg8.png)
 
 If multiple images match the filename spec, thumbnails are shown.
 
-![Thumbnails](http://i.imgur.com/PTYgSqz.png)
+![Thumbnails](https://i.imgur.com/PTYgSqz.png)
 
 ## Comparison to Using Half-Block Characters Only
 
 The top image was generated with the character optimization disabled via the `-0` option.
 
-![Comparison](http://i.imgur.com/OzdCeh6.png)
+![Comparison](https://i.imgur.com/OzdCeh6.png)
 
