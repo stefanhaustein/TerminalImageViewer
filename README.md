@@ -27,6 +27,11 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 The shell will expand wildcards. By default, thumbnails and file names will be displayed if more than one image is provided. To display a list of options, just run the command without any parameters. 
 
+## Packages / Contributions
+
+ - megamaced has created a RPM for SUSE:
+   https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer
+
 ## Common problems
 
  - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
