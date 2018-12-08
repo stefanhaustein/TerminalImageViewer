@@ -31,6 +31,8 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
 
  - megamaced has created a RPM for SUSE:
    https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer
+ - bperel has created a Docker image:
+   https://hub.docker.com/r/bperel/terminalimageviewer
 
 ## Common problems
 
