@@ -15,9 +15,10 @@ apps:
 
 parts:
   tiv: 
-    plugin: autotools
+    plugin: make
     source-type: tar
     source: https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.0.0.tar.gz
+    source-subdir: src/main/cpp
     build-packages:
       - g++
       - make
