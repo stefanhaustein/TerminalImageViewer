@@ -1,3 +1,7 @@
+## "News"
+
+We need endorsement here: https://github.com/k4m4/terminals-are-sexy/pull/198 O:)
+
 # TerminalImageViewer (tiv)
 
 Small C++ program to display images in a (modern) terminal using RGB ANSI codes and unicode block graphic characters.
