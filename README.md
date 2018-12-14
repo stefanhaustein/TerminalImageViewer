@@ -13,7 +13,7 @@ For each 4x8 pixel cell of the (potentially downscaled) image:
 
 See the difference by disabling this optimization using the `-0` option. Or just take a look at the comparison image at the end of this text.
 
-## News
+## "News"
 
 - We need endorsement here: https://github.com/k4m4/terminals-are-sexy/pull/198 O:)
 - Help wanted: If you are familiar with make and snap, please suggest how to fix our make file for snap O:)
