@@ -15,7 +15,8 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ## News
 
-We need endorsement here: https://github.com/k4m4/terminals-are-sexy/pull/198 O:)
+- We need endorsement here: https://github.com/k4m4/terminals-are-sexy/pull/198 O:)
+- Help wanted: If you are familiar with make and snap, please suggest how to fix our make file for snap O:)
 
 ## Installation
 
