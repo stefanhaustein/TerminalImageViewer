@@ -2,19 +2,16 @@ name: tiv
 version: "v1.0.0"
 summary: Terminal Image Viewer
 description: |
-  NOTE: This snap file doesn't work yet. Checked in for dev purposes.
-  tiv is a small C++ program to display images in a (modern) terminal using RGB ANSI codes
-  and unicode block graphic characters.
-
-confinement: devmode
+  tiv is a small C++ program to display images in a (modern) terminal using
+  RGB ANSI codes and unicode block graphic characters.
 
 apps:
   tiv:
-    command: tiv
-
+    command: usr/bin/tiv
+    plugs: [home]
 
 parts:
-  tiv: 
+  tiv:
     plugin: make
     source-type: tar
     source: https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.0.0.tar.gz
@@ -23,10 +20,54 @@ parts:
       - g++
       - make
       - imagemagick
-
-
-
-    
-    
-
-
+    override-build: |
+      snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin/
+      install $SNAPCRAFT_PART_BUILD/tiv $SNAPCRAFT_PART_INSTALL/usr/bin/
+  imagemagick:
+    plugin: autotools
+    source: https://www.imagemagick.org/download/releases/ImageMagick-7.0.8-19.tar.xz
+    source-type: tar
+    configflags:
+      - --enable-hdri=yes
+      - --enable-shared=yes
+      - --enable-static=yes
+      - --with-autotrace=yes
+      - --with-fpx=no
+      - --with-gnu-ld=yes
+      - --with-gslib=yes
+      - --with-modules=no
+      - --with-quantum-depth=32
+      - --with-rsvg=yes
+    build-packages:
+      - autoconf
+      - build-essential
+      - fftw-dev
+      - libautotrace-dev
+      - libbz2-dev
+      - libdjvulibre-dev
+      - libfftw3-dev
+      - libfontconfig1-dev
+      - libfreetype6-dev
+      - libgs-dev
+      - libgvc6
+      - libjbig-dev
+      - libjpeg-dev
+      - liblcms2-dev
+      - liblqr-1-0-dev
+      - libltdl-dev
+      - libmagick++-dev
+      - libopenexr-dev
+      - libopenjp2-7-dev
+      - libpango1.0-dev
+      - libperl-dev
+      - libpng12-dev
+      - librsvg2-dev
+      - libtiff5-dev
+      - libwebp-dev
+      - libwmf-dev
+      - libx11-dev
+      - lzma-dev
+      - ocl-icd-opencl-dev
+      - perlmagick
+      - zlib1g-dev
