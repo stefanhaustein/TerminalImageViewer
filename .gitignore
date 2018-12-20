@@ -92,3 +92,12 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+###Snap###
+
+parts/
+prime/
+snap/
+stage/
+*.snap
