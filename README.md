@@ -15,8 +15,7 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ## "News"
 
-- We'd appreciate endorsement here if you like the tool: https://github.com/k4m4/terminals-are-sexy/pull/198 
-- Help wanted: If you are familiar with make and snap, please suggest how to fix our make file for snap 
+- We'd appreciate endorsement here if you like the tool: https://github.com/k4m4/terminals-are-sexy/pull/198
 
 ## Installation
 
@@ -38,6 +37,8 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
    https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer
  - bperel has created a Docker image:
    https://hub.docker.com/r/bperel/terminalimageviewer
+ - teresaejunior has created a snapcraft.yaml file, which you can use to build a Snap package.
+   tiv will soon be available in the Snap Store.
 
 ## Common problems
 
