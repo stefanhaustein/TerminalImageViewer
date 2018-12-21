@@ -37,8 +37,7 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
    https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer
  - bperel has created a Docker image:
    https://hub.docker.com/r/bperel/terminalimageviewer
- - teresaejunior has created a snapcraft.yaml file, which you can use to build a Snap package.
-   tiv will soon be available in the Snap Store.
+ - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`, until tiv is available in the Snap Store.
 
 ## Common problems
 
@@ -58,4 +57,3 @@ If multiple images match the filename spec, thumbnails are shown.
 The top image was generated with the character optimization disabled via the `-0` option.
 
 ![Comparison](https://i.imgur.com/OzdCeh6.png)
-
