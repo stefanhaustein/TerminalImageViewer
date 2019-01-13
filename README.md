@@ -19,6 +19,12 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ## Installation
 
+### Snap
+
+    sudo snap install --edge tiv
+
+### Build from source
+
     sudo apt install imagemagick || yum install ImageMagick
     git clone https://github.com/stefanhaustein/TerminalImageViewer.git
     cd TerminalImageViewer/src/main/cpp
@@ -37,7 +43,7 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
    https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer
  - bperel has created a Docker image:
    https://hub.docker.com/r/bperel/terminalimageviewer
- - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`, until tiv is available in the Snap Store.
+ - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`.
 
 ## Common problems
 

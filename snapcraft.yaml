@@ -26,7 +26,7 @@ parts:
       install $SNAPCRAFT_PART_BUILD/tiv $SNAPCRAFT_PART_INSTALL/usr/bin/
   imagemagick:
     plugin: autotools
-    source: https://www.imagemagick.org/download/releases/ImageMagick-7.0.8-19.tar.xz
+    source: https://www.imagemagick.org/download/releases/ImageMagick-7.0.8-23.tar.xz
     source-type: tar
     configflags:
       - --enable-hdri=yes
