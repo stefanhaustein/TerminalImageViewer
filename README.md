@@ -15,6 +15,7 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ## "News"
 
+- Install via snap: `sudo snap install --edge tiv`
 - We'd appreciate endorsement here if you like the tool: https://github.com/k4m4/terminals-are-sexy/pull/198
 
 ## Installation
