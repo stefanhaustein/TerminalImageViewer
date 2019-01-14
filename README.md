@@ -13,10 +13,10 @@ For each 4x8 pixel cell of the (potentially downscaled) image:
 
 See the difference by disabling this optimization using the `-0` option. Or just take a look at the comparison image at the end of this text.
 
-## "News"
+## News
 
-- Install via snap: `sudo snap install --edge tiv`
-- We'd appreciate endorsement here if you like the tool: https://github.com/k4m4/terminals-are-sexy/pull/198
+- 2019-01-14: Install via snap: `sudo snap install --edge tiv`
+- 2018-12-10: We'd appreciate endorsement here if you like the tool: https://github.com/k4m4/terminals-are-sexy/pull/198
 
 ## Installation
 
