@@ -459,7 +459,7 @@ int main(int argc, char* argv[]) {
 	  image.resize((int) (image.width() * scale), (int) (image.height() * scale), -100, -100, 5);
 	}
 	emit_image(image, flags);
-      } catch(cimg_library::CImgIOException e) {
+      } catch(cimg_library::CImgIOException & e) {
 	error = 1;
 	std::cerr << "File format is not recognized for '" << file_names[i] << "'" << std::endl;
       }
@@ -489,7 +489,7 @@ int main(int argc, char* argv[]) {
 	  unsigned int sl = count * (cw + 2);
 	  sb.resize(sl - 2, ' ');
 	  sb += "  ";
-	} catch (std::exception e) {
+	} catch (std::exception & e) {
 	  // Probably no image; ignore.
 	}
       }
