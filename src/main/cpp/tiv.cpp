@@ -17,6 +17,7 @@ const int FLAG_BG = 2;
 const int FLAG_MODE_256 = 4;
 const int FLAG_24BIT = 8;
 const int FLAG_NOOPT = 16;
+const int FLAG_SAVE  = 32;
 
 const int COLOR_STEP_COUNT = 6;
 const int COLOR_STEPS[COLOR_STEP_COUNT] = {0, 0x5f, 0x87, 0xaf, 0xd7, 0xff};
@@ -393,6 +394,7 @@ void emit_usage() {
   std::cerr << "  -help     : Display this help text." << std::endl;
   std::cerr << "  -h <num>  : Set the maximum height to <num> lines." << std::endl;
   std::cerr << "  -w <num>  : Set the maximum width to <num> characters." << std::endl << std::endl;
+  std::cerr << "  -o <name> : Output file name." << std::endl << std::endl;
 }
 
 enum Mode {AUTO, THUMBNAILS, FULL_SIZE};
@@ -423,6 +425,7 @@ int main(int argc, char* argv[]) {
   int flags = 0;
   Mode mode = AUTO;
   int columns = 3;
+  std::string output_file;  
 
   std::vector<std::string> file_names;
   int error = 0;
@@ -436,6 +439,9 @@ int main(int argc, char* argv[]) {
     std::string arg(argv[i]);
     if (arg == "-0") {
       flags |= FLAG_NOOPT;
+    } else if (arg == "-o") {
+      output_file = argv[++i];
+      flags |= FLAG_SAVE;
     } else if (arg == "-c") {
       columns = std::stoi(argv[++i]);
     } else if (arg == "-d") {
@@ -465,7 +471,9 @@ int main(int argc, char* argv[]) {
     }
   }
 
-
+  if ((flags & FLAG_SAVE) != 0) {
+    freopen(output_file.c_str(),"w",stdout); 	  
+  }	
   if (mode == FULL_SIZE || (mode == AUTO && file_names.size() == 1)) {
     for (unsigned int i = 0; i < file_names.size(); i++) {
       try {
