@@ -397,6 +397,23 @@ void emit_usage() {
 
 enum Mode {AUTO, THUMBNAILS, FULL_SIZE};
 
+
+/* Wrapper around CImg<T>(const char*) to ensure the result has 3 channels as RGB
+ */
+cimg_library::CImg<unsigned char> load_rgb_CImg(const char * const filename) {
+	cimg_library::CImg<unsigned char> image(filename);
+	if(image.spectrum() == 1) {
+		// Greyscale. Just copy greyscale data to all channels
+		cimg_library::CImg<unsigned char> rgb_image(image.width(), image.height(), image.depth(), 3);
+		for(unsigned int chn = 0; chn < 3; chn++) {
+			rgb_image.draw_image(0, 0, 0,chn, image);
+		}
+		return rgb_image;
+	}
+
+	return image;
+}
+
 int main(int argc, char* argv[]) {
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -452,7 +469,7 @@ int main(int argc, char* argv[]) {
   if (mode == FULL_SIZE || (mode == AUTO && file_names.size() == 1)) {
     for (unsigned int i = 0; i < file_names.size(); i++) {
       try {
-	cimg_library::CImg<unsigned char> image(file_names[i].c_str());
+	cimg_library::CImg<unsigned char> image = load_rgb_CImg(file_names[i].c_str());
       
 	if (image.width() > maxWidth || image.height() > maxHeight) {
 	  double scale = std::min(maxWidth / (double) image.width(), maxHeight / (double) image.height());
@@ -479,7 +496,7 @@ int main(int argc, char* argv[]) {
       while (index < file_names.size() && count < columns) {
 	std::string name = file_names[index++];
 	try {
-	  cimg_library::CImg<unsigned char> original(name.c_str());
+	  cimg_library::CImg<unsigned char> original = load_rgb_CImg(name.c_str());
 	  unsigned int cut = name.find_last_of("/");
 	  sb += cut == std::string::npos ? name : name.substr(cut + 1);
 	  int th = original.height() * tw / original.width();
