@@ -21,7 +21,7 @@ dnl AM_MAINTAINER_MODE
 AC_CANONICAL_HOST
 
 dnl Require C++17 compiler
-AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory], [nodefault])
+AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
 
 TIV_CPPFLAGS=" -Wall -fpermissive -fexceptions -O2"
 TIV_LDFLAGS=" -pthread"
