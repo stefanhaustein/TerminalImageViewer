@@ -401,8 +401,11 @@ enum Mode {AUTO, THUMBNAILS, FULL_SIZE};
 
 int main(int argc, char* argv[]) {
   struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+  if(w.ws_col == 0 && w.ws_col == 0)
   ioctl(0, TIOCGWINSZ, &w);
-  
+
   int maxWidth = w.ws_col * 4;
   int maxHeight = w.ws_row * 8;
   int flags = 0;
