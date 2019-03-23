@@ -391,10 +391,10 @@ struct size {
   }
   unsigned int width;
   unsigned int height;
+  size operator*(double scale) {
+    return size(width*scale, height*scale);
+  }
 };
-size operator*(size lhs, double scale) {
-  return size(lhs.width*scale, lhs.height*scale);
-}
 std::ostream& operator<<(std::ostream& stream, size sz) {
   stream << sz.width << "x" << sz.height;
   return stream;
