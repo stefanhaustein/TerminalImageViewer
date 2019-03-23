@@ -395,6 +395,11 @@ struct size {
 size operator*(size lhs, double scale) {
   return size(lhs.width*scale, lhs.height*scale);
 }
+std::ostream& operator<<(std::ostream& stream, size sz) {
+  stream << sz.width << "x" << sz.height;
+  return stream;
+}
+
 
 size fit_within(size container, size object) {
   double scale = std::min(container.width / (double) object.width, container.height / (double) object.height);
