@@ -445,7 +445,6 @@ int main(int argc, char* argv[]) {
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-  //If redirect STDOUT to one file
   if(w.ws_col == 0 && w.ws_col == 0)
   ioctl(0, TIOCGWINSZ, &w);
 
