@@ -1,15 +1,22 @@
-CXX=g++
+# set CXX to g++ if not set
+CXX ?= g++
 
-default: tiv
+# append necessary arguments
+override CPPFLAGS += -std=c++17 -Wall -fpermissive -fexceptions -O2
+override LDFLAGS  += -lstdc++fs -pthread -s
+
+all: tiv
 
 tiv.o: tiv.cpp CImg.h
-	$(CXX) -std=c++17  -Wall -fpermissive -fexceptions -O2 -c tiv.cpp -o tiv.o
+	$(CXX) $(CPPFLAGS) -c tiv.cpp -o $@
 
 tiv : tiv.o
-	$(CXX) tiv.o -o tiv -lstdc++fs -pthread -s
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
-install: tiv
-	cp tiv /usr/local/bin/tiv
+.PHONY: all install clean
+install: all
+	test -d $(DESTDIR)/usr/local/bin || mkdir -p $(DESTDIR)/usr/local/bin
+	cp tiv $(DESTDIR)/usr/local/bin/tiv
 
 clean:
-	rm -f tiv tiv.o 
+	rm -f tiv tiv.o
