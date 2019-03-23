@@ -383,6 +383,26 @@ void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
 }
 
 
+struct size {
+  size(unsigned int in_width, unsigned int in_height) :
+	width(in_width), height(in_height) {
+  }
+  size(cimg_library::CImg<unsigned int> img) :
+	width(img.width()), height(img.height()) {
+  }
+  unsigned int width;
+  unsigned int height;
+};
+size operator*(size lhs, double scale) {
+  return size(lhs.width*scale, lhs.height*scale);
+}
+
+size fit_within(size container, size object) {
+  double scale = std::min(container.width / (double) object.width, container.height / (double) object.height);
+  return object * scale;
+}
+
+
 void emit_usage() {
   std::cerr << "Terminal Image Viewer" << std::endl << std::endl;
   std::cerr << "usage: tiv [options] <image> [<image>...]" << std::endl << std::endl;
@@ -485,8 +505,8 @@ int main(int argc, char* argv[]) {
 	cimg_library::CImg<unsigned char> image = load_rgb_CImg(file_names[i].c_str());
       
 	if (image.width() > maxWidth || image.height() > maxHeight) {
-	  double scale = std::min(maxWidth / (double) image.width(), maxHeight / (double) image.height());
-	  image.resize((int) (image.width() * scale), (int) (image.height() * scale), -100, -100, 5);
+	  size new_size = fit_within(size(maxWidth,maxHeight), size(image));
+	  image.resize(new_size.width, new_size.height, -100, -100, 5);
 	}
 	emit_image(image, flags);
       } catch(cimg_library::CImgIOException & e) {
