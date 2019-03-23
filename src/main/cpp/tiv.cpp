@@ -513,6 +513,7 @@ int main(int argc, char* argv[]) {
     int cw = (((maxWidth / 4) - 2 * (columns - 1)) / columns);
     int tw = cw * 4;
     cimg_library::CImg<unsigned char> image(tw * columns + 2 * 4 * (columns - 1), tw, 1, 3);
+    size maxThumbSize(tw, tw);
     
     while (index < file_names.size()) {
       image.fill(0);
@@ -524,9 +525,9 @@ int main(int argc, char* argv[]) {
 	  cimg_library::CImg<unsigned char> original = load_rgb_CImg(name.c_str());
 	  unsigned int cut = name.find_last_of("/");
 	  sb += cut == std::string::npos ? name : name.substr(cut + 1);
-	  int th = original.height() * tw / original.width();
-	  original.resize(tw, th, 1, -100, 5);
-	  image.draw_image(count * (tw + 8), (tw - th) / 2, 0, 0, original);
+	  size newSize = fit_within(maxThumbSize, size(original));
+	  original.resize(newSize.width, newSize.height, 1, -100, 5);
+	  image.draw_image(count * (tw + 8), (tw - newSize.height) / 2, 0, 0, original);
 	  count++;
 	  unsigned int sl = count * (cw + 2);
 	  sb.resize(sl - 2, ' ');
