@@ -540,7 +540,7 @@ int main(int argc, char* argv[]) {
 	  sb += cut == std::string::npos ? name : name.substr(cut + 1);
 	  size newSize = fit_within(maxThumbSize, size(original));
 	  original.resize(newSize.width, newSize.height, 1, -100, 5);
-	  image.draw_image(count * (tw + 8), (tw - newSize.height) / 2, 0, 0, original);
+	  image.draw_image(count * (tw + 8) + (tw - newSize.width) / 2, (tw - newSize.height) / 2, 0, 0, original);
 	  count++;
 	  unsigned int sl = count * (cw + 2);
 	  sb.resize(sl - 2, ' ');
