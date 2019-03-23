@@ -65,9 +65,3 @@ If multiple images match the filename spec, thumbnails are shown.
 The top image was generated with the character optimization disabled via the `-0` option.
 
 ![Comparison](https://i.imgur.com/OzdCeh6.png)
-
-## Save file 
-
-Saving the disk image for use in other processes or softwares via the -o option
-
-![Persistence](https://i.imgur.com/LMb5KBX.png)
