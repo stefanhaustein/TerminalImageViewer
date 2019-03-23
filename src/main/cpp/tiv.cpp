@@ -392,8 +392,12 @@ struct size {
   }
   unsigned int width;
   unsigned int height;
-  size operator*(double scale) {
+  size scaled(double scale) {
     return size(width*scale, height*scale);
+  }
+  size fitted_within(size container) {
+    double scale = std::min(container.width / (double) width, container.height / (double) height);
+    return scaled(scale);
   }
 };
 std::ostream& operator<<(std::ostream& stream, size sz) {
@@ -402,10 +406,6 @@ std::ostream& operator<<(std::ostream& stream, size sz) {
 }
 
 
-size fit_within(size container, size object) {
-  double scale = std::min(container.width / (double) object.width, container.height / (double) object.height);
-  return object * scale;
-}
 
 
 void emit_usage() {
@@ -510,7 +510,7 @@ int main(int argc, char* argv[]) {
 	cimg_library::CImg<unsigned char> image = load_rgb_CImg(file_names[i].c_str());
       
 	if (image.width() > maxWidth || image.height() > maxHeight) {
-	  size new_size = fit_within(size(maxWidth,maxHeight), size(image));
+	  size new_size = size(image).fitted_within(size(maxWidth,maxHeight));
 	  image.resize(new_size.width, new_size.height, -100, -100, 5);
 	}
 	emit_image(image, flags);
@@ -538,7 +538,7 @@ int main(int argc, char* argv[]) {
 	  cimg_library::CImg<unsigned char> original = load_rgb_CImg(name.c_str());
 	  unsigned int cut = name.find_last_of("/");
 	  sb += cut == std::string::npos ? name : name.substr(cut + 1);
-	  size newSize = fit_within(maxThumbSize, size(original));
+	  size newSize = size(original).fitted_within(maxThumbSize);
 	  original.resize(newSize.width, newSize.height, 1, -100, 5);
 	  image.draw_image(count * (tw + 8) + (tw - newSize.width) / 2, (tw - newSize.height) / 2, 0, 0, original);
 	  count++;
