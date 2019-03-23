@@ -445,10 +445,9 @@ int main(int argc, char* argv[]) {
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-  //If redirect STDOUT to one file ( col and row == 0 )
-  if(w.ws_col == 0 && w.ws_row == 0) {
-    ioctl(0, TIOCGWINSZ, &w);
-  }
+  //If redirect STDOUT to one file
+  if(w.ws_col == 0 && w.ws_col == 0)
+  ioctl(0, TIOCGWINSZ, &w);
 
   int maxWidth = w.ws_col * 4;
   int maxHeight = w.ws_row * 8;
