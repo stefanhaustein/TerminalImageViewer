@@ -69,5 +69,6 @@ The top image was generated with the character optimization disabled via the `-0
 ## Redirect to file
 
 Bellow the example for redirect stdout to one file.
- 
-![Redirect](https://i.imgur.com/8UyGjg8.png)
+
+![Redirect](https://i.imgur.com/XB40Gai.png)
+
