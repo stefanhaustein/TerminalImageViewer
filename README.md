@@ -32,6 +32,8 @@ See the difference by disabling this optimization using the `-0` option. Or just
     make
     sudo make install
 
+Note: On MacOS, you'll need to install GCC because of this issue: https://stackoverflow.com/q/42633477. Find some more details here: https://github.com/stefanhaustein/TerminalImageViewer/issues/36
+
 ## Usage
 
     tiv [options] <filename(s)>
