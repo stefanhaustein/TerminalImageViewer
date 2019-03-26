@@ -15,6 +15,7 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ## News
 
+- 2019-03-26: Exciting week: Cableo has fixed output redirection, boretom has added cross-compilation support to the build file and AlanDeSmet has fixed tall thumbnails and greyscale images.
 - 2019-01-14: Install via snap: `sudo snap install --edge tiv`
 
 ## Installation
@@ -65,10 +66,4 @@ If multiple images match the filename spec, thumbnails are shown.
 The top image was generated with the character optimization disabled via the `-0` option.
 
 ![Comparison](https://i.imgur.com/OzdCeh6.png)
-
-## Redirect to file
-
-Bellow the example for redirect stdout to one file.
-
-![Redirect](https://i.imgur.com/XB40Gai.png)
 
