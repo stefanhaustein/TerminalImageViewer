@@ -195,8 +195,7 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
   int count2 = iter->first;
   long max_count_color_1 = iter->second;
   long max_count_color_2 = max_count_color_1;
-  if (iter != color_per_count.rend()) {
-    ++iter;
+  if ((++iter) != color_per_count.rend()) {
     count2 += iter->first;
     max_count_color_2 = iter->second;
   }
@@ -330,7 +329,7 @@ void emit_color(int flags, int r, int g, int b) {
   int gq = COLOR_STEPS[gi];
   int bq = COLOR_STEPS[bi];
   
-  int gray = std::round(r * 0.2989f + g * 0.5870f + b * 0.1140f);
+  int gray = static_cast<int>(std::round(r * 0.2989f + g * 0.5870f + b * 0.1140f));
 
   int gri = best_index(gray, GRAYSCALE_STEPS, GRAYSCALE_STEP_COUNT);
   int grq = GRAYSCALE_STEPS[gri];
@@ -440,16 +439,24 @@ cimg_library::CImg<unsigned char> load_rgb_CImg(const char * const filename) {
 }
 
 int main(int argc, char* argv[]) {
+  int maxWidth = 80;
+  int maxHeight = 24;
+  bool sizeDetectionSuccessful = true;
   struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
-  //If redirect STDOUT to one file ( col and row == 0 )
-  if(w.ws_col == 0 && w.ws_row == 0) {
-    ioctl(0, TIOCGWINSZ, &w);
+  int ioStatus = ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  // If redirecting STDOUT to one file ( col or row == 0, or the previous ioctl call's failed )
+  if (ioStatus != 0 || (w.ws_col | w.ws_row) == 0) {
+    ioStatus = ioctl(STDIN_FILENO, TIOCGWINSZ, &w);
+    if (ioStatus != 0 || (w.ws_col | w.ws_row) == 0) {
+      std::cerr << "Warning: failed to determine most reasonable size, defaulting to 80x24" << std::endl;
+       sizeDetectionSuccessful = false;
+    }
   }
-  
-  int maxWidth = w.ws_col * 4;
-  int maxHeight = w.ws_row * 8;
+  if (sizeDetectionSuccessful)
+  {
+    maxWidth = w.ws_col * 4;
+    maxHeight = w.ws_row * 8;
+  }
   int flags = 0;
   Mode mode = AUTO;
   int columns = 3;
@@ -528,7 +535,7 @@ int main(int argc, char* argv[]) {
 	std::string name = file_names[index++];
 	try {
 	  cimg_library::CImg<unsigned char> original = load_rgb_CImg(name.c_str());
-	  unsigned int cut = name.find_last_of("/");
+	  auto cut = name.find_last_of("/");
 	  sb += cut == std::string::npos ? name : name.substr(cut + 1);
 	  size newSize = size(original).fitted_within(maxThumbSize);
 	  original.resize(newSize.width, newSize.height, 1, -100, 5);
@@ -541,7 +548,7 @@ int main(int argc, char* argv[]) {
 	  // Probably no image; ignore.
 	}
       }
-      emit_image(image, flags);
+      if (count) emit_image(image, flags);
       std::cout << sb << std::endl << std::endl;
     }
   }
