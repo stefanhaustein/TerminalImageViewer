@@ -5,6 +5,9 @@ description: |
   tiv is a small C++ program to display images in a (modern) terminal using
   RGB ANSI codes and unicode block graphic characters.
 
+environment:
+  MAGICK_CONFIGURE_PATH: $SNAP/etc/ImageMagick-7
+
 apps:
   tiv:
     command: usr/bin/tiv
@@ -26,7 +29,7 @@ parts:
       install $SNAPCRAFT_PART_BUILD/tiv $SNAPCRAFT_PART_INSTALL/usr/bin/
   imagemagick:
     plugin: autotools
-    source: https://www.imagemagick.org/download/releases/ImageMagick-7.0.8-23.tar.xz
+    source: https://www.imagemagick.org/download/releases/ImageMagick-7.0.7-39.tar.xz
     source-type: tar
     configflags:
       - --enable-hdri=yes
@@ -71,3 +74,21 @@ parts:
       - ocl-icd-opencl-dev
       - perlmagick
       - zlib1g-dev
+    stage-packages:
+      - libbz2-1.0
+      - libfftw3-double3
+      - libfontconfig1
+      - libfreetype6
+      - libgomp1
+      - libjbig0
+      - libjpeg8
+      - liblcms2-2
+      - liblqr-1-0
+      - libltdl7
+      - liblzma5
+      - libpng12-0
+      - libtiff5
+      - libx11-6
+      - libxext6
+      - libxml2
+      - zlib1g
