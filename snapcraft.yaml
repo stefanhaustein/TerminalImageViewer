@@ -11,7 +11,7 @@ environment:
 apps:
   tiv:
     command: usr/bin/tiv
-    plugs: [home]
+    plugs: [home, removable-media]
 
 parts:
   tiv:
