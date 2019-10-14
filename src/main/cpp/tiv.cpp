@@ -301,8 +301,10 @@ int best_index(int value, const int data[], int count) {
   int best_diff = std::abs(data[0] - value);
   int result = 0;
   for (int i = 1; i < count; i++) {
-    if (std::abs(data[i] - value) < best_diff) {
+    int diff = std::abs(data[i] - value);
+    if (diff < best_diff) {
       result = i;
+      best_diff = diff;
     }
   }
   return result;  
