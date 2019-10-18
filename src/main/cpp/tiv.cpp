@@ -39,7 +39,7 @@ const unsigned int BITMAPS[] = {
   0x0000ffff, 0x2584,  // lower 1/2
   0x000fffff, 0x2585,
   0x00ffffff, 0x2586,  // lower 3/4
-  0x0fffffff, 0x2587,    
+  0x0fffffff, 0x2587,
 //0xffffffff, 0x2588,  // full; redundant with inverse space
 
   0xeeeeeeee, 0x258a,  // left 3/4
@@ -108,7 +108,7 @@ const unsigned int BITMAPS[] = {
 
 //0x00ffff00, 0x25fe,  // Black medium small square
   0x00066000, 0x25aa,  // Black small square
-   
+
 //0x11224488, 0x2571,  // diagonals
 //0x88442211, 0x2572,
 //0x99666699, 0x2573,
@@ -135,7 +135,7 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
   int fg_count = 0;
   int bg_count = 0;
   unsigned int mask = 0x80000000;
-  
+
   for (int y = 0; y < 8; y++) {
     for (int x = 0; x < 4; x++) {
       int* avg;
@@ -147,7 +147,7 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
         bg_count++;
       }
       for (int i = 0; i < 3; i++) {
-	avg[i] += image(x0 + x, y0 + y, 0, i);
+        avg[i] += image(x0 + x, y0 + y, 0, i);
       }
       mask = mask >> 1;
     }
@@ -171,16 +171,16 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
   int min[3] = {255, 255, 255};
   int max[3] = {0};
   std::map<long,int> count_per_color;
-  
+
   // Determine the minimum and maximum value for each color channel
   for (int y = 0; y < 8; y++) {
     for (int x = 0; x < 4; x++) {
       long color = 0;
       for (int i = 0; i < 3; i++) {
-	int d = image(x0 + x, y0 + y, 0, i);
-	min[i] = std::min(min[i], d);
-	max[i] = std::max(max[i], d);
-	color = (color << 8) | d;
+        int d = image(x0 + x, y0 + y, 0, i);
+        min[i] = std::min(min[i], d);
+        max[i] = std::max(max[i], d);
+        color = (color << 8) | d;
       }
       count_per_color[color]++;
     }
@@ -202,28 +202,28 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
 
   unsigned int bits = 0;
   bool direct = count2 > (8*4) / 2;
-  
+
   if (direct) {
     for (int y = 0; y < 8; y++) {
       for (int x = 0; x < 4; x++) {
         bits = bits << 1;
-	int d1 = 0;
-	int d2 = 0;
-	for (int i = 0; i < 3; i++) {
-	  int shift = 16 - 8 * i;
-	  int c1 = (max_count_color_1 >> shift) & 255;
-	  int c2 = (max_count_color_2 >> shift) & 255;
-	  int c = image(x0 + x, y0 + y, 0, i);
-	  d1 += (c1-c) * (c1-c);
-	  d2 += (c2-c) * (c2-c);
+        int d1 = 0;
+        int d2 = 0;
+        for (int i = 0; i < 3; i++) {
+          int shift = 16 - 8 * i;
+          int c1 = (max_count_color_1 >> shift) & 255;
+          int c2 = (max_count_color_2 >> shift) & 255;
+          int c = image(x0 + x, y0 + y, 0, i);
+          d1 += (c1-c) * (c1-c);
+          d2 += (c2-c) * (c2-c);
         }
-	if (d1 > d2) {
+        if (d1 > d2) {
           bits |= 1;
-	}
+        }
       }
     }
-    
-  } else {  
+
+  } else {
     // Determine the color channel with the greatest range.
     int splitIndex = 0;
     int bestSplit = 0;
@@ -236,18 +236,18 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
 
     // We just split at the middle of the interval instead of computing the median.
     int splitValue = min[splitIndex] + bestSplit / 2;
-  
+
     // Compute a bitmap using the given split and sum the color values for both buckets.
     for (int y = 0; y < 8; y++) {
       for (int x = 0; x < 4; x++) {
         bits = bits << 1;
         if (image(x0 + x, y0 + y, 0, splitIndex) > splitValue) {
-	  bits |= 1;
+          bits |= 1;
         }
       }
     }
   }
-  
+
   // Find the best bitmap match by counting the bits that don't match,
   // including the inverted bitmaps.
   int best_diff = 8;
@@ -259,10 +259,10 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
     for (int j = 0; j < 2; j++) {
       int diff = (std::bitset<32>(pattern ^ bits)).count();
       if (diff < best_diff) {
-	best_pattern = BITMAPS[i];  // pattern might be inverted.
-	codepoint = BITMAPS[i + 1];
-	best_diff = diff;
-	inverted = best_pattern != pattern;
+        best_pattern = BITMAPS[i];  // pattern might be inverted.
+        codepoint = BITMAPS[i + 1];
+        best_diff = diff;
+        inverted = best_pattern != pattern;
       }
       pattern = ~pattern;
     }
@@ -307,7 +307,7 @@ int best_index(int value, const int data[], int count) {
       best_diff = diff;
     }
   }
-  return result;  
+  return result;
 }
 
 
@@ -322,7 +322,7 @@ void emit_color(int flags, int r, int g, int b) {
     std::cout << (bg ? "\x1b[48;2;" : "\x1b[38;2;") << r << ';' << g << ';' << b << 'm';
     return;
   }
-  
+
   int ri = best_index(r, COLOR_STEPS, COLOR_STEP_COUNT);
   int gi = best_index(g, COLOR_STEPS, COLOR_STEP_COUNT);
   int bi = best_index(b, COLOR_STEPS, COLOR_STEP_COUNT);
@@ -330,12 +330,12 @@ void emit_color(int flags, int r, int g, int b) {
   int rq = COLOR_STEPS[ri];
   int gq = COLOR_STEPS[gi];
   int bq = COLOR_STEPS[bi];
-  
+
   int gray = static_cast<int>(std::round(r * 0.2989f + g * 0.5870f + b * 0.1140f));
 
   int gri = best_index(gray, GRAYSCALE_STEPS, GRAYSCALE_STEP_COUNT);
   int grq = GRAYSCALE_STEPS[gri];
-  
+
   int color_index;
   if (0.3 * sqr(rq-r) + 0.59 * sqr(gq-g) + 0.11 * sqr(bq-b) <
       0.3 * sqr(grq-r) + 0.59 * sqr(grq-g) + 0.11 * sqr(grq-b)) {
@@ -389,10 +389,10 @@ void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
 
 struct size {
   size(unsigned int in_width, unsigned int in_height) :
-	width(in_width), height(in_height) {
+        width(in_width), height(in_height) {
   }
   size(cimg_library::CImg<unsigned int> img) :
-	width(img.width()), height(img.height()) {
+        width(img.width()), height(img.height()) {
   }
   unsigned int width;
   unsigned int height;
@@ -417,7 +417,7 @@ void emit_usage() {
   std::cerr << "usage: tiv [options] <image> [<image>...]" << std::endl << std::endl;
   std::cerr << "  -0        : No block character adjustment, always use top half block char." << std::endl;
   std::cerr << "  -256      : Use 256 color mode." << std::endl;
-  std::cerr << "  -c <num>  : Number of thumbnail columns in 'dir' mode (3)." << std::endl; 
+  std::cerr << "  -c <num>  : Number of thumbnail columns in 'dir' mode (3)." << std::endl;
   std::cerr << "  -d        : Force 'dir' mode. Automatially selected for more than one input." << std::endl;
   std::cerr << "  -f        : Force 'full' mode. Automatically selected for one input." << std::endl;
   std::cerr << "  -help     : Display this help text." << std::endl;
@@ -431,17 +431,17 @@ enum Mode {AUTO, THUMBNAILS, FULL_SIZE};
 /* Wrapper around CImg<T>(const char*) to ensure the result has 3 channels as RGB
  */
 cimg_library::CImg<unsigned char> load_rgb_CImg(const char * const filename) {
-	cimg_library::CImg<unsigned char> image(filename);
-	if(image.spectrum() == 1) {
-		// Greyscale. Just copy greyscale data to all channels
-		cimg_library::CImg<unsigned char> rgb_image(image.width(), image.height(), image.depth(), 3);
-		for(unsigned int chn = 0; chn < 3; chn++) {
-			rgb_image.draw_image(0, 0, 0,chn, image);
-		}
-		return rgb_image;
-	}
+  cimg_library::CImg<unsigned char> image(filename);
+  if(image.spectrum() == 1) {
+    // Greyscale. Just copy greyscale data to all channels
+    cimg_library::CImg<unsigned char> rgb_image(image.width(), image.height(), image.depth(), 3);
+    for(unsigned int chn = 0; chn < 3; chn++) {
+      rgb_image.draw_image(0, 0, 0,chn, image);
+    }
+    return rgb_image;
+  }
 
-	return image;
+  return image;
 }
 
 int main(int argc, char* argv[]) {
@@ -469,7 +469,7 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::string> file_names;
   int error = 0;
-  
+
   if (argc <= 1) {
     emit_usage();
     return 0;
@@ -501,7 +501,7 @@ int main(int argc, char* argv[]) {
            if (std::experimental::filesystem::is_regular_file(p.path())) {
              file_names.push_back(p.path().string());
            }
-	 }
+         }
       } else {
         file_names.push_back(arg);
       }
@@ -512,47 +512,47 @@ int main(int argc, char* argv[]) {
   if (mode == FULL_SIZE || (mode == AUTO && file_names.size() == 1)) {
     for (unsigned int i = 0; i < file_names.size(); i++) {
       try {
-	cimg_library::CImg<unsigned char> image = load_rgb_CImg(file_names[i].c_str());
-      
-	if (image.width() > maxWidth || image.height() > maxHeight) {
-	  size new_size = size(image).fitted_within(size(maxWidth,maxHeight));
-	  image.resize(new_size.width, new_size.height, -100, -100, 5);
-	}
-	emit_image(image, flags);
+        cimg_library::CImg<unsigned char> image = load_rgb_CImg(file_names[i].c_str());
+
+        if (image.width() > maxWidth || image.height() > maxHeight) {
+          size new_size = size(image).fitted_within(size(maxWidth,maxHeight));
+          image.resize(new_size.width, new_size.height, -100, -100, 5);
+        }
+        emit_image(image, flags);
       } catch(cimg_library::CImgIOException & e) {
-	error = 1;
-	std::cerr << "File format is not recognized for '" << file_names[i] << "'" << std::endl;
+        error = 1;
+        std::cerr << "File format is not recognized for '" << file_names[i] << "'" << std::endl;
       }
     }
   } else {
     // Thumbnail mode
-    
+
     unsigned int index = 0;
     int cw = (((maxWidth / 4) - 2 * (columns - 1)) / columns);
     int tw = cw * 4;
     cimg_library::CImg<unsigned char> image(tw * columns + 2 * 4 * (columns - 1), tw, 1, 3);
     size maxThumbSize(tw, tw);
-    
+
     while (index < file_names.size()) {
       image.fill(0);
       int count = 0;
       std::string sb;
       while (index < file_names.size() && count < columns) {
-	std::string name = file_names[index++];
-	try {
-	  cimg_library::CImg<unsigned char> original = load_rgb_CImg(name.c_str());
-	  auto cut = name.find_last_of("/");
-	  sb += cut == std::string::npos ? name : name.substr(cut + 1);
-	  size newSize = size(original).fitted_within(maxThumbSize);
-	  original.resize(newSize.width, newSize.height, 1, -100, 5);
-	  image.draw_image(count * (tw + 8) + (tw - newSize.width) / 2, (tw - newSize.height) / 2, 0, 0, original);
-	  count++;
-	  unsigned int sl = count * (cw + 2);
-	  sb.resize(sl - 2, ' ');
-	  sb += "  ";
-	} catch (std::exception & e) {
-	  // Probably no image; ignore.
-	}
+        std::string name = file_names[index++];
+        try {
+          cimg_library::CImg<unsigned char> original = load_rgb_CImg(name.c_str());
+          auto cut = name.find_last_of("/");
+          sb += cut == std::string::npos ? name : name.substr(cut + 1);
+          size newSize = size(original).fitted_within(maxThumbSize);
+          original.resize(newSize.width, newSize.height, 1, -100, 5);
+          image.draw_image(count * (tw + 8) + (tw - newSize.width) / 2, (tw - newSize.height) / 2, 0, 0, original);
+          count++;
+          unsigned int sl = count * (cw + 2);
+          sb.resize(sl - 2, ' ');
+          sb += "  ";
+        } catch (std::exception & e) {
+          // Probably no image; ignore.
+        }
       }
       if (count) emit_image(image, flags);
       std::cout << sb << std::endl << std::endl;
