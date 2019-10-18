@@ -1,22 +1,32 @@
-# set CXX to g++ if not set
-CXX ?= g++
+PROGNAME = tiv
 
-# append necessary arguments
-override CPPFLAGS += -std=c++17 -Wall -fpermissive -fexceptions -O2
-override LDFLAGS  += -lstdc++fs -pthread -s
+OBJECTS = tiv.o
 
-all: tiv
+CXX      ?= g++
+CXXFLAGS ?= -O2 -fpermissive
+INSTALL  ?= install
+INSTALL_PROGRAM ?= $(INSTALL) -D
 
-tiv.o: tiv.cpp CImg.h
-	$(CXX) $(CPPFLAGS) -c tiv.cpp -o $@
+# https://www.gnu.org/prep/standards/html_node/Directory-Variables.html#Directory-Variables
+prefix      ?= /usr/local
+exec_prefix ?= $(prefix)
+bindir      ?= $(exec_prefix)/bin
 
-tiv : tiv.o
-	$(CXX) $^ -o $@ $(LDFLAGS)
+override CXXFLAGS += -std=c++17 -Wall -fexceptions
+override LDFLAGS  += -pthread
+override LDLIBS   += -lstdc++fs
 
-.PHONY: all install clean
+all: $(PROGNAME)
+
+tiv.o: CImg.h
+
+$(PROGNAME): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $^ -o $@ $(LOADLIBES) $(LDLIBS)
+
 install: all
-	test -d $(DESTDIR)/usr/local/bin || mkdir -p $(DESTDIR)/usr/local/bin
-	cp tiv $(DESTDIR)/usr/local/bin/tiv
+	$(INSTALL_PROGRAM) $(PROGNAME) $(DESTDIR)$(bindir)/$(PROGNAME)
 
 clean:
-	rm -f tiv tiv.o
+	$(RM) -f $(PROGNAME) *.o
+
+.PHONY: all install clean
