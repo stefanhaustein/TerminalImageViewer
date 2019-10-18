@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <array>
 #include <sys/ioctl.h>
 #include <experimental/filesystem>
 
@@ -122,8 +123,8 @@ const unsigned int BITMAPS[] = {
 
 
 struct CharData {
-  int fgColor[3] = {0};
-  int bgColor[3] = {0};
+  std::array<int, 3> fgColor = {0};
+  std::array<int, 3> bgColor = {0};
   int codePoint;
 };
 
@@ -140,11 +141,11 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
     for (int x = 0; x < 4; x++) {
       int* avg;
       if (pattern & mask) {
-	avg = result.fgColor;
-	fg_count++;
+        avg = result.fgColor.data();
+        fg_count++;
       } else {
-	avg = result.bgColor;
-	bg_count++;
+        avg = result.bgColor.data();
+        bg_count++;
       }
       for (int i = 0; i < 3; i++) {
 	avg[i] += image(x0 + x, y0 + y, 0, i);
@@ -369,17 +370,21 @@ void emitCodepoint(int codepoint) {
 
 
 void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
-    for (int y = 0; y <= image.height() - 8; y += 8) {
-      for (int x = 0; x <= image.width() - 4; x += 4) {
-        CharData charData = flags & FLAG_NOOPT
-	  ? getCharData(image, x, y, 0x2584, 0x0000ffff)
-	  : getCharData(image, x, y);
+  CharData lastCharData;
+  for (int y = 0; y <= image.height() - 8; y += 8) {
+    for (int x = 0; x <= image.width() - 4; x += 4) {
+      CharData charData = flags & FLAG_NOOPT
+        ? getCharData(image, x, y, 0x2584, 0x0000ffff)
+        : getCharData(image, x, y);
+      if (charData.bgColor != lastCharData.bgColor)
         emit_color(flags | FLAG_BG, charData.bgColor[0], charData.bgColor[1], charData.bgColor[2]);
+      if (charData.fgColor != lastCharData.fgColor)
         emit_color(flags | FLAG_FG, charData.fgColor[0], charData.fgColor[1], charData.fgColor[2]);
-        emitCodepoint(charData.codePoint);
-      }
-      std::cout << "\x1b[0m" << std::endl;
+      emitCodepoint(charData.codePoint);
+      lastCharData = charData;
     }
+    std::cout << "\x1b[0m" << std::endl;
+  }
 }
 
 
