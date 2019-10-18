@@ -480,15 +480,18 @@ int main(int argc, char* argv[]) {
     if (arg == "-0") {
       flags |= FLAG_NOOPT;
     } else if (arg == "-c") {
-      columns = std::stoi(argv[++i]);
+      if (i < argc - 1)
+        columns = std::stoi(argv[++i]);
     } else if (arg == "-d") {
       mode = THUMBNAILS;
     } else if (arg == "-f") {
       mode = FULL_SIZE;
     } else if (arg == "-w") {
-      maxWidth = 4 * std::stoi(argv[++i]);
+      if (i < argc - 1)
+        maxWidth = 4 * std::stoi(argv[++i]);
     } else if (arg == "-h") {
-      maxHeight = 8 * std::stoi(argv[++i]);
+      if (i < argc - 1)
+        maxHeight = 8 * std::stoi(argv[++i]);
     } else if (arg == "-256") {
       flags |= FLAG_MODE_256;
     } else if (arg == "--help" || arg == "-help") {
