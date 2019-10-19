@@ -58,7 +58,6 @@ const unsigned int BITMAPS[] = {
 //0x3333ffff, 0x259f,  // 3/4 redundant
 
 // Line drawing subset: no double lines, no complex light lines
-// Simple light lines duplicated because there is no center pixel int the 4x8 matrix
 
   0x000ff000, 0x2501,  // Heavy horizontal
   0x66666666, 0x2503,  // Heavy vertical
@@ -92,8 +91,8 @@ const unsigned int BITMAPS[] = {
   0x22220000, 0x2575,  // light up
   0x00030000, 0x2576,  // light right
   0x00003000, 0x2576,  // light right
-  0x00004444, 0x2575,  // light down
-  0x00002222, 0x2575,  // light down
+  0x00004444, 0x2577,  // light down
+  0x00002222, 0x2577,  // light down
 
 // Misc technical
 
@@ -376,9 +375,9 @@ void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
       CharData charData = flags & FLAG_NOOPT
         ? getCharData(image, x, y, 0x2584, 0x0000ffff)
         : getCharData(image, x, y);
-      if (charData.bgColor != lastCharData.bgColor)
+      if (x == 0 || charData.bgColor != lastCharData.bgColor)
         emit_color(flags | FLAG_BG, charData.bgColor[0], charData.bgColor[1], charData.bgColor[2]);
-      if (charData.fgColor != lastCharData.fgColor)
+      if (x == 0 || charData.fgColor != lastCharData.fgColor)
         emit_color(flags | FLAG_FG, charData.fgColor[0], charData.fgColor[1], charData.fgColor[2]);
       emitCodepoint(charData.codePoint);
       lastCharData = charData;
