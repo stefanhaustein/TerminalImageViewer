@@ -63,6 +63,7 @@ If multiple images match the filename spec, thumbnails are shown.
 
 ![Thumbnails](https://i.imgur.com/PTYgSqz.png)
 
+There are more examples in the [`tests`](tests/) folder.
 ## Comparison to Using Half-Block Characters Only
 
 The top image was generated with the character optimization disabled via the `-0` option.
