@@ -52,6 +52,10 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
    https://hub.docker.com/r/bperel/terminalimageviewer
  - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`.
 
+I am happy to accept useful contributions, but it might make sense to file an issue to discuss the approach before investing large amounts of time. 
+
+Support for additional platforms, cpus or similar will require somebody who is happy to help with maintenance, in particular,  if I don't have access to it.
+
 ## Common problems
 
  - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
