@@ -122,8 +122,8 @@ const unsigned int BITMAPS[] = {
 
 
 struct CharData {
-  std::array<int, 3> fgColor = {0};
-  std::array<int, 3> bgColor = {0};
+  std::array<int, 3> fgColor = std::array<int, 3>{0, 0, 0};
+  std::array<int, 3> bgColor = std::array<int, 3>{0, 0, 0};
   int codePoint;
 };
 
