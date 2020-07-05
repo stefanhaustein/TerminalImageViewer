@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <cmath>
+#include <fstream> 
 #include <map>
 #include <string>
 #include <vector>
@@ -506,7 +507,12 @@ int main(int argc, char* argv[]) {
            }
          }
       } else {
-        file_names.push_back(arg);
+        std::ifstream fin(arg.c_str());
+        if (fin) {
+          file_names.push_back(arg);
+        } else {
+          std::cerr << "Can't open file (permission?): " << arg << std::endl;
+        }
       }
     }
   }
