@@ -19,6 +19,7 @@ const int FLAG_BG = 2;
 const int FLAG_MODE_256 = 4;
 const int FLAG_24BIT = 8;
 const int FLAG_NOOPT = 16;
+const int FLAG_TELETEXT = 32;
 
 const int COLOR_STEP_COUNT = 6;
 const int COLOR_STEPS[COLOR_STEP_COUNT] = {0, 0x5f, 0x87, 0xaf, 0xd7, 0xff};
@@ -118,7 +119,77 @@ const unsigned int BITMAPS[] = {
 //0x000fec80, 0x25e4,
 //0x000f7310, 0x25e5,
 
-  0, 0  // End marker
+  0, 0,  // End marker for "regular" characters
+
+  // Teletext / legacy graphics 3x2 block character codes.
+  // Using a 3-2-3 pattern consistently, perhaps we should create automatic variations....
+
+  0xccc00000, 0xfb00,
+  0x33300000, 0xfb01,
+  0xfff00000, 0xfb02,
+  0x000cc000, 0xfb03,
+  0xccccc000, 0xfb04,
+  0x333cc000, 0xfb05,
+  0xfffcc000, 0xfb06,
+  0x00033000, 0xfb07,
+  0xccc33000, 0xfb08,
+  0x33333000, 0xfb09,
+  0xfff33000, 0xfb0a,
+  0x000ff000, 0xfb0b,
+  0xcccff000, 0xfb0c,
+  0x333ff000, 0xfb0d,
+  0xfffff000, 0xfb0e,
+  0x00000ccc, 0xfb0f,
+
+  0xccc00ccc, 0xfb10,
+  0x33300ccc, 0xfb11,
+  0xfff00ccc, 0xfb12,
+  0x000ccccc, 0xfb13,
+  0x333ccccc, 0xfb14,
+  0xfffccccc, 0xfb15,
+  0x00033ccc, 0xfb16,
+  0xccc33ccc, 0xfb17,
+  0x33333ccc, 0xfb18,
+  0xfff33ccc, 0xfb19,
+  0x000ffccc, 0xfb1a,
+  0xcccffccc, 0xfb1b,
+  0x333ffccc, 0xfb1c,
+  0xfffffccc, 0xfb1d,
+  0x00000333, 0xfb1e,
+  0xccc00333, 0xfb1f,
+
+  0x33300333, 0x1b20,
+  0xfff00333, 0x1b21,
+  0x000cc333, 0x1b22,
+  0xccccc333, 0x1b23,
+  0x333cc333, 0x1b24,
+  0xfffcc333, 0x1b25,
+  0x00033333, 0x1b26,
+  0xccc33333, 0x1b27,
+  0xfff33333, 0x1b28,
+  0x000ff333, 0x1b29,
+  0xcccff333, 0x1b2a,
+  0x333ff333, 0x1b2b,
+  0xfffff333, 0x1b2c,
+  0x00000fff, 0x1b2d,
+  0xccc00fff, 0x1b2e,
+  0x33300fff, 0x1b2f,
+
+  0xfff00fff, 0x1b30,
+  0x000ccfff, 0x1b31,
+  0xcccccfff, 0x1b32,
+  0x333ccfff, 0x1b33,
+  0xfffccfff, 0x1b34,
+  0x00033fff, 0x1b35,
+  0xccc33fff, 0x1b36,
+  0x33333fff, 0x1b37,
+  0xfff33fff, 0x1b38,
+  0x000fffff, 0x1b39,
+  0xcccfffff, 0x1b3a,
+  0x333fffff, 0x1b3b,
+
+
+  0, 1   // End marker for extended TELETEXT mode.
 };
 
 
@@ -130,7 +201,7 @@ struct CharData {
 
 
 // Return a CharData struct with the given code point and corresponding averag fg and bg colors.
-CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0, int codepoint, int pattern) {
+CharData createCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0, int codepoint, int pattern) {
   CharData result;
   result.codePoint = codepoint;
   int fg_count = 0;
@@ -168,7 +239,7 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
 
 
 // Find the best character and colors for a 4x8 part of the image at the given position
-CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0) {
+CharData findCharData(const cimg_library::CImg<unsigned char> & image, int x0, int y0, int flags) {
   int min[3] = {255, 255, 255};
   int max[3] = {0};
   std::map<long,int> count_per_color;
@@ -255,7 +326,12 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
   unsigned int best_pattern = 0x0000ffff;
   int codepoint = 0x2584;
   bool inverted = false;
-  for (int i = 0; BITMAPS[i + 1] != 0; i += 2) {
+  int end_marker = flags & FLAG_TELETEXT ? 1 : 0;
+  for (int i = 0; BITMAPS[i + 1] != end_marker; i += 2) {
+    // Skip all end markers
+    if (BITMAPS[i + 1] < 32) {
+      continue;
+    }
     unsigned int pattern = BITMAPS[i];
     for (int j = 0; j < 2; j++) {
       int diff = (std::bitset<32>(pattern ^ bits)).count();
@@ -284,7 +360,7 @@ CharData getCharData(const cimg_library::CImg<unsigned char> & image, int x0, in
     }
     return result;
   }
-  return getCharData(image, x0, y0, codepoint, best_pattern);
+  return createCharData(image, x0, y0, codepoint, best_pattern);
 }
 
 
@@ -374,8 +450,8 @@ void emit_image(const cimg_library::CImg<unsigned char> & image, int flags) {
   for (int y = 0; y <= image.height() - 8; y += 8) {
     for (int x = 0; x <= image.width() - 4; x += 4) {
       CharData charData = flags & FLAG_NOOPT
-        ? getCharData(image, x, y, 0x2584, 0x0000ffff)
-        : getCharData(image, x, y);
+        ? createCharData(image, x, y, 0x2584, 0x0000ffff)
+        : findCharData(image, x, y, flags);
       if (x == 0 || charData.bgColor != lastCharData.bgColor)
         emit_color(flags | FLAG_BG, charData.bgColor[0], charData.bgColor[1], charData.bgColor[2]);
       if (x == 0 || charData.fgColor != lastCharData.fgColor)
@@ -411,10 +487,8 @@ std::ostream& operator<<(std::ostream& stream, size sz) {
 }
 
 
-
-
 void emit_usage() {
-  std::cerr << "Terminal Image Viewer" << std::endl << std::endl;
+  std::cerr << "Terminal Image Viewer v1.1.0" << std::endl << std::endl;
   std::cerr << "usage: tiv [options] <image> [<image>...]" << std::endl << std::endl;
   std::cerr << "  -0        : No block character adjustment, always use top half block char." << std::endl;
   std::cerr << "  -256      : Use 256 color mode." << std::endl;
@@ -423,7 +497,8 @@ void emit_usage() {
   std::cerr << "  -f        : Force 'full' mode. Automatically selected for one input." << std::endl;
   std::cerr << "  -help     : Display this help text." << std::endl;
   std::cerr << "  -h <num>  : Set the maximum height to <num> lines." << std::endl;
-  std::cerr << "  -w <num>  : Set the maximum width to <num> characters." << std::endl << std::endl;
+  std::cerr << "  -w <num>  : Set the maximum width to <num> characters." << std::endl;
+  std::cerr << "  -x        : Use new Unicode Teletext/legacy charactery (experimental)." << std::endl << std::endl; 
 }
 
 enum Mode {AUTO, THUMBNAILS, FULL_SIZE};
@@ -497,6 +572,8 @@ int main(int argc, char* argv[]) {
       flags |= FLAG_MODE_256;
     } else if (arg == "--help" || arg == "-help") {
       emit_usage();
+    } else if (arg == "-x") {
+      flags |= FLAG_TELETEXT;
     } else if (arg[0] == '-') {
       std::cerr << "Unrecognized argument: " << arg << std::endl;
     } else {
