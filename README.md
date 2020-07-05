@@ -24,6 +24,10 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
     sudo snap install --edge tiv
 
+### Homebrew
+
+    brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
+
 ### Build from source
 
     sudo apt install imagemagick || yum install ImageMagick
@@ -47,6 +51,11 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
  - bperel has created a Docker image:
    https://hub.docker.com/r/bperel/terminalimageviewer
  - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`.
+ - aaronliu0130 has added brew support.
+
+I am happy to accept useful contributions under the Apache 2.0 licencse, but it might make sense to file an issue to discuss the approach before investing large amounts of time. 
+
+Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular,  if I don't have access to it.
 
 ## Common problems
 
