@@ -17,6 +17,8 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 - 2019-03-26: Exciting week: @Cableo has fixed output redirection, @boretom has added cross-compilation support to the build file and @AlanDeSmet has fixed tall thumbnails and greyscale images.
 - 2019-01-14: Install via snap: `sudo snap install --edge tiv`
+- 2020-04-09: @aaronliu0130 has added homebrew support.
+- 2020-07-05: @cxwx has fixed homebrew support.
 
 ## Installation
 
