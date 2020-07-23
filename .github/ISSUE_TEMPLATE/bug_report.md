@@ -24,11 +24,9 @@ Steps to reproduce the behavior:
 **Screenshots**
 <!--If applicable, add screenshots to help explain your problem.-->
 
-**Program Information**
-<!--Run tiv --version and paste the output between the lines of backticks below-->
-```
-
-```
+**OS Information**
+Commit(optional):
+OS specifics:
 
 **Additional context**
 <!--Add any other context about the problem here.-->
