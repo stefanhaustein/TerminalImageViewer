@@ -27,7 +27,11 @@ See the difference by disabling this optimization using the `-0` option. Or just
     sudo snap install --edge tiv
 
 ### Homebrew
+Option 1:
+    brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
+    brew install terminalimageviewer
 
+Option 2(deprecated):
     brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
 
 ### Build from source
