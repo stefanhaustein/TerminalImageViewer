@@ -1,8 +1,8 @@
 class Terminalimageviewer < Formula
   desc "Display images in a terminal using block graphic characters"
   homepage "https://github.com/stefanhaustein/TerminalImageViewer"
-  url "https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.0.0.tar.gz"
-  sha256 "d28c5746d25d83ea707db52b54288c4fc1851c642ae021951967e69296450c8c"
+  url "https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.1.0.tar.gz"
+  sha256 "727ddaa048643cb0a13e23bc308415060d99d8b1853883ad339ad7b952050d61"
   head "https://github.com/stefanhaustein/TerminalImageViewer.git"
   depends_on "gcc" => :build unless OS.linux?
   depends_on "imagemagick"
@@ -11,15 +11,16 @@ class Terminalimageviewer < Formula
     cd "src/main/cpp" do
       system "make"
       if OS.mac?
-        # No expermimental/filesystem.h on mac
-        system "#{Formula["gcc"].opt_bin}/gcc-#{Formula["gcc"].version_suffix}", "-std=c++17",
+        # No expermimental/filesystem.h on mac. 
+        system "/usr/local/bin/gcc-#{Formula["gcc"].version_suffix}", "-std=c++17",
                                                                                   "-Wall",
                                                                                   "-fpermissive",
                                                                                   "-fexceptions",
                                                                                   "-O2", "-c",
+                                                                                  "-L/usr/local/opt/gcc/lib/gcc/10/",
                                                                                   "tiv.cpp", "-o", "tiv.o"
-        system "#{Formula["gcc"].opt_bin}/gcc-#{Formula["gcc"].version_suffix}", "tiv.o", "-o", 
-                                                                                 "tiv", "-lstdc++fs",
+        system "/usr/local/bin/gcc-#{Formula["gcc"].version_suffix}", "tiv.o", "-o", 
+                                                                                 "tiv", "-L/usr/local/opt/gcc/lib/gcc/10/",
                                                                                  "-pthread", "-s"
       else
         system "make"
