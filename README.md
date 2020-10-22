@@ -28,6 +28,11 @@ See the difference by disabling this optimization using the `-0` option. Or just
 
 ### Homebrew
 
+Option 1:
+    brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
+    brew install terminalimageviewer
+
+Option 2(deprecated):
     brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
 
 ### Build from source
@@ -63,7 +68,7 @@ Support for additional platforms, CPUs or similar will require somebody who is h
 
  - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
  - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
- - Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
+ - Strange characters? Try -0 or install an use full unicode font with teletype support (e.g. inconsolata or firacode)
  
  
 ## Examples
