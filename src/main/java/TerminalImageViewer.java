@@ -30,9 +30,11 @@ public class TerminalImageViewer {
     if (args.length == 0) {
       System.out.println(
           "Image file name required.\n\n" +
+          "TerminalImageViewer Java\n" +
           " - Use -w and -h to set the maximum width and height in characters (defaults: 80, 24).\n" +
           " - Use -256 for 256 color mode, -grayscale for grayscale and -stdin to obtain file names from stdin.\n" +
-          " - When multiple files are supplied, -c sets the number of images per row (default: 4).");
+          " - When multiple files are supplied, -c sets the number of images per row (default: 4)."
+          "NOTE: This version of TerminalImageViewer is not regularly updated. Please use the C++ version instead.\n");
       return;
     }
 
