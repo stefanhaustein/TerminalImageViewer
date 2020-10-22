@@ -68,7 +68,7 @@ Support for additional platforms, CPUs or similar will require somebody who is h
 
  - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
  - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
- - Strange characters? Try -0 or install an use full unicode font with teletype support (e.g. inconsolata or firacode)
+ - Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
  
  
 ## Examples
