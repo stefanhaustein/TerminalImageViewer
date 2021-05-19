@@ -19,7 +19,7 @@ See the difference by disabling this optimization using the `-0` option. Or just
 - 2019-01-14: Install via snap: `sudo snap install --edge tiv`
 - 2020-04-09: @aaronliu0130 has added homebrew support.
 - 2020-07-05: @cxwx has fixed homebrew support.
-
+- 2021-05-21: @aaronliu0130 has added Apple Clang support.
 ## Installation
 
 ### Snap
@@ -29,6 +29,10 @@ See the difference by disabling this optimization using the `-0` option. Or just
 ### Homebrew
 
 Option 1:
+    brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
+    brew install tiv
+
+Option 2(deprecated as homebrew doesn't support macOS other than the last two):
     brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
     brew install terminalimageviewer
 
