@@ -29,16 +29,19 @@ See the difference by disabling this optimization using the `-0` option. Or just
 ### Homebrew
 
 Option 1:
-    brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
-    brew install tiv
-
-Option 2(deprecated as homebrew doesn't support macOS other than the last two):
-    brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
-    brew install terminalimageviewer
-
-Option 2(deprecated):
-    brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
-
+```
+brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
+brew install tiv
+```
+Option 2(deprecated, for macOS Mojave and below):
+```
+brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
+brew install terminalimageviewer
+```
+Option 3(deprecated):
+```
+brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
+```
 ### Build from source
 
     sudo apt install imagemagick || yum install ImageMagick
@@ -46,8 +49,6 @@ Option 2(deprecated):
     cd TerminalImageViewer/src/main/cpp
     make
     sudo make install
-
-Note: On MacOS, you'll need to install GCC because of this issue: https://stackoverflow.com/q/42633477. Find some more details here: https://github.com/stefanhaustein/TerminalImageViewer/issues/36
 
 ## Usage
 
