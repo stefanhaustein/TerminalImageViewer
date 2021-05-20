@@ -1,4 +1,4 @@
-class tiv < Formula
+class Tiv < Formula
   desc "Display images in a terminal using block graphic characters"
   homepage "https://github.com/stefanhaustein/TerminalImageViewer"
   url "https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.1.0.tar.gz"
