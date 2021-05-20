@@ -14,7 +14,6 @@ bindir      ?= $(exec_prefix)/bin
 
 override CXXFLAGS += -std=c++17 -Wall -fexceptions
 override LDFLAGS  += -pthread
-override LDLIBS   += -lstdc++fs
 
 all: $(PROGNAME)
 
