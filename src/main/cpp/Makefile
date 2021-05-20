@@ -20,7 +20,7 @@ all: $(PROGNAME)
 tiv.o: CImg.h
 
 $(PROGNAME): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $^ -o $@ $(LOADLIBES) $(LDLIBS)
+	$(CXX) $(LDFLAGS) $^ -o $@ $(LOADLIBES)
 
 install: all
 	$(INSTALL_PROGRAM) $(PROGNAME) $(DESTDIR)$(bindir)/$(PROGNAME)
