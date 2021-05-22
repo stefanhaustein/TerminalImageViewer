@@ -326,7 +326,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> & image, int x0, i
   unsigned int best_pattern = 0x0000ffff;
   int codepoint = 0x2584;
   bool inverted = false;
-  int end_marker = flags & FLAG_TELETEXT ? 1 : 0;
+  unsigned int end_marker = flags & FLAG_TELETEXT ? 1 : 0;
   for (int i = 0; BITMAPS[i + 1] != end_marker; i += 2) {
     // Skip all end markers
     if (BITMAPS[i + 1] < 32) {
