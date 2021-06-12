@@ -9,7 +9,6 @@ class Terminalimageviewer < Formula
 
   def install
     cd "src/main/cpp" do
-      system "make"
       if OS.mac?
         # No expermimental/filesystem.h on mac. 
         system "/usr/local/bin/g++-#{Formula["gcc"].version_suffix}", "-std=c++17",
@@ -20,7 +19,7 @@ class Terminalimageviewer < Formula
                                                                                   "-L/usr/local/opt/gcc/lib/gcc/11/",
                                                                                   "tiv.cpp", "-o", "tiv.o"
         system "/usr/local/bin/g++-#{Formula["gcc"].version_suffix}", "tiv.o", "-o", 
-                                                                                 "tiv", "-L/usr/local/opt/gcc/lib/gcc/11/",
+                                                                                 "tiv", "-L/usr/local/opt/gcc/lib/gcc/11/", "-lstdc++fs",
                                                                                  "-pthread", "-s"
       else
         system "make"
