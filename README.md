@@ -22,11 +22,15 @@ See the difference by disabling this optimization using the `-0` option. Or just
 - 2021-05-21: @aaronliu0130 has added Apple Clang support.
 ## Installation
 
-### Snap
+### Build from source (Linux)
 
-    sudo snap install --edge tiv
-
-### Homebrew
+    sudo apt install imagemagick || yum install ImageMagick
+    git clone https://github.com/stefanhaustein/TerminalImageViewer.git
+    cd TerminalImageViewer/src/main/cpp
+    make
+    sudo make install
+    
+### Homebrew (MacOS)
 
 Option 1:
 ```
@@ -42,13 +46,10 @@ Option 3(deprecated):
 ```
 brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
 ```
-### Build from source
 
-    sudo apt install imagemagick || yum install ImageMagick
-    git clone https://github.com/stefanhaustein/TerminalImageViewer.git
-    cd TerminalImageViewer/src/main/cpp
-    make
-    sudo make install
+### Snap (outdated)
+
+    sudo snap install --edge tiv
 
 ## Usage
 
@@ -71,6 +72,7 @@ Support for additional platforms, CPUs or similar will require somebody who is h
 
 ## Common problems
 
+ - On some linux platforms, an extra flag seems to be required: `make LDLIBS=-lstdc++fs` (but it also breaks MacOs), see  https://github.com/stefanhaustein/TerminalImageViewer/issues/103
  - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
  - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
  - Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
