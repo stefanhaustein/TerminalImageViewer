@@ -9,7 +9,13 @@ class Tiv < Formula
 
   def install
     cd "src/main/cpp" do
-      system "make"
+      if OS.mac?
+        system "c++", "-std=c++17", "-Wall", "-fpermissive", "-fexceptions", "-O2",
+                                                                                  "-c", "tiv.cpp", "-o", "tiv.o"
+        system "c++", "tiv.o", "-o", "tiv", "-L/usr/local/opt/gcc/lib/gcc/11/", "-pthread",
+                                                                                 "-s"
+      else
+        system "make"
       bin.install "tiv"
     end
   end
