@@ -16,6 +16,7 @@ class Tiv < Formula
                                                                                  "-s"
       else
         system "make"
+      end
       bin.install "tiv"
     end
   end
