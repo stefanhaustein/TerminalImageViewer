@@ -11,7 +11,7 @@ class Terminalimageviewer < Formula
     cd "src/main/cpp" do
       system "make"
       if OS.mac?
-        # No expermimental/filesystem.h on mac. 
+        # No expermimental/filesystem.h on mac.
         system "/usr/local/bin/g++-#{Formula["gcc"].version_suffix}", "-std=c++17",
                                                                                   "-Wall",
                                                                                   "-fpermissive",
@@ -19,9 +19,8 @@ class Terminalimageviewer < Formula
                                                                                   "-O2", "-c",
                                                                                   "-L/usr/local/opt/gcc/lib/gcc/11/",
                                                                                   "tiv.cpp", "-o", "tiv.o"
-        system "/usr/local/bin/g++-#{Formula["gcc"].version_suffix}", "tiv.o", "-o", 
-                                                                                 "tiv", "-L/usr/local/opt/gcc/lib/gcc/11/",
-                                                                                 "-pthread", "-s"
+        system "/usr/local/bin/g++-#{Formula["gcc"].version_suffix}", "tiv.o", "-o", "tiv",
+"-L/usr/local/opt/gcc/lib/gcc/11/", "-pthread", "-s"
       else
         system "make"
       end
