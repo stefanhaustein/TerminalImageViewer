@@ -13,9 +13,13 @@ include(ConfigureNinja)
 set(CXX_EXTENSIONS OFF)
 include(ConfigureCXX_Version)
 
+set(HEADER src/main/cpp/CImg.h)
+set(SOURCE src/main/cpp/tiv.cpp)
+
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wconversion -Wshadow")
 
-add_executable(tiv tiv.cpp CImg.h)
+add_executable(tiv ${SOURCE} ${HEADER})
 
 include(ConfigureThreads)
 include(ConfigureLTO)
