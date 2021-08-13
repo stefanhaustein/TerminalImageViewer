@@ -66,9 +66,12 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
  - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`.
  - aaronliu0130 has added brew support.
 
-I am happy to accept useful contributions under the Apache 2.0 licencse, but it might make sense to file an issue to discuss the approach before investing large amounts of time. 
+I am happy to accept useful contributions under the Apache 2.0 licencse, but...
 
-Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular,  if I don't have access to it.
+ - Before investing in larger contributions, please use an issue to discuss this
+ - Pull requests should be as "atomic" as possible. I won't accept any pull request doing multiple things at once.
+ - This library currently only depends on ImageMagic as an image processing library and I'd prefer to keep it that way.
+ - Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular,  if I don't have access to it.
 
 ## Common problems
 
