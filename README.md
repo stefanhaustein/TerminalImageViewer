@@ -1,4 +1,4 @@
-# TerminalImageViewer (tiv)
+# Terminal Image Viewer (tiv)
 
 Small C++ program to display images in a (modern) terminal using RGB ANSI codes and unicode block graphic characters.
 
