@@ -1,5 +1,5 @@
 name: tiv
-version: "v1.0.0"
+version: "v1.1.1"
 summary: Terminal Image Viewer
 description: |
   tiv is a small C++ program to display images in a (modern) terminal using
@@ -17,7 +17,7 @@ parts:
   tiv:
     plugin: make
     source-type: tar
-    source: https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.0.0.tar.gz
+    source: https://github.com/stefanhaustein/TerminalImageViewer/archive/v1.1.1.tar.gz
     source-subdir: src/main/cpp
     build-packages:
       - g++
@@ -29,7 +29,7 @@ parts:
       install $SNAPCRAFT_PART_BUILD/tiv $SNAPCRAFT_PART_INSTALL/usr/bin/
   imagemagick:
     plugin: autotools
-    source: https://www.imagemagick.org/download/releases/ImageMagick-7.0.7-39.tar.xz
+    source: https://www.imagemagick.org/download/releases/ImageMagick-7.1.0-22.tar.xz
     source-type: tar
     configflags:
       - --enable-hdri=yes

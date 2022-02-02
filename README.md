@@ -20,31 +20,38 @@ See the difference by disabling this optimization using the `-0` option. Or just
 - 2020-04-09: @aaronliu0130 has added homebrew support.
 - 2020-07-05: @cxwx has fixed homebrew support.
 - 2021-05-21: @aaronliu0130 has added Apple Clang support.
+- 2021-02-02: @aaronliu0130 added homebrew support from homebrew-core.
+
 ## Installation
 
-### Build from source (Linux)
+### Build from source
 
     sudo apt install imagemagick || yum install ImageMagick
     git clone https://github.com/stefanhaustein/TerminalImageViewer.git
     cd TerminalImageViewer/src/main/cpp
     make
     sudo make install
-    
-### Homebrew (MacOS)
+
+### Homebrew
 
 Option 1:
+
+```
+brew install tiv
+```
+
+Option 2(deprecated):
+
 ```
 brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
 brew install tiv
 ```
-Option 2(deprecated, for macOS Mojave and below):
+
+Option 3(deprecated, for macOS Mojave and below):
+
 ```
 brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
 brew install terminalimageviewer
-```
-Option 3(deprecated):
-```
-brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewer/master/terminalimageviewer.rb
 ```
 
 ### Snap (outdated)
@@ -55,32 +62,31 @@ brew install https://raw.githubusercontent.com/stefanhaustein/TerminalImageViewe
 
     tiv [options] <filename(s)>
 
-The shell will expand wildcards. By default, thumbnails and file names will be displayed if more than one image is provided. To display a list of options, just run the command without any parameters. 
+The shell will expand wildcards. By default, thumbnails and file names will be displayed if more than one image is provided. To display a list of options, just run the command without any parameters.
 
 ## Packages / Contributions
 
- - megamaced has created a RPM for SUSE:
-   https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer
- - bperel has created a Docker image:
-   https://hub.docker.com/r/bperel/terminalimageviewer
- - teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`.
- - aaronliu0130 has added brew support.
+- megamaced has created a RPM for SUSE:
+   <https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer>
+- bperel has created a Docker image:
+   <https://hub.docker.com/r/bperel/terminalimageviewer>
+- teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`.
+- aaronliu0130 has added brew support.
 
 I am happy to accept useful contributions under the Apache 2.0 licencse, but...
 
- - Before investing in larger contributions, please use an issue to discuss this
- - Pull requests should be as "atomic" as possible. I won't accept any pull request doing multiple things at once.
- - This library currently only depends on ImageMagic as an image processing library and I'd prefer to keep it that way.
- - Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular,  if I don't have access to it.
+- Before investing in larger contributions, please use an issue to discuss this
+- Pull requests should be as "atomic" as possible. I won't accept any pull request doing multiple things at once.
+- This library currently only depends on ImageMagic as an image processing library and I'd prefer to keep it that way.
+- Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular,  if I don't have access to it.
 
 ## Common problems
 
- - On some linux platforms, an extra flag seems to be required: `make LDLIBS=-lstdc++fs` (but it also breaks MacOs), see  https://github.com/stefanhaustein/TerminalImageViewer/issues/103
- - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
- - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
- - Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
- 
- 
+- On some linux platforms, an extra flag seems to be required: `make LDLIBS=-lstdc++fs` (but it also breaks MacOs), see  <https://github.com/stefanhaustein/TerminalImageViewer/issues/103>
+- If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
+- Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
+- Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
+
 ## Examples
 
 ![Examples](https://i.imgur.com/8UyGjg8.png)
@@ -94,4 +100,3 @@ If multiple images match the filename spec, thumbnails are shown.
 The top image was generated with the character optimization disabled via the `-0` option.
 
 ![Comparison](https://i.imgur.com/OzdCeh6.png)
-
