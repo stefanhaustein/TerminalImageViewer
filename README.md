@@ -89,7 +89,7 @@ I am happy to accept useful contributions under the Apache 2.0 licencse, but...
 
 ## Examples
 
-![Examples](https://i.imgur.com/8UyGjg8.png)
+![Examples](https://i.imgur.com/yWRZ3yk.png)
 
 If multiple images match the filename spec, thumbnails are shown.
 
