@@ -20,7 +20,7 @@ See the difference by disabling this optimization using the `-0` option. Or just
 - 2020-04-09: @aaronliu0130 has added homebrew support.
 - 2020-07-05: @cxwx has fixed homebrew support.
 - 2021-05-21: @aaronliu0130 has added Apple Clang support.
-- 2021-02-02: @aaronliu0130 added homebrew support from homebrew-core.
+- 2022-02-02: @aaronliu0130 added homebrew support from homebrew-core.
 
 ## Installation
 
@@ -40,14 +40,14 @@ Option 1:
 brew install tiv
 ```
 
-Option 2(deprecated):
+Option 2 (deprecated):
 
 ```
 brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
 brew install tiv
 ```
 
-Option 3(deprecated, for macOS Mojave and below):
+Option 3 (deprecated, for macOS Mojave and below):
 
 ```
 brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
