@@ -1,0 +1,43 @@
+name: Bug report
+description: Create a report to help us improve
+labels: bug
+body:
+- type: textarea
+  attributes: 
+    label: Describe the Bug
+    description: A clear and concise description of what the bug is.
+  validations:
+    required: true
+- type: textarea
+  attributes: 
+    label: To Reproduce 
+    description: Steps to reproduce the behavio(u)r
+    value: |-
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Expected Behavio(u)r
+    description: A clear and concise description of what you expected to happen.
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Version/Commit Hash
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: OS Specifics
+    description: Output of `uname -a` or the Windows build number
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Screenshots
+    description: If applicable, add screenshots to help explain your problem.
+    
