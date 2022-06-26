@@ -488,7 +488,7 @@ std::ostream& operator<<(std::ostream& stream, size sz) {
 
 
 void emit_usage() {
-  std::cerr << "Terminal Image Viewer v1.1.0" << std::endl << std::endl;
+  std::cerr << "Terminal Image Viewer v1.1.1" << std::endl << std::endl;
   std::cerr << "usage: tiv [options] <image> [<image>...]" << std::endl << std::endl;
   std::cerr << "  -0        : No block character adjustment, always use top half block char." << std::endl;
   std::cerr << "  -256      : Use 256 color mode." << std::endl;
