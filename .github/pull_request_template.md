@@ -2,7 +2,7 @@
 <!--Closes #0-->
 <!--(if any, change the zero above to the issue number and uncomment lines 1 and 2)-->
 
-### How can we test this? Step by step instructions please.
+### How can we test this? Step-by-step instructions, please.
 
 1. 
 2. 
