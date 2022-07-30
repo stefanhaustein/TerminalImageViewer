@@ -25,24 +25,24 @@ See the difference by disabling this optimization using the `-0` option. Or just
 ## Installation
 
 ### Build from source
-
-    sudo apt install imagemagick || yum install ImageMagick
-    git clone https://github.com/stefanhaustein/TerminalImageViewer.git
-    cd TerminalImageViewer/src/main/cpp
-    make
-    sudo make install
-
+```sh
+brew install imagemagick || yum install ImageMagick || sudo apt install imagemagick
+git clone https://github.com/stefanhaustein/TerminalImageViewer.git
+cd TerminalImageViewer/src/main/cpp
+make
+sudo make install
+```
 ### Homebrew
 
 Option 1:
 
-```
+```sh
 brew install tiv
 ```
 
 Option 2 (deprecated, for macOS Mojave and below):
 
-```
+```sh
 brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
 brew install terminalimageviewer
 ```
