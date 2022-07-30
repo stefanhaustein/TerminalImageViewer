@@ -40,14 +40,7 @@ Option 1:
 brew install tiv
 ```
 
-Option 2 (deprecated):
-
-```
-brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
-brew install tiv
-```
-
-Option 3 (deprecated, for macOS Mojave and below):
+Option 2 (deprecated, for macOS Mojave and below):
 
 ```
 brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
