@@ -23,7 +23,7 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
 
 - 2020-10-22: The Java version is now **deprecated**. Development has long shifted to the C++ version since that was created, and the last meaningful update to it was in 2016.
 - 2021-05-22: We now support Apple Clang, thanks to the C++ filesystem library being no longer experimental. Issue forms have also been added to the GitHub repository.
-- 2023-09-29: Today marks the 40th anniversary of the GNU project. If you haven't learned the news concerning it and Stallman, please do. In project news, @aaronliu0130 will probably be developing this project from now on as the original author is inactive. Support for MSVC has been added and the repository is now under an Apache 2.0 or GPL3 dual license. CI building for each release will hopefully be setup soon. The main program has also adopted a mostly Google code-style because I (aaron) think it simply makes sense.
+- 2023-09-29: Today marks the 40th anniversary of the GNU project. If you haven't learned the news concerning it and Stallman, please do. In project news, @aaronliu0130 will probably be developing this project from now on as the original author has moved on to better things to do. Support for MSVC has been added and the repository is now under an Apache 2.0 or GPL3 dual license. CI building for each release will hopefully be setup soon. The main program has also adopted a mostly Google code-style because I (aaron) think it simply makes sense.
 `SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later`
 
 ## Installation
