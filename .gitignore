@@ -35,6 +35,18 @@
 tiv
 
 
+###Visual Studio###
+
+.vs/
+*.pdb
+*.idb
+*.ilk
+x64/
+*.sln
+*.vcxproj
+*.vcxproj.*
+
+
 ###Java###
 
 # Compiled class file
@@ -60,6 +72,9 @@ tiv
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# Intellij
+.idea/
+*.iml
 
 ###Linux###
 
@@ -67,18 +82,6 @@ hs_err_pid*
 
 # KDE directory preferences
 .directory
-
-
-###Visual Studio###
-
-.vs/
-*.pdb
-*.idb
-*.ilk
-x64/
-*.sln
-*.vcxproj
-*.vcxproj.*
 
 
 ###OSX###
@@ -103,10 +106,6 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-# Intellij
-.idea/
-*.iml
 
 
 ###Snap###
