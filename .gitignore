@@ -69,6 +69,18 @@ hs_err_pid*
 .directory
 
 
+###Visual Studio###
+
+.vs/
+*.pdb
+*.idb
+*.ilk
+x64/
+*.sln
+*.vcxproj
+*.vcxproj.*
+
+
 ###OSX###
 
 .DS_Store
@@ -77,7 +89,6 @@ hs_err_pid*
 
 # Icon must end with two \r
 Icon
-
 
 # Thumbnails
 ._*
