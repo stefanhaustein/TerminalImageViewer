@@ -76,7 +76,7 @@ brew install terminalimageviewer
 - 2019-03-26: Exciting week: @Cableo has fixed output redirection, @boretom has added cross-compilation support to the build file and @AlanDeSmet has fixed tall thumbnails and greyscale images.
 - 2020-07-05: @cxwx has fixed homebrew support.
 
-I am happy to accept useful contributions under the Apache 2.0 licencse, but...
+I am happy to accept useful contributions under the Apache 2.0 license, but...
 
 - Before investing in larger contributions, please use an issue to discuss this
 - Pull requests should be as "atomic" as possible. I won't accept any pull request doing multiple things at once.
