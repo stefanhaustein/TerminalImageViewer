@@ -77,10 +77,10 @@
 // Implementation of flag representation for flags in the main() method
 constexpr int FLAG_FG = 1;
 constexpr int FLAG_BG = 2;
-constexpr int FLAG_MODE_256 = 4;
-constexpr int FLAG_24BIT = 8;
-constexpr int FLAG_NOOPT = 16;
-constexpr int FLAG_TELETEXT = 32;
+constexpr int FLAG_MODE_256 = 4;   // Limit colors to 256-color mode
+constexpr int FLAG_24BIT = 8;      // 24-bit color mode
+constexpr int FLAG_NOOPT = 16;     // Only use the same half-block character
+constexpr int FLAG_TELETEXT = 32;  // Use teletext characters
 
 // Steps (@TODO: Figure out what exactly they represent)
 constexpr int COLOR_STEP_COUNT = 6;
@@ -212,6 +212,12 @@ constexpr unsigned int BITMAPS[] = {
     0, 1  // End marker for extended TELETEXT mode.
 };
 
+/**
+ * @brief Struct to represent a character to be drawn.
+ * @param fgColor RGB
+ * @param bgColor RGB
+ * @param codePoint The code point of the character to be drawn.
+ */
 struct CharData {
     std::array<int, 3> fgColor = std::array<int, 3>{0, 0, 0};
     std::array<int, 3> bgColor = std::array<int, 3>{0, 0, 0};
@@ -399,7 +405,7 @@ int clamp_byte(int value) {
 
 double sqr(double n) { return n * n; }
 
-int best_index(int value, const int (&STEPS)[], int count) {
+int best_index(int value, const int STEPS[], int count) {
     int best_diff = std::abs(STEPS[0] - value);
     int result = 0;
     for (int i = 1; i < count; i++) {
