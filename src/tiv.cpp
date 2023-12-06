@@ -540,7 +540,7 @@ cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename) {
 // Implements --help
 void emit_usage() {
     std::cerr << R"(
-Terminal Image Viewer v1.2
+Terminal Image Viewer v1.2.1
 usage: tiv [options] <image> [<image>...]
 -0        : No block character adjustment, always use top half block char.
 -2, --256 : Use 256-bit colors. Needed to display properly on macOS Terminal.
