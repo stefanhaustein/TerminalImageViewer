@@ -590,7 +590,7 @@ int main(int argc, char *argv[]) {
                   << std::endl;
     }
 #else
-    std::cerr << "Warning: failed to determine most reasonable sie: "
+    std::cerr << "Warning: failed to determine most reasonable size: "
                  "unrecognized system, defaulting to 80x24"
               << std::endl;
 #endif
