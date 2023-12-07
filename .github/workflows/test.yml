@@ -10,8 +10,8 @@ jobs:
       - uses: actions/github-script@v7
         id: tag
         with:
-          result-encoding: string
+          result-encoding: json
           script: |
             return github.rest.repos.listTags(
-              {owner: 'GreycLab', repo: 'CImg', per_page: 1, page: 1}).data
+              {owner: 'GreycLab', repo: 'CImg', per_page: 1, page: 1})
       - run: echo ${{ steps.tag.outputs.result }}
