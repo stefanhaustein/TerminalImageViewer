@@ -16,9 +16,9 @@ jobs:
           result-encoding: string
           script: |
               github.rest.repos.getContent({
-                owner: GreycLab, repo: CImg, path: 'CImg.h', ref: 
+                owner: 'GreycLab', repo: 'CImg', path: 'CImg.h', ref: 
                   github.rest.repos.listTags(
-                  {owner: GreycLab, repo: CImg, per_page: 1, page: 1})[0].name
+                  {owner: 'GreycLab', repo: 'CImg', per_page: 1, page: 1})[0].name
               })
       - run: echo ${{ steps.latest-tag.outputs.result }} > 'src/CImg.h'
       - run: |
