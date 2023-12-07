@@ -9,6 +9,6 @@ jobs:
         id: tag
         with:
           script: |
-            github.rest.repos.listTags(
+            return github.rest.repos.listTags(
               {owner: 'GreycLab', repo: 'CImg', per_page: 1, page: 1})
       - run: echo ${{ steps.tag.outputs.result }}
