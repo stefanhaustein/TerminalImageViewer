@@ -11,5 +11,5 @@ jobs:
           result-encoding: string
           script: |
             return github.rest.repos.listTags(
-              {owner: 'GreycLab', repo: 'CImg', per_page: 1, page: 1})
+              {owner: 'GreycLab', repo: 'CImg', per_page: 1, page: 1})[0]
       - run: echo ${{ steps.tag.outputs.result }}
