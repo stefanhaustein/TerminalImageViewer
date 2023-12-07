@@ -1,7 +1,7 @@
 name: Test GitHub Script
 on:
   push:
-    path
+    paths: ".github/workflows/test.yml"
   workflow_dispatch:
 jobs:
   test:
