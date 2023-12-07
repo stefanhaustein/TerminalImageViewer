@@ -1,0 +1,33 @@
+name: Update CIMG.h
+env:
+  file: "CImg.h"
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  pull-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v6
+        id: latest-tag
+        with:
+          result-encoding: string
+          script: |
+              github.rest.repos.getContent({
+                owner: GreycLab, repo: CImg, path: 'CImg.h', ref: 
+                  github.rest.repos.listTags(
+                  {owner: GreycLab, repo: CImg, per_page: 1, page: 1})[0].name
+              })
+      - run: echo ${{ steps.latest-tag.outputs.result }} > 'src/CImg.h'
+      - run: |
+          if git diff --quiet; then
+            echo "No changes detected. Exiting..."
+            exit 0
+          fi
+      - run: |
+          git add .
+          git commit -m "Update CImg.h to ${{ steps.latest-tag.outputs.result }}""
+          git fetch
+          git push
