@@ -563,7 +563,7 @@ int main(int argc, char *argv[]) {
     // implementations are welcome Fallback sizes when unsuccesful
     int maxWidth = 80;
     int maxHeight = 24;
-#ifdef __POSIX_VERSION
+#ifdef _POSIX_VERSION
     struct winsize w;
     // If redirecting STDOUT to one file ( col or row == 0, or the previous
     // ioctl call's failed )
@@ -584,10 +584,9 @@ int main(int argc, char *argv[]) {
         maxWidth = w.dwSize.X * 4;
         maxHeight = w.dwSize.Y * 8;
     } else {
-        std::cerr << GetLastError();
-        std::cerr << "Warning: failed to determine most reasonable size, "
-                     "defaulting to 80x24"
-                  << std::endl;
+        std::cerr
+            << "Warning: failed to determine most reasonable size: Error code"
+            << GetLastError() << ", defaulting to 80x24" << std::endl;
     }
 #else
     std::cerr << "Warning: failed to determine most reasonable size: "
