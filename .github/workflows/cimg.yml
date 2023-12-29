@@ -28,7 +28,7 @@ jobs:
             exit 0
           fi
       - run: |
-          git add .
-          git commit -m "Update CImg.h to the latest version"
-          git fetch
+          git config user.name 'GitHub Actions'
+          git config user.email 'actions@github.com'
+          git commit -am "Update CImg.h to the latest version"
           git push
