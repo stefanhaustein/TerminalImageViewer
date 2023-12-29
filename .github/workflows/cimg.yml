@@ -16,7 +16,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-              (await github.rest.repos.listTags({ owner: 'GreycLab', repo: 'CImg', per_page: 28 })).data[27].name
+              return (await github.rest.repos.listTags({ owner: 'GreycLab', repo: 'CImg', per_page: 28 })).data[27].name
       - if: ${{steps.latest-tag.outputs.result=='v.3.3.0'}}
         name: Exit if up-to-date
         run: exit 0
