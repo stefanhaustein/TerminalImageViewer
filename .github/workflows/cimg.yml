@@ -1,6 +1,7 @@
 name: Update CIMG.h
 permissions:
   actions: write
+  contents: write
 on:
   release:
     types: [published]
