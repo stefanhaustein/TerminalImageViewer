@@ -1,6 +1,6 @@
 name: Update CIMG.h
-env:
-  file: "CImg.h"
+permissions:
+  actions: write
 on:
   release:
     types: [published]
@@ -25,7 +25,8 @@ jobs:
         with:
           file-url: 'https://github.com/GreycLab/CImg/raw/${{ steps.latest-tag.outputs.result }}/CImg.h'
           location: 'src'
-      - run: |
+      - name: Commit new CImg version (and update script)
+        run: |
           # mv -f src/CImg418.h src/CImg.h
           sed -i 's/v.3.3.0/${{steps.latest-tag.outputs.result}}/' .github/workflows/cimg.yml
           git config user.name 'GitHub Actions'
