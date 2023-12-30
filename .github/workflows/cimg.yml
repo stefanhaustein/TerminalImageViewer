@@ -1,7 +1,4 @@
 name: Update CIMG.h
-permissions:
-  actions: write
-  contents: write
 on:
   release:
     types: [published]
@@ -11,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_TOKEN }}
       - name: Fetch the latest tag (could be buggy)
         uses: actions/github-script@v7
         id: latest-tag
