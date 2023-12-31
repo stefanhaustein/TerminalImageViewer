@@ -31,5 +31,5 @@ jobs:
           sed -i 's/v.3.3.2/${{ steps.latest-tag.outputs.result }}/' .github/workflows/cimg.yml
           git config user.name 'GitHub Actions'
           git config user.email 'actions@github.com'
-          git commit -am "Update CImg.h to ${{ steps.latest-tag.outputs.result }}"
+          git commit -am "Update CImg to ${{ steps.latest-tag.outputs.result }}"
           git push
