@@ -17,7 +17,7 @@ jobs:
           result-encoding: string
           script: |
               return (await github.rest.repos.listTags({ owner: 'GreycLab', repo: 'CImg', per_page: 28 })).data[27].name
-      - if: ${{steps.latest-tag.outputs.result=='v.3.3.2'}}
+      - if: ${{steps.latest-tag.outputs.result=='v.3.3.1'}}
         name: Exit if up-to-date
         run: exit 0
       - name: Download new CImg version
@@ -28,8 +28,8 @@ jobs:
       - name: Commit new CImg version (and update script)
         run: |
           # mv -f src/CImg418.h src/CImg.h
-          sed -i 's/v.3.3.2/${{steps.latest-tag.outputs.result}}/' .github/workflows/cimg.yml
+          sed -i 's/v.3.3.1/${{ steps.latest-tag.outputs.result }}/' .github/workflows/cimg.yml
           git config user.name 'GitHub Actions'
           git config user.email 'actions@github.com'
-          git commit -am "Update CImg.h to the latest version"
+          git commit -am "Update CImg.h to ${{ steps.latest-tag.outputs.result }}"
           git push
