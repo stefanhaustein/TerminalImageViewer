@@ -21,4 +21,4 @@ jobs:
     - name: Install
       run: sudo make -C src install
     - name: Test
-      run: tiv /usr/share/pixmaps/debian-logo.png
+      run: tiv -w 80 -h 24 -2 /usr/share/pixmaps/debian-logo.png
