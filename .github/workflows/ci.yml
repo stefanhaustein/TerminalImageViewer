@@ -18,7 +18,5 @@ jobs:
       run: sudo apt-get install -qy imagemagick
     - name: Build
       run: make -C src
-    - name: Install
-      run: sudo make -C src install
     - name: Test
-      run: tiv -w 80 -h 24 -2 /usr/share/pixmaps/debian-logo.png
+      run: ./src/tiv -w 80 -h 24 /usr/share/pixmaps/debian-logo.png
