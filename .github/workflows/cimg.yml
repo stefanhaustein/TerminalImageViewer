@@ -4,7 +4,8 @@ on:
     types: [published]
   workflow_dispatch:
 jobs:
-  pull-file:
+  check-version:
+    name: Check for updates
     runs-on: ubuntu-latest
     steps:
       - name: Fetch the latest tag (could be buggy)
@@ -14,9 +15,12 @@ jobs:
           result-encoding: string
           script: |
               return (await github.rest.repos.listTags({ owner: 'GreycLab', repo: 'CImg', per_page: 28 })).data[27].name
-      - if: ${{steps.latest-tag.outputs.result=='v.3.3.3'}}
-        name: Exit if up-to-date
-        run: exit 0
+  pull-file:
+    name: Update CImg
+    runs-on: ubuntu-latest
+    needs: check-version
+    if: ${{ needs.check-version.latest-tag.outputs.result != 'v.3.3.2' }}
+    steps:
       - uses: actions/checkout@v4
         name: Checkout this repository
         with:
@@ -28,9 +32,8 @@ jobs:
           location: 'src'
       - name: Commit new CImg version (and update script)
         run: |
-          # mv -f src/CImg418.h src/CImg.h
-          sed -i 's/v.3.3.3/${{ steps.latest-tag.outputs.result }}/' .github/workflows/cimg.yml
+          sed -i 's/v.3.3.2/${{ needs.check-version.latest-tag.outputs.result }}/' .github/workflows/cimg.yml
           git config user.name 'GitHub Actions'
           git config user.email 'actions@github.com'
-          git commit -am "Update CImg to ${{ steps.latest-tag.outputs.result }}"
+          git commit -am "Update CImg to ${{ needs.check-version.latest-tag.outputs.result }}"
           git push
