@@ -8,7 +8,7 @@ jobs:
     name: Check for updates
     runs-on: ubuntu-latest
     outputs:
-      latest-tag: steps.latest-tag.outputs.result
+      latest-tag: ${{ steps.latest-tag.outputs.result }}
     steps:
       - name: Fetch the latest tag (could be buggy)
         uses: actions/github-script@v7
