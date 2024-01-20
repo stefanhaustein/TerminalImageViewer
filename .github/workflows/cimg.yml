@@ -1,4 +1,4 @@
-name: Update CIMG.h
+name: Update CImg
 on:
   release:
     types: [published]
@@ -7,6 +7,8 @@ jobs:
   check-version:
     name: Check for updates
     runs-on: ubuntu-latest
+    outputs:
+      latest-tag: steps.latest-tag.outputs.result
     steps:
       - name: Fetch the latest tag (could be buggy)
         uses: actions/github-script@v7
@@ -16,10 +18,10 @@ jobs:
           script: |
               return (await github.rest.repos.listTags({ owner: 'GreycLab', repo: 'CImg', per_page: 28 })).data[27].name
   pull-file:
-    name: Update CImg
+    name: Update CImg.h
     runs-on: ubuntu-latest
     needs: check-version
-    if: ${{ needs.check-version.latest-tag.outputs.result != 'v.3.3.2' }}
+    if: ${{ needs.check-version.latest-tag != 'v.3.3.2' }}
     steps:
       - uses: actions/checkout@v4
         name: Checkout this repository
@@ -28,12 +30,12 @@ jobs:
       - name: Download new CImg version
         uses: carlosperate/download-file-action@v2
         with:
-          file-url: 'https://github.com/GreycLab/CImg/raw/${{ needs.check-version.latest-tag.outputs.result }}/CImg.h'
+          file-url: 'https://github.com/GreycLab/CImg/raw/${{ needs.check-version.latest-tag }}/CImg.h'
           location: 'src'
       - name: Commit new CImg version (and update script)
         run: |
-          sed -i 's/v.3.3.2/${{ needs.check-version.latest-tag.outputs.result }}/' .github/workflows/cimg.yml
+          sed -i 's/v.3.3.2/${{ needs.check-version.latest-tag }}/' .github/workflows/cimg.yml
           git config user.name 'GitHub Actions'
           git config user.email 'actions@github.com'
-          git commit -am "Update CImg to ${{ needs.check-version.latest-tag.outputs.result }}"
+          git commit -am "Update CImg to ${{ needs.check-version.latest-tag }}"
           git push
