@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Aaron Liu
+ * Copyright (c) 2017-2023, Stefan Haustein, Aaron Liu
  *
  *  This file is free software: you may copy, redistribute and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -14,22 +14,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * This file incorporates work covered by the following copyright and
- * permission notice:
- *
- *     Copyright (c) 2017—2021, Stefan Haustein
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         https://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
+ * This file used to be licensed under the Apache license. Older version
+ * under this license are available via the git history of this repository.
  */
 
 #include <array>
@@ -71,9 +57,6 @@
 #define EX_CONFIG 78    /* configuration error */
 #endif
 
-// using namespace std; // haha nope, bad style
-// especially when we're also using the CImg namespace
-
 // Implementation of flag representation for flags in the main() method
 constexpr int FLAG_FG = 1;
 constexpr int FLAG_BG = 2;
@@ -82,15 +65,18 @@ constexpr int FLAG_24BIT = 8;      // 24-bit color mode
 constexpr int FLAG_NOOPT = 16;     // Only use the same half-block character
 constexpr int FLAG_TELETEXT = 32;  // Use teletext characters
 
-// Steps (@TODO: Figure out what exactly they represent)
+// Color saturation value steps from 0 to 255
 constexpr int COLOR_STEP_COUNT = 6;
 constexpr int COLOR_STEPS[COLOR_STEP_COUNT] = {0, 0x5f, 0x87, 0xaf, 0xd7, 0xff};
 
+// Grayscale saturation value steps from 0 to 255
 constexpr int GRAYSCALE_STEP_COUNT = 24;
 constexpr int GRAYSCALE_STEPS[GRAYSCALE_STEP_COUNT] = {
     0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x62, 0x6c, 0x76,
     0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0, 0xda, 0xe4, 0xee};
 
+// An interleaved map of 4x8 bit character bitmaps (each hex digit represents a row) 
+// to the corresponding unicode character code point.  
 constexpr unsigned int BITMAPS[] = {
     0x00000000, 0x00a0,
 
