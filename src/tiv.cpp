@@ -40,14 +40,15 @@
 #include <string>
 #include <vector>
 
-// CImg, the superior grafiks library
+// This #define tells CImg that we use the library without any display options --
+// just for loading images.
 #define cimg_display 0
 #include "CImg.h"
 
-// First include for detecting console output size,
-// everything else for exit codes
 #ifdef _POSIX_VERSION
+// Console output size detection
 #include <sys/ioctl.h>
+// Exit codes
 #include <sysexits.h>
 #endif
 
