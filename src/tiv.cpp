@@ -34,13 +34,14 @@
 #include <bitset>
 #include <cmath>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
-// This #define tells CImg that we use the library without any display options --
+// This #define tells CImg that we use the library without any display options,
 // just for loading images.
 #define cimg_display 0
 #include "CImg.h"
@@ -73,6 +74,7 @@
 #define EX_CONFIG 78    /* configuration error */
 #endif
 
+// @TODO: Convert to bitset
 // Implementation of flag representation for flags in the main() method
 constexpr int FLAG_FG = 1;         // emit fg color
 constexpr int FLAG_BG = 2;         // emit bg color
@@ -91,8 +93,8 @@ constexpr int GRAYSCALE_STEPS[GRAYSCALE_STEP_COUNT] = {
     0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x62, 0x6c, 0x76,
     0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0, 0xda, 0xe4, 0xee};
 
-// An interleaved map of 4x8 bit character bitmaps (each hex digit represents a row) 
-// to the corresponding unicode character code point.  
+// An interleaved map of 4x8 bit character bitmaps (each hex digit represents a
+// row) to the corresponding unicode character code point.
 constexpr unsigned int BITMAPS[] = {
     0x00000000, 0x00a0,
 
