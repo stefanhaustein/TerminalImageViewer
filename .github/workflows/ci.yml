@@ -25,4 +25,7 @@ jobs:
     - name: Build
       run: make -C src
     - name: Test
-      run: ./src/tiv -w 80 -h 24 /usr/share/pixmaps/debian-logo.png
+      run: |
+        images=('/usr/local/share/icons/hicolor/128x128/apps/microsoft-edge.png' '/usr/local/share/icons/hicolor/128x128/apps/CMakeSetup.png' '/usr/local/doc/cmake/html/_static/file.png' '/usr/local/lib/android/sdk/extras/google/google_play_services/samples/tagmanager/cuteanimals/res/drawable/cat_1.jpg' '/usr/local/lib/android/sdk/extras/google/google_play_services/samples/wallet/res/drawable-ldpi/icon.png' '/usr/local/lib/android/sdk/extras/google/google_play_services/samples/wallet/res/drawable-hdpi/icon.png' '/usr/share/plymouth/themes/spinner/watermark.png' '/usr/share/apache2/icons/apache_pb.png' '/usr/share/doc/libpng-dev/examples/pngtest.png')
+        ./src/tiv -w 160 -h 48 ${images[ $RANDOM % ${#images[@]} ]} # Get random image
+        ./src/tiv -w 160 -h 48 /usr/share/pixmaps # Dir mode
