@@ -12,7 +12,7 @@ prefix      ?= /usr/local
 exec_prefix ?= $(prefix)
 bindir      ?= $(exec_prefix)/bin
 
-override CXXFLAGS += -std=c++2a -Wall -fexceptions
+override CXXFLAGS += -std=c++17 -Wall -fexceptions
 override LDFLAGS  += -pthread
 
 all: $(PROGNAME)

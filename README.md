@@ -34,7 +34,7 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
 
 ### All platforms: Build from source
 
-Our makefile currently only supports `g++`. It should be possible to compile `tiv` manually using any of your favorite compilers that support C++20 and Unix headers (`ioctl.h`, specifically) or `windows.h`. PRs are welcome.
+Our makefile currently only supports `g++`. It should be possible to compile `tiv` manually using any of your favorite compilers that support C++17 and Unix headers (`ioctl.h` and `sysexits.h`, specifically) or `windows.h`. PRs are welcome.
 
 ```sh
 git clone https://github.com/stefanhaustein/TerminalImageViewer.git
