@@ -35,10 +35,12 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+#include <functional>
 
 // This #define tells CImg that we use the library without any display options --
 // just for loading images.
@@ -223,9 +225,11 @@ struct CharData {
     int codePoint;
 };
 
+typedef std::function<unsigned char(int, int, int)> GetPixelFunction;
+
 // Return a CharData struct with the given code point and corresponding averag
 // fg and bg colors.
-CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
+CharData createCharData(GetPixelFunction get_pixel, int x0,
                         int y0, int codepoint, int pattern) {
     CharData result;
     result.codePoint = codepoint;
@@ -244,7 +248,7 @@ CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                 bg_count++;
             }
             for (int i = 0; i < 3; i++) {
-                avg[i] += image(x0 + x, y0 + y, 0, i);
+                avg[i] += get_pixel(x0 + x, y0 + y, i);
             }
             mask = mask >> 1;
         }
@@ -272,7 +276,7 @@ CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
  * @param flags
  * @return CharData
  */
-CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
+CharData findCharData(GetPixelFunction get_pixel, int x0,
                       int y0, const int &flags) {
     int min[3] = {255, 255, 255};
     int max[3] = {0};
@@ -283,7 +287,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
         for (int x = 0; x < 4; x++) {
             long color = 0;
             for (int i = 0; i < 3; i++) {
-                int d = image(x0 + x, y0 + y, 0, i);
+                int d = get_pixel(x0 + x, y0 + y, i);
                 min[i] = std::min(min[i], d);
                 max[i] = std::max(max[i], d);
                 color = (color << 8) | d;
@@ -319,7 +323,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                     int shift = 16 - 8 * i;
                     int c1 = (max_count_color_1 >> shift) & 255;
                     int c2 = (max_count_color_2 >> shift) & 255;
-                    int c = image(x0 + x, y0 + y, 0, i);
+                    int c = get_pixel(x0 + x, y0 + y, i);
                     d1 += (c1 - c) * (c1 - c);
                     d2 += (c2 - c) * (c2 - c);
                 }
@@ -348,7 +352,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 4; x++) {
                 bits = bits << 1;
-                if (image(x0 + x, y0 + y, 0, splitIndex) > splitValue) {
+                if (get_pixel(x0 + x, y0 + y, splitIndex) > splitValue) {
                     bits |= 1;
                 }
             }
@@ -395,7 +399,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
         }
         return result;
     }
-    return createCharData(image, x0, y0, codepoint, best_pattern);
+    return createCharData(get_pixel, x0, y0, codepoint, best_pattern);
 }
 
 int clamp_byte(int value) {
@@ -476,13 +480,18 @@ void emitCodepoint(int codepoint) {
 
 void emit_image(const cimg_library::CImg<unsigned char> &image,
                 const int &flags) {
+    
+    GetPixelFunction get_pixel = [&](int x, int y, int channel) -> unsigned char {
+        return image(x, y, 0, channel);
+    };
+
     CharData lastCharData;
     for (int y = 0; y <= image.height() - 8; y += 8) {
         for (int x = 0; x <= image.width() - 4; x += 4) {
             CharData charData =
                 flags & FLAG_NOOPT
-                    ? createCharData(image, x, y, 0x2584, 0x0000ffff)
-                    : findCharData(image, x, y, flags);
+                    ? createCharData(get_pixel, x, y, 0x2584, 0x0000ffff)
+                    : findCharData(get_pixel, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
                 emit_color(flags | FLAG_BG, charData.bgColor[0],
                            charData.bgColor[1], charData.bgColor[2]);
