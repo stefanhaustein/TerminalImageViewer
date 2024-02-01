@@ -84,8 +84,9 @@ I am happy to accept useful contributions under the Apache 2.0 license, but...
 - This program currently only depends on CImg and ImageMagick as image processing libraries and I'd prefer to keep it that way.
 - Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular if I don't have access to it.
 
-## Common problems
+## Common problems / Troubleshooting
 
+- Errors such as "unrecognized file format"? Make sure ImageMagic is installed.
 - On some linux platforms, an extra flag seems to be required: `make LDLIBS=-lstdc++fs` (but it also breaks MacOs), see  <https://github.com/stefanhaustein/TerminalImageViewer/issues/103>
 - If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
 - Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
