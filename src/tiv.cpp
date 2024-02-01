@@ -45,6 +45,9 @@
 // CImg, the superior grafiks library
 #define cimg_display 0
 #include "CImg.h"
+// CImg defines its own min and max macros to compile, so we need to undef them
+#undef min
+#undef max
 
 // First include for detecting console output size,
 // everything else for exit codes
