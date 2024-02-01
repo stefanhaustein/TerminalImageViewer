@@ -78,8 +78,8 @@
 // especially when we're also using the CImg namespace
 
 // Implementation of flag representation for flags in the main() method
-constexpr int FLAG_FG = 1;
-constexpr int FLAG_BG = 2;
+constexpr int FLAG_FG = 1;         // emit fg color
+constexpr int FLAG_BG = 2;         // emit bg color
 constexpr int FLAG_MODE_256 = 4;   // Limit colors to 256-color mode
 constexpr int FLAG_24BIT = 8;      // 24-bit color mode
 constexpr int FLAG_NOOPT = 16;     // Only use the same half-block character
@@ -227,8 +227,8 @@ struct CharData {
     int codePoint;
 };
 
-// Return a CharData struct with the given code point and corresponding averag
-// fg and bg colors.
+// Return a CharData struct with the given code point and corresponding
+// average fg and bg colors.
 CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                         int y0, int codepoint, int pattern) {
     CharData result;
@@ -267,14 +267,14 @@ CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
 }
 
 /**
- * @brief Find the best character and colors
- * for a 4x8 part of the image at the given position
+ * @brief Find the best character and colors for the given 4x8 area of the image
  *
- * @param image
- * @param x0
- * @param y0
+ * @param image The image where the pixels reside
+ * @param x0 The x coordinate of the top left pixel of the area
+ * @param y0 The y coordinate of the top left pixel of the area
  * @param flags
- * @return CharData
+ * @return The @ref CharData representation of the colors and character best
+ * used to render the 4x8 area
  */
 CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                       int y0, const int &flags) {
@@ -290,6 +290,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                 int d = image(x0 + x, y0 + y, 0, i);
                 min[i] = std::min(min[i], d);
                 max[i] = std::max(max[i], d);
+
                 color = (color << 8) | d;
             }
             count_per_color[color]++;
@@ -429,10 +430,13 @@ void emit_color(const int &flags, int r, int g, int b) {
     bool bg = (flags & FLAG_BG) != 0;
 
     if ((flags & FLAG_MODE_256) == 0) {
+        // 2 means we output true (RGB) colors
         std::cout << (bg ? "\x1b[48;2;" : "\x1b[38;2;") << r << ';' << g << ';'
                   << b << 'm';
         return;
     }
+
+    // Compute predefined color index from all 256 colors we should use
 
     int ri = best_index(r, COLOR_STEPS, COLOR_STEP_COUNT);
     int gi = best_index(g, COLOR_STEPS, COLOR_STEP_COUNT);
@@ -455,6 +459,7 @@ void emit_color(const int &flags, int r, int g, int b) {
     } else {
         color_index = 232 + gri;  // 1..24 -> 232..255
     }
+    // 38 sets the foreground color and 48 sets the background color
     std::cout << (bg ? "\x1B[48;5;" : "\u001B[38;5;") << color_index << "m";
 }
 
@@ -679,7 +684,7 @@ int main(int argc, char *argv[]) {
                     image.resize(new_size.width, new_size.height, -100, -100,
                                  5);
                 }
-                // the acutal magic which generates the output
+                // the actual magick which generates the output
                 emit_image(image, flags);
             } catch (cimg_library::CImgIOException &e) {
                 std::cerr << "Error: '" << filename
