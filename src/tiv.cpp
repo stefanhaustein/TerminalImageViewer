@@ -422,7 +422,7 @@ int best_index(int value, const int STEPS[], int count) {
     return result;
 }
 
-std::string emitTermColor(const int8_t &flags, int r, int g, int b) {
+std::string emitTermColor(int r, int g, int b, const int8_t &flags) {
     r = clamp_byte(r), g = clamp_byte(g), b = clamp_byte(b);
 
     const bool bg = (flags & FLAG_BG);
@@ -480,7 +480,7 @@ void emitCodepoint(int codepoint) {
 }
 
 std::string emitImage(const cimg_library::CImg<unsigned char> &image,
-                          const int8_t &flags) {
+                      const int8_t &flags) {
     std::string ret;
     CharData lastCharData;
     for (int y = 0; y <= image.height() - 8; y += 8) {
@@ -492,11 +492,11 @@ std::string emitImage(const cimg_library::CImg<unsigned char> &image,
                     ? createCharData(image, x, y, 0x2584, 0x0000ffff)
                     : findCharData(image, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
-                ret += emitTermColor(flags | FLAG_BG, charData.bgColor[0],
-                                     charData.bgColor[1], charData.bgColor[2]);
+                ret += emitTermColor(charData.bgColor[0], charData.bgColor[1],
+                                     charData.bgColor[2], flags | FLAG_BG);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
-                ret += emitTermColor(flags | FLAG_FG, charData.fgColor[0],
-                            charData.fgColor[1], charData.fgColor[2]);
+                ret += emitTermColor(charData.fgColor[0], charData.fgColor[1],
+                                     charData.fgColor[2], flags | FLAG_FG);
             ret += (charData.codePoint);
             lastCharData = charData;
         }
@@ -551,10 +551,12 @@ void printImage(const cimg_library::CImg<unsigned char> &image,
                     : findCharData(image, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
                 std::cout << emitTermColor(flags | FLAG_BG, charData.bgColor[0],
-                            charData.bgColor[1], charData.bgColor[2]);
+                                           charData.bgColor[1],
+                                           charData.bgColor[2]);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
                 std::cout << emitTermColor(flags | FLAG_FG, charData.fgColor[0],
-                            charData.fgColor[1], charData.fgColor[2]);
+                                           charData.fgColor[1],
+                                           charData.fgColor[2]);
             printCodepoint(charData.codePoint);
             lastCharData = charData;
         }
