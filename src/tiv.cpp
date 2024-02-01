@@ -422,7 +422,7 @@ int best_index(int value, const int STEPS[], int count) {
     return result;
 }
 
-void emit_color(int r, int g, int b, const int8_t &flags) {
+void printTermColor(int r, int g, int b, const int8_t &flags) {
     r = clamp_byte(r);
     g = clamp_byte(g);
     b = clamp_byte(b);
@@ -463,7 +463,7 @@ void emit_color(int r, int g, int b, const int8_t &flags) {
     std::cout << (bg ? "\x1B[48;5;" : "\u001B[38;5;") << color_index << "m";
 }
 
-void emitCodepoint(int codepoint) {
+void printCodepoint(int codepoint) {
     if (codepoint < 128) {
         std::cout << static_cast<char>(codepoint);
     } else if (codepoint < 0x7ff) {
@@ -483,7 +483,7 @@ void emitCodepoint(int codepoint) {
     }
 }
 
-void emit_image(const cimg_library::CImg<unsigned char> &image,
+void printImage(const cimg_library::CImg<unsigned char> &image,
                 const int8_t &flags) {
     CharData lastCharData;
     for (int y = 0; y <= image.height() - 8; y += 8) {
@@ -493,12 +493,12 @@ void emit_image(const cimg_library::CImg<unsigned char> &image,
                     ? createCharData(image, x, y, 0x2584, 0x0000ffff)
                     : findCharData(image, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
-                emit_color(charData.bgColor[0], charData.bgColor[1],
+                printTermColor(charData.bgColor[0], charData.bgColor[1],
                            charData.bgColor[2], flags | FLAG_BG);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
-                emit_color(charData.fgColor[0], charData.fgColor[1],
+                printTermColor(charData.fgColor[0], charData.fgColor[1],
                            charData.fgColor[2], flags | FLAG_FG);
-            emitCodepoint(charData.codePoint);
+            printCodepoint(charData.codePoint);
             lastCharData = charData;
         }
         std::cout << "\x1b[0m\n";  // clear formatting until next batch
@@ -546,7 +546,7 @@ cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename) {
 }
 
 // Implements --help
-void emit_usage() {
+void printUsage() {
     std::cerr << R"(
 Terminal Image Viewer v1.3
 usage: tiv [options] <image> [<image>...]
@@ -612,7 +612,7 @@ int main(int argc, char *argv[]) {
     int ret = EX_OK;  // The return code for the program
 
     if (argc <= 1) {
-        emit_usage();
+        printUsage();
         return 0;
     }
 
@@ -642,11 +642,11 @@ int main(int argc, char *argv[]) {
             if (i < argc - 1)
                 maxHeight = 8 * std::stoi(argv[++i]);
             else
-                emit_usage();
+                printUsage();
         } else if (arg == "--256" || arg == "-2" || arg == "-256") {
             flags |= FLAG_MODE_256;
         } else if (arg == "--help" || arg == "-help") {
-            emit_usage();
+            printUsage();
         } else if (arg == "-x") {
             flags |= FLAG_TELETEXT;
         } else if (arg[0] == '-') {
@@ -685,7 +685,7 @@ int main(int argc, char *argv[]) {
                                  5);
                 }
                 // the actual magick which generates the output
-                emit_image(image, flags);
+                printImage(image, flags);
                 std::cout.flush();  // replaces last endl to
                                     // make sure we get output on screen
             } catch (cimg_library::CImgIOException &e) {
@@ -727,7 +727,7 @@ int main(int argc, char *argv[]) {
                     // Probably no image; ignore.
                 }
             }
-            if (count) emit_image(image, flags);
+            if (count) printImage(image, flags);
             std::cout << sb << '\n' << std::endl;
         }
     }
