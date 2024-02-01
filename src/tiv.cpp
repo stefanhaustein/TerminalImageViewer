@@ -277,7 +277,7 @@ CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
  * used to render the 4x8 area
  */
 CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
-                      int y0, const int &flags) {
+                      int y0, const int8_t &flags) {
     int min[3] = {255, 255, 255};
     int max[3] = {0};
     std::map<long, int> count_per_color;
@@ -422,12 +422,12 @@ int best_index(int value, const int STEPS[], int count) {
     return result;
 }
 
-void emit_color(const int &flags, int r, int g, int b) {
+void emit_color(int r, int g, int b, const int8_t &flags) {
     r = clamp_byte(r);
     g = clamp_byte(g);
     b = clamp_byte(b);
 
-    bool bg = (flags & FLAG_BG) != 0;
+    const bool bg = (flags & FLAG_BG);
 
     if ((flags & FLAG_MODE_256) == 0) {
         // 2 means we output true (RGB) colors
@@ -484,7 +484,7 @@ void emitCodepoint(int codepoint) {
 }
 
 void emit_image(const cimg_library::CImg<unsigned char> &image,
-                const int &flags) {
+                const int8_t &flags) {
     CharData lastCharData;
     for (int y = 0; y <= image.height() - 8; y += 8) {
         for (int x = 0; x <= image.width() - 4; x += 4) {
@@ -493,15 +493,15 @@ void emit_image(const cimg_library::CImg<unsigned char> &image,
                     ? createCharData(image, x, y, 0x2584, 0x0000ffff)
                     : findCharData(image, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
-                emit_color(flags | FLAG_BG, charData.bgColor[0],
-                           charData.bgColor[1], charData.bgColor[2]);
+                emit_color(charData.bgColor[0], charData.bgColor[1],
+                           charData.bgColor[2], flags | FLAG_BG);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
-                emit_color(flags | FLAG_FG, charData.fgColor[0],
-                           charData.fgColor[1], charData.fgColor[2]);
+                emit_color(charData.fgColor[0], charData.fgColor[1],
+                           charData.fgColor[2], flags | FLAG_FG);
             emitCodepoint(charData.codePoint);
             lastCharData = charData;
         }
-        std::cout << "\x1b[0m" << std::endl;
+        std::cout << "\x1b[0m\n";  // clear formatting until next batch
     }
 }
 
@@ -548,7 +548,7 @@ cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename) {
 // Implements --help
 void emit_usage() {
     std::cerr << R"(
-Terminal Image Viewer v1.2.1
+Terminal Image Viewer v1.3
 usage: tiv [options] <image> [<image>...]
 -0        : No block character adjustment, always use top half block char.
 -2, --256 : Use 256-bit colors. Needed to display properly on macOS Terminal.
@@ -603,7 +603,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     // Reading input
-    char flags = 0;    // bitwise representation of flags,
+    int8_t flags = 0;  // bitwise representation of flags,
                        // see https://stackoverflow.com/a/14295472
     Mode mode = AUTO;  // either THUMBNAIL or FULL_SIZE
     int columns = 3;
@@ -686,6 +686,8 @@ int main(int argc, char *argv[]) {
                 }
                 // the actual magick which generates the output
                 emit_image(image, flags);
+                std::cout.flush();  // replaces last endl to
+                                    // make sure we get output on screen
             } catch (cimg_library::CImgIOException &e) {
                 std::cerr << "Error: '" << filename
                           << "' has an unrecognized file format" << std::endl;
@@ -726,7 +728,7 @@ int main(int argc, char *argv[]) {
                 }
             }
             if (count) emit_image(image, flags);
-            std::cout << sb << std::endl << std::endl;
+            std::cout << sb << '\n' << std::endl;
         }
     }
     return ret;
