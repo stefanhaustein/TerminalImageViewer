@@ -47,6 +47,10 @@ x64/
 *.vcxproj.*
 
 
+###Visual Studio Code###
+.vscode/
+
+
 ###Java###
 
 # Compiled class file
