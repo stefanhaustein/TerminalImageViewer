@@ -36,10 +36,13 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
+#include <sstream>
 #include <vector>
+#include <functional>
 
 // This #define tells CImg that we use the library without any display options,
 // just for loading images.
@@ -232,9 +235,12 @@ struct CharData {
     int codePoint;
 };
 
+typedef std::function<unsigned char(int, int, int)> GetPixelFunction;
+
+
 // Return a CharData struct with the given code point and corresponding
 // average fg and bg colors.
-CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
+CharData createCharData(GetPixelFunction get_pixel, int x0,
                         int y0, int codepoint, int pattern) {
     CharData result;
     result.codePoint = codepoint;
@@ -253,7 +259,7 @@ CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                 bg_count++;
             }
             for (int i = 0; i < 3; i++) {
-                avg[i] += image(x0 + x, y0 + y, 0, i);
+                avg[i] += get_pixel(x0 + x, y0 + y, i);
             }
             mask = mask >> 1;
         }
@@ -281,8 +287,8 @@ CharData createCharData(const cimg_library::CImg<unsigned char> &image, int x0,
  * @return The @ref CharData representation of the colors and character best
  * used to render the 4x8 area
  */
-CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
-                      int y0, const int8_t &flags) {
+CharData findCharData(GetPixelFunction get_pixel, int x0,
+                      int y0, const int &flags) {
     int min[3] = {255, 255, 255};
     int max[3] = {0};
     std::map<long, int> count_per_color;
@@ -292,7 +298,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
         for (int x = 0; x < 4; x++) {
             long color = 0;
             for (int i = 0; i < 3; i++) {
-                int d = image(x0 + x, y0 + y, 0, i);
+                int d = get_pixel(x0 + x, y0 + y, i);
                 min[i] = std::min(min[i], d);
                 max[i] = std::max(max[i], d);
 
@@ -329,7 +335,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
                     int shift = 16 - 8 * i;
                     int c1 = (max_count_color_1 >> shift) & 255;
                     int c2 = (max_count_color_2 >> shift) & 255;
-                    int c = image(x0 + x, y0 + y, 0, i);
+                    int c = get_pixel(x0 + x, y0 + y, i);
                     d1 += (c1 - c) * (c1 - c);
                     d2 += (c2 - c) * (c2 - c);
                 }
@@ -358,7 +364,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 4; x++) {
                 bits = bits << 1;
-                if (image(x0 + x, y0 + y, 0, splitIndex) > splitValue) {
+                if (get_pixel(x0 + x, y0 + y, splitIndex) > splitValue) {
                     bits |= 1;
                 }
             }
@@ -405,7 +411,7 @@ CharData findCharData(const cimg_library::CImg<unsigned char> &image, int x0,
         }
         return result;
     }
-    return createCharData(image, x0, y0, codepoint, best_pattern);
+    return createCharData(get_pixel, x0, y0, codepoint, best_pattern);
 }
 
 int clamp_byte(int value) {
@@ -432,9 +438,13 @@ std::string emitTermColor(int r, int g, int b, const int8_t &flags) {
 
     const bool bg = (flags & FLAG_BG);
 
+    std::stringstream result;
+
     if (!(flags & FLAG_MODE_256)) {
         // 2 means we output true (RGB) colors
-        return std::format("\x1b[{};2;{};{};{}m", bg ? 48 : 38, r, g, b);
+        result << (bg ? "\x1b[48;2;" : "\x1b[38;2;") << r << ';' << g << ';'
+                  << b << 'm';
+        return result.str();
     }
 
     // Compute predefined color index from all 256 colors we should use
@@ -461,7 +471,8 @@ std::string emitTermColor(int r, int g, int b, const int8_t &flags) {
         color_index = 232 + gri;  // 1..24 -> 232..255
     }
     // 38 sets the foreground color and 48 sets the background color
-    return std::format("\x1b[{};5;{}m", bg ? 48 : 38, color_index);
+    result << (bg ? "\x1B[48;5;" : "\u001B[38;5;") << color_index << "m";
+    return result.str();
 }
 
 void emitCodepoint(int codepoint) {
@@ -486,6 +497,11 @@ void emitCodepoint(int codepoint) {
 
 std::string emitImage(const cimg_library::CImg<unsigned char> &image,
                       const int8_t &flags) {
+
+    GetPixelFunction get_pixel = [&](int x, int y, int channel) -> unsigned char {
+        return image(x, y, 0, channel);
+    };
+
     std::string ret;
     CharData lastCharData;
     for (int y = 0; y <= image.height() - 8; y += 8) {
@@ -494,8 +510,8 @@ std::string emitImage(const cimg_library::CImg<unsigned char> &image,
             // If only half-block chars are allowed, use predefined codepoint
             CharData charData =
                 flags & FLAG_NOOPT
-                    ? createCharData(image, x, y, 0x2584, 0x0000ffff)
-                    : findCharData(image, x, y, flags);
+                    ? createCharData(get_pixel, x, y, 0x2584, 0x0000ffff)
+                    : findCharData(get_pixel, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
                 ret += emitTermColor(charData.bgColor[0], charData.bgColor[1],
                                      charData.bgColor[2], flags | FLAG_BG);
@@ -531,9 +547,8 @@ void printCodepoint(int codepoint) {
         std::cout << static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f));
         std::cout << static_cast<char>(0x80 | (codepoint & 0x3f));
     } else {  //???
-        std::cerr << std::format(
-            "Error: Codepoint 0x{:08x} is out of range, skipping this pixel",
-            codepoint);
+        std::cerr << "Error: Codepoint " << codepoint 
+            << " is out of range, skipping this pixel";
     }
 }
 
