@@ -422,18 +422,14 @@ int best_index(int value, const int STEPS[], int count) {
     return result;
 }
 
-void printTermColor(int r, int g, int b, const int8_t &flags) {
-    r = clamp_byte(r);
-    g = clamp_byte(g);
-    b = clamp_byte(b);
+std::string emitTermColor(const int8_t &flags, int r, int g, int b) {
+    r = clamp_byte(r), g = clamp_byte(g), b = clamp_byte(b);
 
     const bool bg = (flags & FLAG_BG);
 
-    if ((flags & FLAG_MODE_256) == 0) {
+    if (!(flags & FLAG_MODE_256)) {
         // 2 means we output true (RGB) colors
-        std::cout << (bg ? "\x1b[48;2;" : "\x1b[38;2;") << r << ';' << g << ';'
-                  << b << 'm';
-        return;
+        return std::format("\x1b[{};2;{};{};{}m", bg ? 48 : 38, r, g, b);
     }
 
     // Compute predefined color index from all 256 colors we should use
@@ -460,10 +456,10 @@ void printTermColor(int r, int g, int b, const int8_t &flags) {
         color_index = 232 + gri;  // 1..24 -> 232..255
     }
     // 38 sets the foreground color and 48 sets the background color
-    std::cout << (bg ? "\x1B[48;5;" : "\u001B[38;5;") << color_index << "m";
+    return std::format("\x1b[{};5;{}m", bg ? 48 : 38, color_index);
 }
 
-void printCodepoint(int codepoint) {
+void emitCodepoint(int codepoint) {
     if (codepoint < 128) {
         std::cout << static_cast<char>(codepoint);
     } else if (codepoint < 0x7ff) {
@@ -483,21 +479,82 @@ void printCodepoint(int codepoint) {
     }
 }
 
-void printImage(const cimg_library::CImg<unsigned char> &image,
-                const int8_t &flags) {
+std::string emitImage(const cimg_library::CImg<unsigned char> &image,
+                          const int8_t &flags) {
+    std::string ret;
     CharData lastCharData;
     for (int y = 0; y <= image.height() - 8; y += 8) {
         for (int x = 0; x <= image.width() - 4; x += 4) {
+            // Create CharData for the current 4x8 area of the image
+            // If only half-block chars are allowed, use predefined codepoint
             CharData charData =
                 flags & FLAG_NOOPT
                     ? createCharData(image, x, y, 0x2584, 0x0000ffff)
                     : findCharData(image, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
-                printTermColor(charData.bgColor[0], charData.bgColor[1],
-                           charData.bgColor[2], flags | FLAG_BG);
+                ret += emitTermColor(flags | FLAG_BG, charData.bgColor[0],
+                                     charData.bgColor[1], charData.bgColor[2]);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
-                printTermColor(charData.fgColor[0], charData.fgColor[1],
-                           charData.fgColor[2], flags | FLAG_FG);
+                ret += emitTermColor(flags | FLAG_FG, charData.fgColor[0],
+                            charData.fgColor[1], charData.fgColor[2]);
+            ret += (charData.codePoint);
+            lastCharData = charData;
+        }
+        ret += "\x1b[0m\n";  // clear formatting until next batch
+    }
+    return ret;
+}
+
+/**
+ * @brief Helper function to print a codepoint in a terminal-friendly way
+ *
+ * @param codepoint The codepoint to print
+ */
+void printCodepoint(int codepoint) {
+    if (codepoint < 128) {  // ASCII
+        std::cout << static_cast<char>(codepoint);
+    } else if (codepoint < 0x7ff) {  // 2-byte UTF-8
+        std::cout << static_cast<char>(0xc0 | (codepoint >> 6));
+        std::cout << static_cast<char>(0x80 | (codepoint & 0x3f));
+    } else if (codepoint < 0xffff) {  // 3-byte UTF-8
+        std::cout << static_cast<char>(0xe0 | (codepoint >> 12));
+        std::cout << static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f));
+        std::cout << static_cast<char>(0x80 | (codepoint & 0x3f));
+    } else if (codepoint < 0x10ffff) {  // 4-byte UTF-8
+        std::cout << static_cast<char>(0xf0 | (codepoint >> 18));
+        std::cout << static_cast<char>(0x80 | ((codepoint >> 12) & 0x3f));
+        std::cout << static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f));
+        std::cout << static_cast<char>(0x80 | (codepoint & 0x3f));
+    } else {  //???
+        std::cerr << std::format(
+            "Error: Codepoint 0x{:08x} is out of range, skipping this pixel",
+            codepoint);
+    }
+}
+
+/**
+ * @brief Outputs the given image.
+ *
+ * @param image The image to output.
+ * @param flags
+ */
+void printImage(const cimg_library::CImg<unsigned char> &image,
+                const int8_t &flags) {
+    CharData lastCharData;
+    for (int y = 0; y <= image.height() - 8; y += 8) {
+        for (int x = 0; x <= image.width() - 4; x += 4) {
+            // Create CharData for the current 4x8 area of the image
+            // If only half-block chars are allowed, use predefined codepoint
+            CharData charData =
+                flags & FLAG_NOOPT
+                    ? createCharData(image, x, y, 0x2584, 0x0000ffff)
+                    : findCharData(image, x, y, flags);
+            if (x == 0 || charData.bgColor != lastCharData.bgColor)
+                std::cout << emitTermColor(flags | FLAG_BG, charData.bgColor[0],
+                            charData.bgColor[1], charData.bgColor[2]);
+            if (x == 0 || charData.fgColor != lastCharData.fgColor)
+                std::cout << emitTermColor(flags | FLAG_FG, charData.fgColor[0],
+                            charData.fgColor[1], charData.fgColor[2]);
             printCodepoint(charData.codePoint);
             lastCharData = charData;
         }
