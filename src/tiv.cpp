@@ -41,20 +41,24 @@
 #include <string>
 #include <vector>
 
-// This #define tells CImg that we use the library without any display options --
-// just for loading images.
+// This #define tells CImg that we use the library without any display options
+// -- just for loading images.
 #define cimg_display 0
 #include "CImg.h"
 
 #ifdef _POSIX_VERSION
 // Console output size detection
 #include <sys/ioctl.h>
+// Error explanation, for some reason
+#include <cstring>
 // Exit codes
 #include <sysexits.h>
 #endif
 
 #ifdef _WIN32
 #include <windows.h>
+// Error explanation
+#include <system_error>
 
 // Following codes copied from /usr/include/sysexits.h,
 // license: https://opensource.org/license/BSD-3-clause/
@@ -89,8 +93,8 @@ constexpr int GRAYSCALE_STEPS[GRAYSCALE_STEP_COUNT] = {
     0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x62, 0x6c, 0x76,
     0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0, 0xda, 0xe4, 0xee};
 
-// An interleaved map of 4x8 bit character bitmaps (each hex digit represents a row) 
-// to the corresponding unicode character code point.  
+// An interleaved map of 4x8 bit character bitmaps (each hex digit represents a
+// row) to the corresponding unicode character code point.
 constexpr unsigned int BITMAPS[] = {
     0x00000000, 0x00a0,
 
@@ -228,8 +232,8 @@ typedef std::function<unsigned char(int, int, int)> GetPixelFunction;
 
 // Return a CharData struct with the given code point and corresponding averag
 // fg and bg colors.
-CharData createCharData(GetPixelFunction get_pixel, int x0,
-                        int y0, int codepoint, int pattern) {
+CharData createCharData(GetPixelFunction get_pixel, int x0, int y0,
+                        int codepoint, int pattern) {
     CharData result;
     result.codePoint = codepoint;
     int fg_count = 0;
@@ -275,8 +279,8 @@ CharData createCharData(GetPixelFunction get_pixel, int x0,
  * @param flags
  * @return CharData
  */
-CharData findCharData(GetPixelFunction get_pixel, int x0,
-                      int y0, const int &flags) {
+CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
+                      const int &flags) {
     int min[3] = {255, 255, 255};
     int max[3] = {0};
     std::map<long, int> count_per_color;
@@ -479,8 +483,8 @@ void emitCodepoint(int codepoint) {
 
 void emit_image(const cimg_library::CImg<unsigned char> &image,
                 const int &flags) {
-    
-    GetPixelFunction get_pixel = [&](int x, int y, int channel) -> unsigned char {
+    GetPixelFunction get_pixel = [&](int x, int y,
+                                     int channel) -> unsigned char {
         return image(x, y, 0, channel);
     };
 
@@ -565,41 +569,12 @@ enum Mode { AUTO, THUMBNAILS, FULL_SIZE };
 
 int main(int argc, char *argv[]) {
     std::ios::sync_with_stdio(false);  // apparently makes printing faster
+    bool detectSize = true;
 
     // Platform-specific implementations for determining console size, better
     // implementations are welcome Fallback sizes when unsuccesful
     int maxWidth = 80;
     int maxHeight = 24;
-#ifdef _POSIX_VERSION
-    struct winsize w;
-    // If redirecting STDOUT to one file ( col or row == 0, or the previous
-    // ioctl call's failed )
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0 ||
-        (w.ws_col | w.ws_row) == 0) {
-        std::cerr << "Warning: failed to determine most reasonable size, "
-                     "defaulting to 80x24"
-                  << std::endl;
-    } else {
-        maxWidth = w.ws_col * 4;
-        maxHeight = w.ws_row * 8;
-    }
-#elif defined _WIN32
-    CONSOLE_SCREEN_BUFFER_INFO w;
-    if (GetConsoleScreenBufferInfo(
-            GetStdHandle(STD_OUTPUT_HANDLE),
-            &w)) {  // just like powershell, but without the hyphens, hooray
-        maxWidth = w.dwSize.X * 4;
-        maxHeight = w.dwSize.Y * 8;
-    } else {
-        std::cerr
-            << "Warning: failed to determine most reasonable size: Error code"
-            << GetLastError() << ", defaulting to 80x24" << std::endl;
-    }
-#else
-    std::cerr << "Warning: failed to determine most reasonable size: "
-                 "unrecognized system, defaulting to 80x24"
-              << std::endl;
-#endif
 
     // Reading input
     char flags = 0;    // bitwise representation of flags,
@@ -612,7 +587,7 @@ int main(int argc, char *argv[]) {
 
     if (argc <= 1) {
         emit_usage();
-        return 0;
+        return EX_USAGE;
     }
 
     for (int i = 1; i < argc; i++) {
@@ -632,16 +607,16 @@ int main(int argc, char *argv[]) {
             mode = FULL_SIZE;
         } else if (arg == "-w") {
             if (i < argc - 1) {
-                maxWidth = 4 * std::stoi(argv[++i]);
+                maxWidth = 4 * std::stoi(argv[++i]), detectSize = false;
             } else {
                 std::cerr << "Error: -w requires a number" << std::endl;
                 ret = EX_USAGE;
             }
         } else if (arg == "-h") {
             if (i < argc - 1)
-                maxHeight = 8 * std::stoi(argv[++i]);
+                maxHeight = 8 * std::stoi(argv[++i]), detectSize = false;
             else
-                emit_usage();
+                printUsage();  // people might confuse this with help
         } else if (arg == "--256" || arg == "-2" || arg == "-256") {
             flags |= FLAG_MODE_256;
         } else if (arg == "--help" || arg == "-help") {
@@ -658,7 +633,7 @@ int main(int argc, char *argv[]) {
                     if (std::filesystem::is_regular_file(p.path()))
                         file_names.push_back(p.path().string());
             } else {
-                // Check if file can be opened
+                // Check if file can be opened, @TODO find better way
                 std::ifstream fin(arg.c_str());
                 if (fin) {
                     file_names.push_back(arg);
@@ -669,6 +644,39 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
+    }
+
+    if (detectSize) {
+#ifdef _POSIX_VERSION
+        struct winsize w;
+        // If redirecting STDOUT to one file ( col or row == 0, or the previous
+        // ioctl call's failed )
+        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0 ||
+            (w.ws_col | w.ws_row) == 0) {
+            std::cerr << "Warning: failed to determine most reasonable size, "
+                         "defaulting to 80x24"
+                      << std::endl;
+        } else {
+            maxWidth = w.ws_col * 4;
+            maxHeight = w.ws_row * 8;
+        }
+#elif defined _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO w;
+        if (GetConsoleScreenBufferInfo(
+                GetStdHandle(STD_OUTPUT_HANDLE),
+                &w)) {  // just like powershell, but without the hyphens, hooray
+            maxWidth = w.dwSize.X * 4;
+            maxHeight = w.dwSize.Y * 8;
+        } else {
+            std::cerr << "Warning: failed to determine most reasonable size: "
+                         "Error code"
+                      << GetLastError() << ", defaulting to 80x24" << std::endl;
+        }
+#else
+        std::cerr << "Warning: failed to determine most reasonable size: "
+                     "unrecognized system, defaulting to 80x24"
+                  << std::endl;
+#endif
     }
 
     if (mode == FULL_SIZE || (mode == AUTO && file_names.size() == 1)) {
