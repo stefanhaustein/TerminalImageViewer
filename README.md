@@ -32,7 +32,7 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
 > [!IMPORTANT]
 > All installation methods require installing ImageMagick, a required dependency. Most package managers should install it automatically.
 
-### Build from source
+### All platforms: Build from source
 
 Our makefile currently only supports `g++`. It should be possible to compile `tiv` manually using any of your favorite compilers that support C++20 and Unix headers (`ioctl.h`, specifically) or `windows.h`. PRs are welcome.
 
@@ -45,32 +45,17 @@ make
 sudo make install
 ```
 
-### Homebrew
+### Mac: Homebrew
 
-Option 1:
 
 ```sh
 brew install tiv
 ```
 
-Option 2 (deprecated, for macOS Mojave and below):
+### Third-Party Packages
 
-```sh
-brew tap stefanhaustein/TerminalImageViewer https://github.com/stefanhaustein/TerminalImageViewer
-brew install terminalimageviewer
-```
-
-### Snap (outdated)
-
-    sudo snap install --edge tiv
-
-## Packages
-
-- @aaronliu0130 has added homebrew support.
 - @megamaced has created [an RPM for SUSE](https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer)
 - @bperel has created [a Docker image](https://hub.docker.com/r/bperel/terminalimageviewer)
-- @teresaejunior has created a snapcraft.yaml file, which can build a Snap package with `sudo docker run -it --rm -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft sh -c 'apt-get update && snapcraft'`, and then installed with `sudo snap install --dangerous ./*.snap`. This is no longer supported.
-- An AUR package is also available, though the maintainer appears to be inactive. Replacements coming soon.
 
 ## Contributions
 
