@@ -550,13 +550,13 @@ void printImage(const cimg_library::CImg<unsigned char> &image,
                     ? createCharData(image, x, y, 0x2584, 0x0000ffff)
                     : findCharData(image, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
-                std::cout << emitTermColor(flags | FLAG_BG, charData.bgColor[0],
-                                           charData.bgColor[1],
-                                           charData.bgColor[2]);
+                std::cout << emitTermColor(
+                    charData.bgColor[0], charData.bgColor[1],
+                    charData.bgColor[2], flags | FLAG_BG);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
-                std::cout << emitTermColor(flags | FLAG_FG, charData.fgColor[0],
-                                           charData.fgColor[1],
-                                           charData.fgColor[2]);
+                std::cout << emitTermColor(
+                    charData.fgColor[0], charData.fgColor[1],
+                    charData.fgColor[2], flags | FLAG_FG);
             printCodepoint(charData.codePoint);
             lastCharData = charData;
         }
