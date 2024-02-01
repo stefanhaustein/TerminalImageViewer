@@ -25,6 +25,7 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
 - 2021-05-22: We now support Apple Clang, thanks to the C++ filesystem library being no longer experimental. Issue forms have also been added to the GitHub repository.
 - 2023-09-29: Today marks the 40th anniversary of the GNU project. If you haven't learned the news concerning it and Stallman, please do. In project news, @aaronliu0130 will probably be developing this project from now on as the original author has moved on to better things to do. Support for MSVC has been added and the repository is now under an Apache 2.0 or GPL3 dual license. CI building for each release will hopefully be setup soon. The main program has also adopted a mostly Google code-style because I (aaron) think it simply makes sense.
 `SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later`
+- 2024-02-01: We are currently working on splitting the source code into library-agnostic library files and a client that uses CImg.
 
 ## Installation
 
@@ -103,3 +104,7 @@ If multiple images match the filename spec, thumbnails are shown.
 For the example below, the top image was generated with the character optimization disabled via the `-0` option.
 
 ![Comparison](https://i.imgur.com/OzdCeh6.png)
+
+## Licensing
+
+You are free to use this code under either the GPL (3 or later) or the Apache 2.0. We also use the CImg library, which is licensed under either [CeCILL 2.0](https://spdx.org/licenses/CECILL-2.0.html) (close to GPL and compatible with it) or [CeCILL-C](https://spdx.org/licenses/CECILL-C) (close to LGPL and compatible with Apache).

@@ -40,7 +40,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <functional>
 
 // This #define tells CImg that we use the library without any display options --
 // just for loading images.

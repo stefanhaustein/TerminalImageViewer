@@ -1,4 +1,4 @@
-name: TerminalImageViewer CI
+name: Build and run
 
 on:
   push:
@@ -8,15 +8,24 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Install dependencies
       run: sudo apt-get install -qy imagemagick
+    - name: Validate gcc version
+      run: |
+        if [[ $(gcc --version | awk '/gcc/ && ($3+0)>13{print "gcc-13+"}') != "gcc-13+" ]]; then
+          # Script courtesy of https://stackoverflow.com/a/67791068/16134571
+          sudo apt install gcc-13 g++-13
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13 --slave /usr/bin/gcov gcov /usr/bin/gcov-13
+          sudo update-alternatives --set gcc /usr/bin/gcc-13
+        fi
     - name: Build
       run: make -C src
     - name: Test
-      run: ./src/tiv -w 80 -h 24 /usr/share/pixmaps/debian-logo.png
+      run: |
+        images=('/usr/local/share/icons/hicolor/128x128/apps/microsoft-edge.png' '/usr/local/share/icons/hicolor/128x128/apps/CMakeSetup.png' '/usr/local/doc/cmake/html/_static/file.png' '/usr/local/lib/android/sdk/extras/google/google_play_services/samples/tagmanager/cuteanimals/res/drawable/cat_1.jpg' '/usr/local/lib/android/sdk/extras/google/google_play_services/samples/wallet/res/drawable-ldpi/icon.png' '/usr/local/lib/android/sdk/extras/google/google_play_services/samples/wallet/res/drawable-hdpi/icon.png' '/usr/share/plymouth/themes/spinner/watermark.png' '/usr/share/apache2/icons/apache_pb.png' '/usr/share/doc/libpng-dev/examples/pngtest.png')
+        ./src/tiv -w 160 -h 48 ${images[ $RANDOM % ${#images[@]} ]} # Get random image
+        ./src/tiv -w 160 -h 48 /usr/share/pixmaps # Dir mode
