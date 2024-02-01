@@ -625,7 +625,9 @@ int main(int argc, char *argv[]) {
     std::ios::sync_with_stdio(false);  // apparently makes printing faster
 
     // Platform-specific implementations for determining console size, better
-    // implementations are welcome Fallback sizes when unsuccesful
+    // implementations are welcome
+
+    // Fallback sizes when unsuccesful. Sizes are actually 1/4th of the actual
     int maxWidth = 80;
     int maxHeight = 24;
 #ifdef _POSIX_VERSION
@@ -635,7 +637,7 @@ int main(int argc, char *argv[]) {
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0 ||
         (w.ws_col | w.ws_row) == 0) {
         std::cerr << "Warning: failed to determine most reasonable size, "
-                     "defaulting to 80x24"
+                     "defaulting to 20x6"
                   << std::endl;
     } else {
         maxWidth = w.ws_col * 4;
@@ -651,11 +653,11 @@ int main(int argc, char *argv[]) {
     } else {
         std::cerr
             << "Warning: failed to determine most reasonable size: Error code"
-            << GetLastError() << ", defaulting to 80x24" << std::endl;
+            << GetLastError() << ", defaulting to 20x6" << std::endl;
     }
 #else
     std::cerr << "Warning: failed to determine most reasonable size: "
-                 "unrecognized system, defaulting to 80x24"
+                 "unrecognized system, defaulting to 20x6"
               << std::endl;
 #endif
 
