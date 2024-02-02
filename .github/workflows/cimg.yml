@@ -1,5 +1,7 @@
 name: Update CImg
 on:
+  schedule:
+    - cron: 0 0 3 * * # The first day after this workflow was merged
   release:
     types: [published]
   workflow_dispatch:
