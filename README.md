@@ -59,7 +59,7 @@ brew install tiv
 
 ## Contributions
 
-- 2019-03-26: Exciting week: @Cableo has fixed output redirection, @boretom has added cross-compilation support to the build file and @AlanDeSmet has fixed tall thumbnails and greyscale images.
+- 2019-03-26: Exciting week: @cabelo has fixed output redirection, @boretom has added cross-compilation support to the build file and @AlanDeSmet has fixed tall thumbnails and greyscale images.
 - 2020-07-05: @cxwx has fixed homebrew support.
 
 I am happy to accept useful contributions under the Apache 2.0 license, but...
