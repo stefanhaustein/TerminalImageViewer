@@ -1,4 +1,4 @@
-Copyright (c) 2023 Stefan Haustein and Aaron Liu
+Copyright (c) 2024 Stefan Haustein and Aaron Liu
 
 This program is free software: you may copy, redistribute and/or modify it
 under the terms of (at your option) either the Apache License, Version 2.0,
@@ -10,5 +10,10 @@ WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 For details, see either
-<https://www.apache.org/licenses/LICENSE-20> for the Apache License, Version 2.0
-, or <https://www.gnu.org/licenses/gpl-3.0.en.html> for the GNU GPL, version 3.
+<https://www.apache.org/licenses/LICENSE-20> for the Apache License, Version 2.0,
+or <https://www.gnu.org/licenses/gpl-3.0.en.html> for the GNU GPL, version 3.
+
+Note that the code contained in this package contains the CImg library,
+which is licensed under either [CeCILL 2.0](https://spdx.org/licenses/CECILL-2.0.html)
+(close to GPL and compatible with it) or [CeCILL-C](https://spdx.org/licenses/CECILL-C)
+(close to LGPL and compatible with Apache).

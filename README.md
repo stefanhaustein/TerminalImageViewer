@@ -93,4 +93,5 @@ For the example below, the top image was generated with the character optimizati
 
 ## Licensing
 
-You are free to use this code under either the GPL (3 or later) or the Apache 2.0. We also use the CImg library, which is licensed under either [CeCILL 2.0](https://spdx.org/licenses/CECILL-2.0.html) (close to GPL and compatible with it) or [CeCILL-C](https://spdx.org/licenses/CECILL-C) (close to LGPL and compatible with Apache).
+You are free to use this code under either the GPL (3 or later) or version 2.0 of the Apache license. We include the CImg library, which
+is licensed under either [CeCILL 2.0](https://spdx.org/licenses/CECILL-2.0.html) (close to GPL and compatible with it) or [CeCILL-C] (https://spdx.org/licenses/CECILL-C) (close to LGPL and compatible with Apache).
