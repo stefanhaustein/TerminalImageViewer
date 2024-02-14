@@ -1,7 +1,7 @@
 PROGNAME = tiv
 
-OBJECTS = tiv.o
-
+OBJECTS = tiv.o tiv_lib.o
+  
 CXX      ?= g++
 CXXFLAGS ?= -O2 -fpermissive
 INSTALL  ?= install
@@ -17,7 +17,9 @@ override LDFLAGS  += -pthread
 
 all: $(PROGNAME)
 
-tiv.o: CImg.h
+tiv_lib.o: tiv_lib.h
+
+tiv.o: CImg.h tiv_lib.h 
 
 $(PROGNAME): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $^ -o $@ $(LOADLIBES) $(LDLIBS)
