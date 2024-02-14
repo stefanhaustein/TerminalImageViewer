@@ -59,19 +59,11 @@
 #include <system_error>
 #endif
 
-// Following codes copied from /usr/include/sysexits.h,
-// license: https://opensource.org/license/BSD-3-clause/
-#define EX_OK 0         /* successful termination */
-#define EX__BASE 64     /* base value for error messages */
-#define EX_USAGE 64     /* command line usage error */
-#define EX_DATAERR 65   /* data format error */
-#define EX_NOINPUT 66   /* cannot open input */
-#define EX_SOFTWARE 70  /* internal software error */
-#define EX_CANTCREAT 73 /* can't create (user) output file */
-#define EX_IOERR 74     /* input/output error */
-#define EX_TEMPFAIL 75  /* temp failure; user is invited to retry */
-#define EX_NOPERM 77    /* permission denied */
-#define EX_CONFIG 78    /* configuration error */
+// Program exit code constants compatible with sysexits.h.
+#define EXITCODE_OK 0
+#define EXITCODE_COMMAND_LINE_USAGE_ERROR 64
+#define EXITCODE_DATA_FORMAT_ERROR 65
+#define EXITCODE_NO_INPUT_ERROR 66
 
 // Implementation of flag representation for flags in the main() method
 constexpr int FLAG_FG = 1;
@@ -581,11 +573,11 @@ int main(int argc, char *argv[]) {
     int columns = 3;
 
     std::vector<std::string> file_names;
-    int ret = EX_OK;  // The return code for the program
+    int ret = EXITCODE_OK;  // The return code for the program
 
     if (argc <= 1) {
         printUsage();
-        return EX_USAGE;
+        return EXITCODE_COMMAND_LINE_USAGE_ERROR;
     }
 
     for (int i = 1; i < argc; i++) {
@@ -597,7 +589,7 @@ int main(int argc, char *argv[]) {
                 columns = std::stoi(argv[++i]);
             } else {
                 std::cerr << "Error: -c requires a number" << std::endl;
-                ret = EX_USAGE;
+                ret = EXITCODE_COMMAND_LINE_USAGE_ERROR;
             }
         } else if (arg == "-d" || arg == "--dir") {
             mode = THUMBNAILS;
@@ -608,7 +600,7 @@ int main(int argc, char *argv[]) {
                 maxWidth = 4 * std::stoi(argv[++i]), detectSize = false;
             } else {
                 std::cerr << "Error: -w requires a number" << std::endl;
-                ret = EX_USAGE;
+                ret = EXITCODE_COMMAND_LINE_USAGE_ERROR;
             }
         } else if (arg == "-h") {
             if (i < argc - 1)
@@ -623,7 +615,7 @@ int main(int argc, char *argv[]) {
             flags |= FLAG_TELETEXT;
         } else if (arg[0] == '-') {
             std::cerr << "Error: Unrecognized argument: " << arg << std::endl;
-            ret = EX_USAGE;
+            ret = EXITCODE_COMMAND_LINE_USAGE_ERROR;
         } else {
             // Arguments that will be displayed
             if (std::filesystem::is_directory(arg)) {
@@ -638,7 +630,7 @@ int main(int argc, char *argv[]) {
                 } else {
                     std::cerr << "Error: Cannot open '" << arg
                               << "', permission issue?" << std::endl;
-                    ret = EX_NOINPUT;
+                    ret = EXITCODE_NO_INPUT_ERROR;
                 }
             }
         }
@@ -694,7 +686,7 @@ int main(int argc, char *argv[]) {
             } catch (cimg_library::CImgIOException &e) {
                 std::cerr << "Error: '" << filename
                           << "' has an unrecognized file format" << std::endl;
-                ret = EX_DATAERR;
+                ret = EXITCODE_DATA_FORMAT_ERROR;
             }
         }
     } else {  // Thumbnail mode
