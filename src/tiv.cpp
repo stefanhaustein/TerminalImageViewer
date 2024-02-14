@@ -51,14 +51,13 @@
 #include <sys/ioctl.h>
 // Error explanation, for some reason
 #include <cstring>
-// Exit codes
-#include <sysexits.h>
 #endif
 
 #ifdef _WIN32
 #include <windows.h>
 // Error explanation
 #include <system_error>
+#endif
 
 // Following codes copied from /usr/include/sysexits.h,
 // license: https://opensource.org/license/BSD-3-clause/
@@ -73,7 +72,6 @@
 #define EX_TEMPFAIL 75  /* temp failure; user is invited to retry */
 #define EX_NOPERM 77    /* permission denied */
 #define EX_CONFIG 78    /* configuration error */
-#endif
 
 // Implementation of flag representation for flags in the main() method
 constexpr int FLAG_FG = 1;
