@@ -140,10 +140,10 @@ void printImage(const cimg_library::CImg<unsigned char> &image,
                     : findCharData(get_pixel, x, y, flags);
             if (x == 0 || charData.bgColor != lastCharData.bgColor)
                 printTermColor(flags | FLAG_BG, charData.bgColor[0],
-                           charData.bgColor[1], charData.bgColor[2]);
+                               charData.bgColor[1], charData.bgColor[2]);
             if (x == 0 || charData.fgColor != lastCharData.fgColor)
                 printTermColor(flags | FLAG_FG, charData.fgColor[0],
-                           charData.fgColor[1], charData.fgColor[2]);
+                               charData.fgColor[1], charData.fgColor[2]);
             printCodepoint(charData.codePoint);
             lastCharData = charData;
         }
@@ -296,9 +296,8 @@ int main(int argc, char *argv[]) {
         // ioctl call's failed )
         if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != 0 ||
             (w.ws_col | w.ws_row) == 0) {
-            std::cerr << "Warning: failed to determine most reasonable size, "
-                         "defaulting to 80x24"
-                      << std::endl;
+            std::cerr << "Warning: failed to determine most reasonable size: "
+                      << strerror(errno) << ", defaulting to 20x6" << std::endl;
         } else {
             maxWidth = w.ws_col * 4;
             maxHeight = w.ws_row * 8;
@@ -312,8 +311,8 @@ int main(int argc, char *argv[]) {
             maxHeight = w.dwSize.Y * 8;
         } else {
             std::cerr << "Warning: failed to determine most reasonable size: "
-                         "Error code"
-                      << GetLastError() << ", defaulting to 80x24" << std::endl;
+                      << std::system_category().message(GetLastError())
+                      << ", defaulting to 80x24" << std::endl;
         }
 #else
         std::cerr << "Warning: failed to determine most reasonable size: "
