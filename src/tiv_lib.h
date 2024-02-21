@@ -58,7 +58,7 @@ constexpr int GRAYSCALE_STEPS[GRAYSCALE_STEP_COUNT] = {
     0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0, 0xda, 0xe4, 0xee};
 
 
-typedef std::function<unsigned char(int, int, int)> GetPixelFunction;
+typedef std::function<unsigned long(int, int)> GetPixelFunction;
 
 int clamp_byte(int value);
 

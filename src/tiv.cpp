@@ -126,9 +126,10 @@ void printCodepoint(int codepoint) {
 
 void printImage(const cimg_library::CImg<unsigned char> &image,
                 const int &flags) {
-    GetPixelFunction get_pixel = [&](int x, int y,
-                                     int channel) -> unsigned char {
-        return image(x, y, 0, channel);
+    GetPixelFunction get_pixel = [&](int x, int y) -> unsigned long {
+        return (((unsigned long) image(x, y, 0, 0)) << 16) 
+            | (((unsigned long) image(x, y, 0, 1)) << 8)
+            | (((unsigned long) image(x, y, 0, 2)));
     };
 
     CharData lastCharData;

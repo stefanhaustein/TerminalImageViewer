@@ -167,6 +167,10 @@ constexpr unsigned int BITMAPS[] = {
     0, 1  // End marker for extended TELETEXT mode.
 };
 
+// The channel indices are 0, 1, 2 for R, G, B
+unsigned char get_channel(unsigned long rgb, int index) {
+    return (unsigned char) ((rgb >> ((2 - index) * 8)) & 255);
+}
 
 CharData createCharData(GetPixelFunction get_pixel, int x0, int y0,
                         int codepoint, int pattern) {
@@ -186,8 +190,9 @@ CharData createCharData(GetPixelFunction get_pixel, int x0, int y0,
                 avg = result.bgColor.data();
                 bg_count++;
             }
+            long rgb = get_pixel(x0 + x, y0 + y);
             for (int i = 0; i < 3; i++) {
-                avg[i] += get_pixel(x0 + x, y0 + y, i);
+                avg[i] += get_channel(rgb, i);
             }
             mask = mask >> 1;
         }
@@ -215,8 +220,9 @@ CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 4; x++) {
             long color = 0;
+            long rgb = get_pixel(x0 + x, y0 + y);
             for (int i = 0; i < 3; i++) {
-                int d = get_pixel(x0 + x, y0 + y, i);
+                int d = get_channel(rgb, i);
                 min[i] = std::min(min[i], d);
                 max[i] = std::max(max[i], d);
                 color = (color << 8) | d;
@@ -248,11 +254,12 @@ CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
                 bits = bits << 1;
                 int d1 = 0;
                 int d2 = 0;
+                unsigned long rgb = get_pixel(x0 + x, y0 + y);
                 for (int i = 0; i < 3; i++) {
                     int shift = 16 - 8 * i;
                     int c1 = (max_count_color_1 >> shift) & 255;
                     int c2 = (max_count_color_2 >> shift) & 255;
-                    int c = get_pixel(x0 + x, y0 + y, i);
+                    int c = get_channel(rgb, i);
                     d1 += (c1 - c) * (c1 - c);
                     d2 += (c2 - c) * (c2 - c);
                 }
@@ -281,7 +288,7 @@ CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 4; x++) {
                 bits = bits << 1;
-                if (get_pixel(x0 + x, y0 + y, splitIndex) > splitValue) {
+                if (get_channel(get_pixel(x0 + x, y0 + y), splitIndex) > splitValue) {
                     bits |= 1;
                 }
             }
