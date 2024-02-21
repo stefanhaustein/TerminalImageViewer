@@ -52,10 +52,12 @@ constexpr unsigned int BITMAPS[] = {
     // Block graphics
     // 0xffff0000, 0x2580,  // upper 1/2; redundant with inverse lower 1/2
 
-    0x0000000f, 0x2581,                      // lower 1/8
-    0x000000ff, 0x2582,                      // lower 1/4
-    0x00000fff, 0x2583, 0x0000ffff, 0x2584,  // lower 1/2
-    0x000fffff, 0x2585, 0x00ffffff, 0x2586,  // lower 3/4
+    0x0000000f, 0x2581,  // lower 1/8
+    0x000000ff, 0x2582,  // lower 1/4
+    0x00000fff, 0x2583, 
+    0x0000ffff, 0x2584,  // lower 1/2
+    0x000fffff, 0x2585, 
+    0x00ffffff, 0x2586,  // lower 3/4
     0x0fffffff, 0x2587,
     // 0xffffffff, 0x2588,  // full; redundant with inverse space
 
@@ -65,8 +67,7 @@ constexpr unsigned int BITMAPS[] = {
 
     0x0000cccc, 0x2596,  // quadrant lower left
     0x00003333, 0x2597,  // quadrant lower right
-    0xcccc0000,
-    0x2598,  // quadrant upper left
+    0xcccc0000, 0x2598,  // quadrant upper left
              // 0xccccffff, 0x2599,  // 3/4 redundant with inverse 1/4
     0xcccc3333, 0x259a,  // diagonal 1/2
                          // 0xffffcccc, 0x259b,  // 3/4 redundant
