@@ -48,10 +48,10 @@ const int END_MARKER = 0;
 // An interleaved map of 4x8 bit character bitmaps (each hex digit represents a
 // row) to the corresponding unicode character code point.
 constexpr unsigned int BITMAPS[] = {
-    0x00000000, 0x00a0,
+    0x00000000, 0x00a0, 0,
 
     // Block graphics
-    // 0xffff0000, 0x2580,  // upper 1/2; redundant with inverse lower 1/2
+    // 0xffff0000, 0x2580, 0,  // upper 1/2; redundant with inverse lower 1/2
 
     0x0000000f, 0x2581, 0,  // lower 1/8
     0x000000ff, 0x2582, 0,  // lower 1/4
@@ -103,7 +103,7 @@ constexpr unsigned int BITMAPS[] = {
     0x000f0000, 0x2500, 0,  // Light horizontal
     0x0000f000, 0x2500, 0,  //
     0x44444444, 0x2502, 0,  // Light vertical
-    0x22222222, 0x2502,
+    0x22222222, 0x2502, 0,
 
     0x000e0000, 0x2574, 0,  // light left
     0x0000e000, 0x2574, 0,  // light left
@@ -164,16 +164,16 @@ constexpr unsigned int BITMAPS[] = {
     0x000ccccc, 0xfb13, FLAG_TELETEXT,
     0x333ccccc, 0xfb14, FLAG_TELETEXT,
     0xfffccccc, 0xfb15, FLAG_TELETEXT,
-    0x00033ccc, 0xfb16,FLAG_TELETEXT,
+    0x00033ccc, 0xfb16, FLAG_TELETEXT,
     0xccc33ccc, 0xfb17, FLAG_TELETEXT,
     0x33333ccc, 0xfb18, FLAG_TELETEXT,
     0xfff33ccc, 0xfb19, FLAG_TELETEXT,
     0x000ffccc, 0xfb1a, FLAG_TELETEXT,
     0xcccffccc, 0xfb1b, FLAG_TELETEXT,
     0x333ffccc, 0xfb1c, FLAG_TELETEXT,
-    0xfffffccc, 0xfb1d,FLAG_TELETEXT,
+    0xfffffccc, 0xfb1d, FLAG_TELETEXT,
     0x00000333, 0xfb1e, FLAG_TELETEXT,
-    0xccc00333, 0xfb1f,FLAG_TELETEXT,
+    0xccc00333, 0xfb1f, FLAG_TELETEXT,
 
     0x33300333, 0x1b20, FLAG_TELETEXT,
     0xfff00333, 0x1b21, FLAG_TELETEXT,
@@ -181,16 +181,16 @@ constexpr unsigned int BITMAPS[] = {
     0xccccc333, 0x1b23, FLAG_TELETEXT,
     0x333cc333, 0x1b24, FLAG_TELETEXT,
     0xfffcc333, 0x1b25, FLAG_TELETEXT,
-    0x00033333, 0x1b26,FLAG_TELETEXT,
+    0x00033333, 0x1b26, FLAG_TELETEXT,
     0xccc33333, 0x1b27, FLAG_TELETEXT,
     0xfff33333, 0x1b28, FLAG_TELETEXT,
     0x000ff333, 0x1b29, FLAG_TELETEXT,
     0xcccff333, 0x1b2a, FLAG_TELETEXT,
     0x333ff333, 0x1b2b, FLAG_TELETEXT,
     0xfffff333, 0x1b2c, FLAG_TELETEXT,
-    0x00000fff, 0x1b2d,FLAG_TELETEXT,
+    0x00000fff, 0x1b2d, FLAG_TELETEXT,
     0xccc00fff, 0x1b2e, FLAG_TELETEXT,
-    0x33300fff, 0x1b2f,FLAG_TELETEXT,
+    0x33300fff, 0x1b2f, FLAG_TELETEXT,
 
     0xfff00fff, 0x1b30, FLAG_TELETEXT,
     0x000ccfff, 0x1b31, FLAG_TELETEXT,
@@ -198,12 +198,12 @@ constexpr unsigned int BITMAPS[] = {
     0x333ccfff, 0x1b33, FLAG_TELETEXT,
     0xfffccfff, 0x1b34, FLAG_TELETEXT,
     0x00033fff, 0x1b35, FLAG_TELETEXT,
-    0xccc33fff, 0x1b36,FLAG_TELETEXT,
+    0xccc33fff, 0x1b36, FLAG_TELETEXT,
     0x33333fff, 0x1b37, FLAG_TELETEXT,
     0xfff33fff, 0x1b38, FLAG_TELETEXT,
     0x000fffff, 0x1b39, FLAG_TELETEXT,
     0xcccfffff, 0x1b3a, FLAG_TELETEXT,
-    0x333fffff, 0x1b3b,FLAG_TELETEXT,
+    0x333fffff, 0x1b3b, FLAG_TELETEXT,
 
     0, END_MARKER, 0  // End marker 
 };
@@ -342,9 +342,8 @@ CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
     unsigned int best_pattern = 0x0000ffff;
     int codepoint = 0x2584;
     bool inverted = false;
-    for (int i = 0; BITMAPS[i + 1] != 0; i += 3) {
-        // Skip all end markers
-        if (BITMAPS[i + 2] & flags != BITMAPS[i + 2]) {
+    for (int i = 0; BITMAPS[i + 1] != END_MARKER; i += 3) {
+        if ((BITMAPS[i + 2] & flags) != BITMAPS[i + 2]) {
             continue;
         }
         unsigned int pattern = BITMAPS[i];
