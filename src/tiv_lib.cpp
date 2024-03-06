@@ -43,6 +43,7 @@
 #include <string>
 #include <vector>
 
+const int END_MARKER = 0;
 
 // An interleaved map of 4x8 bit character bitmaps (each hex digit represents a
 // row) to the corresponding unicode character code point.
@@ -52,120 +53,159 @@ constexpr unsigned int BITMAPS[] = {
     // Block graphics
     // 0xffff0000, 0x2580,  // upper 1/2; redundant with inverse lower 1/2
 
-    0x0000000f, 0x2581,  // lower 1/8
-    0x000000ff, 0x2582,  // lower 1/4
-    0x00000fff, 0x2583, 
-    0x0000ffff, 0x2584,  // lower 1/2
-    0x000fffff, 0x2585, 
-    0x00ffffff, 0x2586,  // lower 3/4
-    0x0fffffff, 0x2587,
+    0x0000000f, 0x2581, 0,  // lower 1/8
+    0x000000ff, 0x2582, 0,  // lower 1/4
+    0x00000fff, 0x2583, 0, 
+    0x0000ffff, 0x2584, 0,  // lower 1/2
+    0x000fffff, 0x2585, 0, 
+    0x00ffffff, 0x2586, 0,  // lower 3/4
+    0x0fffffff, 0x2587, 0,
     // 0xffffffff, 0x2588,  // full; redundant with inverse space
 
-    0xeeeeeeee, 0x258a,  // left 3/4
-    0xcccccccc, 0x258c,  // left 1/2
-    0x88888888, 0x258e,  // left 1/4
+    0xeeeeeeee, 0x258a, 0,  // left 3/4
+    0xcccccccc, 0x258c, 0,  // left 1/2
+    0x88888888, 0x258e, 0,  // left 1/4
 
-    0x0000cccc, 0x2596,  // quadrant lower left
-    0x00003333, 0x2597,  // quadrant lower right
-    0xcccc0000, 0x2598,  // quadrant upper left
+    0x0000cccc, 0x2596, 0,  // quadrant lower left
+    0x00003333, 0x2597, 0,  // quadrant lower right
+    0xcccc0000, 0x2598, 0, // quadrant upper left
              // 0xccccffff, 0x2599,  // 3/4 redundant with inverse 1/4
-    0xcccc3333, 0x259a,  // diagonal 1/2
+    0xcccc3333, 0x259a, 0, // diagonal 1/2
                          // 0xffffcccc, 0x259b,  // 3/4 redundant
     // 0xffff3333, 0x259c,  // 3/4 redundant
-    0x33330000, 0x259d,  // quadrant upper right
+    0x33330000, 0x259d, 0,  // quadrant upper right
                          // 0x3333cccc, 0x259e,  // 3/4 redundant
     // 0x3333ffff, 0x259f,  // 3/4 redundant
 
     // Line drawing subset: no double lines, no complex light lines
 
-    0x000ff000, 0x2501,  // Heavy horizontal
-    0x66666666, 0x2503,  // Heavy vertical
+    0x000ff000, 0x2501, 0,  // Heavy horizontal
+    0x66666666, 0x2503, 0,  // Heavy vertical
 
-    0x00077666, 0x250f,  // Heavy down and right
-    0x000ee666, 0x2513,  // Heavy down and left
-    0x66677000, 0x2517,  // Heavy up and right
-    0x666ee000, 0x251b,  // Heavy up and left
+    0x00077666, 0x250f, 0,  // Heavy down and right
+    0x000ee666, 0x2513, 0,  // Heavy down and left
+    0x66677000, 0x2517, 0,  // Heavy up and right
+    0x666ee000, 0x251b, 0,  // Heavy up and left
 
-    0x66677666, 0x2523,  // Heavy vertical and right
-    0x666ee666, 0x252b,  // Heavy vertical and left
-    0x000ff666, 0x2533,  // Heavy down and horizontal
-    0x666ff000, 0x253b,  // Heavy up and horizontal
-    0x666ff666, 0x254b,  // Heavy cross
+    0x66677666, 0x2523, 0,  // Heavy vertical and right
+    0x666ee666, 0x252b, 0,  // Heavy vertical and left
+    0x000ff666, 0x2533, 0,  // Heavy down and horizontal
+    0x666ff000, 0x253b, 0,  // Heavy up and horizontal
+    0x666ff666, 0x254b, 0,  // Heavy cross
 
-    0x000cc000, 0x2578,  // Bold horizontal left
-    0x00066000, 0x2579,  // Bold horizontal up
-    0x00033000, 0x257a,  // Bold horizontal right
-    0x00066000, 0x257b,  // Bold horizontal down
+    0x000cc000, 0x2578, 0,  // Bold horizontal left
+    0x00066000, 0x2579, 0,  // Bold horizontal up
+    0x00033000, 0x257a, 0,  // Bold horizontal right
+    0x00066000, 0x257b, 0,  // Bold horizontal down
 
-    0x06600660, 0x254f,  // Heavy double dash vertical
+    0x06600660, 0x254f, 0,  // Heavy double dash vertical
 
-    0x000f0000, 0x2500,  // Light horizontal
-    0x0000f000, 0x2500,  //
-    0x44444444, 0x2502,  // Light vertical
+    0x000f0000, 0x2500, 0,  // Light horizontal
+    0x0000f000, 0x2500, 0,  //
+    0x44444444, 0x2502, 0,  // Light vertical
     0x22222222, 0x2502,
 
-    0x000e0000, 0x2574,  // light left
-    0x0000e000, 0x2574,  // light left
-    0x44440000, 0x2575,  // light up
-    0x22220000, 0x2575,  // light up
-    0x00030000, 0x2576,  // light right
-    0x00003000, 0x2576,  // light right
-    0x00004444, 0x2577,  // light down
-    0x00002222, 0x2577,  // light down
+    0x000e0000, 0x2574, 0,  // light left
+    0x0000e000, 0x2574, 0,  // light left
+    0x44440000, 0x2575, 0,  // light up
+    0x22220000, 0x2575, 0,  // light up
+    0x00030000, 0x2576, 0,  // light right
+    0x00003000, 0x2576, 0,  // light right
+    0x00004444, 0x2577, 0,  // light down
+    0x00002222, 0x2577, 0,  // light down
 
     // Misc technical
 
-    0x44444444, 0x23a2,  // [ extension
-    0x22222222, 0x23a5,  // ] extension
+    0x44444444, 0x23a2, 0,  // [ extension
+    0x22222222, 0x23a5, 0,  // ] extension
 
-    0x0f000000, 0x23ba,  // Horizontal scanline 1
-    0x00f00000, 0x23bb,  // Horizontal scanline 3
-    0x00000f00, 0x23bc,  // Horizontal scanline 7
-    0x000000f0, 0x23bd,  // Horizontal scanline 9
+    0x0f000000, 0x23ba, 0,  // Horizontal scanline 1
+    0x00f00000, 0x23bb, 0,  // Horizontal scanline 3
+    0x00000f00, 0x23bc, 0,  // Horizontal scanline 7
+    0x000000f0, 0x23bd, 0,  // Horizontal scanline 9
 
     // Geometrical shapes. Tricky because some of them are too wide.
 
-    // 0x00ffff00, 0x25fe,  // Black medium small square
-    0x00066000, 0x25aa,  // Black small square
+    // 0x00ffff00, 0x25fe, 0,  // Black medium small square
+    0x00066000, 0x25aa, 0,  // Black small square
 
-    // 0x11224488, 0x2571,  // diagonals
-    // 0x88442211, 0x2572,
-    // 0x99666699, 0x2573,
-    // 0x000137f0, 0x25e2,  // Triangles
-    // 0x0008cef0, 0x25e3,
-    // 0x000fec80, 0x25e4,
-    // 0x000f7310, 0x25e5,
-
-    0, 0,  // End marker for "regular" characters
+    // 0x11224488, 0x2571, 0,  // diagonals
+    // 0x88442211, 0x2572, 0,
+    // 0x99666699, 0x2573, 0,
+    // 0x000137f0, 0x25e2, 0,  // Triangles
+    // 0x0008cef0, 0x25e3, 0,
+    // 0x000fec80, 0x25e4, 0,
+    // 0x000f7310, 0x25e5, 0,
 
     // Teletext / legacy graphics 3x2 block character codes.
     // Using a 3-2-3 pattern consistently, perhaps we should create automatic
     // variations....
 
-    0xccc00000, 0xfb00, 0x33300000, 0xfb01, 0xfff00000, 0xfb02, 0x000cc000,
-    0xfb03, 0xccccc000, 0xfb04, 0x333cc000, 0xfb05, 0xfffcc000, 0xfb06,
-    0x00033000, 0xfb07, 0xccc33000, 0xfb08, 0x33333000, 0xfb09, 0xfff33000,
-    0xfb0a, 0x000ff000, 0xfb0b, 0xcccff000, 0xfb0c, 0x333ff000, 0xfb0d,
-    0xfffff000, 0xfb0e, 0x00000ccc, 0xfb0f,
+    0xccc00000, 0xfb00, FLAG_TELETEXT,
+    0x33300000, 0xfb01, FLAG_TELETEXT,
+    0xfff00000, 0xfb02, FLAG_TELETEXT,
+    0x000cc000, 0xfb03, FLAG_TELETEXT,
+    0xccccc000, 0xfb04, FLAG_TELETEXT,
+    0x333cc000, 0xfb05, FLAG_TELETEXT,
+    0xfffcc000, 0xfb06, FLAG_TELETEXT,
+    0x00033000, 0xfb07, FLAG_TELETEXT,
+    0xccc33000, 0xfb08, FLAG_TELETEXT,
+    0x33333000, 0xfb09, FLAG_TELETEXT,
+    0xfff33000, 0xfb0a, FLAG_TELETEXT,
+    0x000ff000, 0xfb0b, FLAG_TELETEXT,
+    0xcccff000, 0xfb0c, FLAG_TELETEXT,
+    0x333ff000, 0xfb0d, FLAG_TELETEXT,
+    0xfffff000, 0xfb0e, FLAG_TELETEXT,
+    0x00000ccc, 0xfb0f, FLAG_TELETEXT,
 
-    0xccc00ccc, 0xfb10, 0x33300ccc, 0xfb11, 0xfff00ccc, 0xfb12, 0x000ccccc,
-    0xfb13, 0x333ccccc, 0xfb14, 0xfffccccc, 0xfb15, 0x00033ccc, 0xfb16,
-    0xccc33ccc, 0xfb17, 0x33333ccc, 0xfb18, 0xfff33ccc, 0xfb19, 0x000ffccc,
-    0xfb1a, 0xcccffccc, 0xfb1b, 0x333ffccc, 0xfb1c, 0xfffffccc, 0xfb1d,
-    0x00000333, 0xfb1e, 0xccc00333, 0xfb1f,
+    0xccc00ccc, 0xfb10, FLAG_TELETEXT,
+    0x33300ccc, 0xfb11, FLAG_TELETEXT,
+    0xfff00ccc, 0xfb12, FLAG_TELETEXT,
+    0x000ccccc, 0xfb13, FLAG_TELETEXT,
+    0x333ccccc, 0xfb14, FLAG_TELETEXT,
+    0xfffccccc, 0xfb15, FLAG_TELETEXT,
+    0x00033ccc, 0xfb16,FLAG_TELETEXT,
+    0xccc33ccc, 0xfb17, FLAG_TELETEXT,
+    0x33333ccc, 0xfb18, FLAG_TELETEXT,
+    0xfff33ccc, 0xfb19, FLAG_TELETEXT,
+    0x000ffccc, 0xfb1a, FLAG_TELETEXT,
+    0xcccffccc, 0xfb1b, FLAG_TELETEXT,
+    0x333ffccc, 0xfb1c, FLAG_TELETEXT,
+    0xfffffccc, 0xfb1d,FLAG_TELETEXT,
+    0x00000333, 0xfb1e, FLAG_TELETEXT,
+    0xccc00333, 0xfb1f,FLAG_TELETEXT,
 
-    0x33300333, 0x1b20, 0xfff00333, 0x1b21, 0x000cc333, 0x1b22, 0xccccc333,
-    0x1b23, 0x333cc333, 0x1b24, 0xfffcc333, 0x1b25, 0x00033333, 0x1b26,
-    0xccc33333, 0x1b27, 0xfff33333, 0x1b28, 0x000ff333, 0x1b29, 0xcccff333,
-    0x1b2a, 0x333ff333, 0x1b2b, 0xfffff333, 0x1b2c, 0x00000fff, 0x1b2d,
-    0xccc00fff, 0x1b2e, 0x33300fff, 0x1b2f,
+    0x33300333, 0x1b20, FLAG_TELETEXT,
+    0xfff00333, 0x1b21, FLAG_TELETEXT,
+    0x000cc333, 0x1b22, FLAG_TELETEXT,
+    0xccccc333, 0x1b23, FLAG_TELETEXT,
+    0x333cc333, 0x1b24, FLAG_TELETEXT,
+    0xfffcc333, 0x1b25, FLAG_TELETEXT,
+    0x00033333, 0x1b26,FLAG_TELETEXT,
+    0xccc33333, 0x1b27, FLAG_TELETEXT,
+    0xfff33333, 0x1b28, FLAG_TELETEXT,
+    0x000ff333, 0x1b29, FLAG_TELETEXT,
+    0xcccff333, 0x1b2a, FLAG_TELETEXT,
+    0x333ff333, 0x1b2b, FLAG_TELETEXT,
+    0xfffff333, 0x1b2c, FLAG_TELETEXT,
+    0x00000fff, 0x1b2d,FLAG_TELETEXT,
+    0xccc00fff, 0x1b2e, FLAG_TELETEXT,
+    0x33300fff, 0x1b2f,FLAG_TELETEXT,
 
-    0xfff00fff, 0x1b30, 0x000ccfff, 0x1b31, 0xcccccfff, 0x1b32, 0x333ccfff,
-    0x1b33, 0xfffccfff, 0x1b34, 0x00033fff, 0x1b35, 0xccc33fff, 0x1b36,
-    0x33333fff, 0x1b37, 0xfff33fff, 0x1b38, 0x000fffff, 0x1b39, 0xcccfffff,
-    0x1b3a, 0x333fffff, 0x1b3b,
+    0xfff00fff, 0x1b30, FLAG_TELETEXT,
+    0x000ccfff, 0x1b31, FLAG_TELETEXT,
+    0xcccccfff, 0x1b32, FLAG_TELETEXT,
+    0x333ccfff, 0x1b33, FLAG_TELETEXT,
+    0xfffccfff, 0x1b34, FLAG_TELETEXT,
+    0x00033fff, 0x1b35, FLAG_TELETEXT,
+    0xccc33fff, 0x1b36,FLAG_TELETEXT,
+    0x33333fff, 0x1b37, FLAG_TELETEXT,
+    0xfff33fff, 0x1b38, FLAG_TELETEXT,
+    0x000fffff, 0x1b39, FLAG_TELETEXT,
+    0xcccfffff, 0x1b3a, FLAG_TELETEXT,
+    0x333fffff, 0x1b3b,FLAG_TELETEXT,
 
-    0, 1  // End marker for extended TELETEXT mode.
+    0, END_MARKER, 0  // End marker 
 };
 
 // The channel indices are 0, 1, 2 for R, G, B
@@ -302,10 +342,9 @@ CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
     unsigned int best_pattern = 0x0000ffff;
     int codepoint = 0x2584;
     bool inverted = false;
-    unsigned int end_marker = flags & FLAG_TELETEXT ? 1 : 0;
-    for (int i = 0; BITMAPS[i + 1] != end_marker; i += 2) {
+    for (int i = 0; BITMAPS[i + 1] != 0; i += 3) {
         // Skip all end markers
-        if (BITMAPS[i + 1] < 32) {
+        if (BITMAPS[i + 2] & flags != BITMAPS[i + 2]) {
             continue;
         }
         unsigned int pattern = BITMAPS[i];
