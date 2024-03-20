@@ -47,13 +47,13 @@ make
 sudo make install
 ```
 
-Please don't forget to install ImageMagick... On Debian based Linux via `sudo apt install imagemagick`.
+Please don't forget to install ImageMagick... On Debian based Linux via `sudo apt install imagemagick` and
+on MacOS via `brew install imagemagick`.
 
 ### Mac: Homebrew
 
 
 ```sh
-brew install imagemagick
 brew install tiv
 ```
 
