@@ -21,11 +21,13 @@ The shell will expand wildcards. By default, thumbnails and file names will be d
 
 ## News
 
-- 2020-10-22: The Java version is now **deprecated**. Development has long shifted to the C++ version since that was created, and the last meaningful update to it was in 2016.
-- 2021-05-22: We now support Apple Clang, thanks to the C++ filesystem library being no longer experimental. Issue forms have also been added to the GitHub repository.
-- 2023-09-29: Today marks the 40th anniversary of the GNU project. If you haven't learned the news concerning it and Stallman, please do. In project news, @aaronliu0130 will probably be developing this project from now on as the original author has moved on to better things to do. Support for MSVC has been added and the repository is now under an Apache 2.0 or GPL3 dual license. CI building for each release will hopefully be setup soon. The main program has also adopted a mostly Google code-style because I (aaron) think it simply makes sense.
+- 2024-03-20: Added a section on how to use the API.
+- 2024-02-01: We are currently working on splitting the source code into dependency-free library files and a client that uses CImg.
+- 2023-09-29: Today marks the 40th anniversary of the GNU project. If you haven't learned the news concerning it and Stallman, please do. 
+Support for MSVC has been added and the repository is now under an Apache 2.0 or GPL3 dual license. CI building for each release will hopefully be setup soon. The main program has also adopted a mostly Google code-style because I (aaron) think it simply makes sense.
 `SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later`
-- 2024-02-01: We are currently working on splitting the source code into library-agnostic library files and a client that uses CImg.
+- 2021-05-22: We now support Apple Clang, thanks to the C++ filesystem library being no longer experimental. Issue forms have also been added to the GitHub repository.
+- 2020-10-22: The Java version is now **deprecated**. Development has long shifted to the C++ version since that was created, and the last meaningful update to it was in 2016.
 
 ## Installation
 
@@ -45,17 +47,58 @@ make
 sudo make install
 ```
 
+Please don't forget to install ImageMagick... On Debian based Linux via `sudo apt install imagemagick`.
+
 ### Mac: Homebrew
 
 
 ```sh
+brew install imagemagick
 brew install tiv
+```
+
+As the original Apple Shell only supports 256 color mode (-256) and there seems to be some extra 
+line spacing, distorting the image, we also recommend installing iTerm2:
+
+```
+brew install --cask iterm2
 ```
 
 ### Third-Party Packages
 
 - @megamaced has created [an RPM for SUSE](https://build.opensuse.org/package/show/home:megamaced/terminalimageviewer)
 - @bperel has created [a Docker image](https://hub.docker.com/r/bperel/terminalimageviewer)
+
+
+## Common problems / Troubleshooting
+
+- Errors such as "unrecognized file format"? Make sure ImageMagic is installed.
+- On some linux platforms, an extra flag seems to be required: `make LDLIBS=-lstdc++fs` (but it also breaks MacOs), see  <https://github.com/stefanhaustein/TerminalImageViewer/issues/103>
+- If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
+- Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
+- Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
+
+## Using the TIV API
+
+Tiv can be used as an API. So if you always wanted to run your favorite FPS in a shell, this is the opportunity.
+
+All the code useful as a library is isolated in [tiv_lib.h](https://github.com/stefanhaustein/TerminalImageViewer/blob/master/src/tiv_lib.h) 
+and [tiv_lib.cc](https://github.com/stefanhaustein/TerminalImageViewer/blob/master/src/tiv_lib.cc).
+
+The main entry point is 
+
+```CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
+                         const int &flags)
+```
+
+The call takes a std::Function that allows the TIV code to request pixels from your framebuffer.
+
+From this framebuffer, the call will query pixels for a 4x8 pixel rectangle, where x0 and y0 
+define the top left corner. The call searches the best unicode graphics character and colors to approximate this 
+cell of the image, and returns these in a CharData struct.
+
+
+
 
 ## Contributions
 
@@ -68,14 +111,6 @@ I am happy to accept useful contributions under the Apache 2.0 license, but...
 - Pull requests should be as "atomic" as possible. I won't accept any pull request doing multiple things at once.
 - This program currently only depends on CImg and ImageMagick as image processing libraries and I'd prefer to keep it that way.
 - Support for additional platforms, CPUs or similar will require somebody who is happy to help with maintenance, in particular if I don't have access to it.
-
-## Common problems / Troubleshooting
-
-- Errors such as "unrecognized file format"? Make sure ImageMagic is installed.
-- On some linux platforms, an extra flag seems to be required: `make LDLIBS=-lstdc++fs` (but it also breaks MacOs), see  <https://github.com/stefanhaustein/TerminalImageViewer/issues/103>
-- If you see strange horizontal lines, the characters don't fully fill the character cell. Remove additional line spacing in your terminal app
-- Wrong colors? Try -256 to use a 256 color palette instead of 24 bit colors
-- Strange characters? Try -0 or install an use full unicode font (e.g. inconsolata or firacode)
 
 ## Examples
 
