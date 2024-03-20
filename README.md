@@ -52,7 +52,6 @@ on MacOS via `brew install imagemagick`.
 
 ### Mac: Homebrew
 
-
 ```sh
 brew install tiv
 ```
@@ -87,8 +86,8 @@ and [tiv_lib.cc](https://github.com/stefanhaustein/TerminalImageViewer/blob/mast
 
 The main entry point is 
 
-```CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
-                         const int &flags)
+```cpp
+CharData findCharData(GetPixelFunction get_pixel, int x0, int y0, const int &flags)
 ```
 
 The call takes a std::Function that allows the TIV code to request pixels from your framebuffer.
@@ -96,9 +95,6 @@ The call takes a std::Function that allows the TIV code to request pixels from y
 From this framebuffer, the call will query pixels for a 4x8 pixel rectangle, where x0 and y0 
 define the top left corner. The call searches the best unicode graphics character and colors to approximate this 
 cell of the image, and returns these in a CharData struct.
-
-
-
 
 ## Contributions
 
