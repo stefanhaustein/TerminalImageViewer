@@ -200,7 +200,7 @@ usage: tiv [options] <image> [<image>...]
 -0        : No block character adjustment, always use top half block char.
 -2, --256 : Use 256-bit colors. Needed to display properly on macOS Terminal.
 -c <num>  : Number of thumbnail columns in 'dir' mode (3 by default).
--d, --dir : Force 'dir' mode. Automatially selected for more than one input.
+-d, --dir : Force 'dir' mode. Automatically selected for more than one input.
 -f, --full: Force 'full' mode. Automatically selected for one input.
 --help    : Display this help text.
 -h <num>  : Set the maximum output height to <num> lines.
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
     bool detectSize = true;
 
     // Platform-specific implementations for determining console size, better
-    // implementations are welcome Fallback sizes when unsuccesful
+    // implementations are welcome Fallback sizes when unsuccessful
     int maxWidth = 80;
     int maxHeight = 24;
 
@@ -307,7 +307,7 @@ int main(int argc, char *argv[]) {
         CONSOLE_SCREEN_BUFFER_INFO w;
         if (GetConsoleScreenBufferInfo(
                 GetStdHandle(STD_OUTPUT_HANDLE),
-                &w)) {  // just like powershell, but without the hyphens, hooray
+                &w)) {  // just like PowerShell, but without the hyphens, hooray
             maxWidth = w.dwSize.X * 4;
             maxHeight = w.dwSize.Y * 8;
         } else {
@@ -334,7 +334,7 @@ int main(int argc, char *argv[]) {
                     image.resize(new_size.width, new_size.height, -100, -100,
                                  5);
                 }
-                // the acutal magic which generates the output
+                // the actual magic which generates the output
                 printImage(image, flags);
             } catch (cimg_library::CImgIOException &e) {
                 std::cerr << "Error: '" << filename

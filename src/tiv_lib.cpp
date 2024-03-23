@@ -46,7 +46,7 @@
 const int END_MARKER = 0;
 
 // An interleaved map of 4x8 bit character bitmaps (each hex digit represents a
-// row) to the corresponding unicode character code point.
+// row) to the corresponding Unicode character code point.
 constexpr unsigned int BITMAPS[] = {
     0x00000000, 0x00a0, 0,
 
