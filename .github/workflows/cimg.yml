@@ -25,7 +25,7 @@ jobs:
     needs: check-version
     if: ${{ needs.check-version.outputs.latest-tag != 'v.3.3.4' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
         name: Checkout this repository
         with:
           token: ${{ secrets.CIMG_UPDATE_TOKEN }}
