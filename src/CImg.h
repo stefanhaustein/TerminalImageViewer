@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 336
+#define cimg_version 340
 
 /*-----------------------------------------------------------
  #
@@ -7382,6 +7382,10 @@ namespace cimg_library {
 #if cimg_OS==2
       const DWORD res = cimg::win_getfileattributes(path);
       return res!=INVALID_FILE_ATTRIBUTES && !(res&FILE_ATTRIBUTE_DIRECTORY);
+#elif cimg_OS==1
+      struct stat st_buf;
+      return (!stat(path,&st_buf) && (S_ISREG(st_buf.st_mode) || S_ISFIFO(st_buf.st_mode) ||
+                                      S_ISCHR(st_buf.st_mode) || S_ISBLK(st_buf.st_mode)));
 #else
       std::FILE *const file = cimg::std_fopen(path,"rb");
       if (!file) return false;
@@ -13538,7 +13542,7 @@ namespace cimg_library {
     CImg<_cimg_Tt> operator*(const CImg<t>& img) const {
       typedef _cimg_Ttdouble Ttdouble;
       typedef _cimg_Tt Tt;
-      if (_width!=img._height || _depth!=1 || _spectrum!=1)
+      if (_width!=img._height || _depth!=1 || _spectrum!=1 || img._depth!=1 || img._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "operator*(): Invalid multiplication of instance by specified "
                                     "matrix (%u,%u,%u,%u,%p).",
@@ -22304,7 +22308,7 @@ namespace cimg_library {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = compile(++s1,se1,depth1,0,block_flags);
-              _cimg_mp_check_type(arg1,2,2,0);
+              _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
               p2 = size(arg2);
               CImg<ulongT>::vector((ulongT)mp_set,arg2,p2,arg1,p1).move_to(code);
@@ -25612,7 +25616,7 @@ namespace cimg_library {
         const double *ptrs = &_mp_arg(2) + 1;
         double *ptrd = &_mp_arg(1);
         CImg<charT> ss(sizs + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         if (!sizd) return CImg<T>(w,h,d,s,0).eval(ss,0,0,0,0,&mp.imglist); // Scalar result
         CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<T>(w,h,d,s,0).fill(ss,true,true,&mp.imglist);
@@ -25873,7 +25877,7 @@ namespace cimg_library {
           sizd = (unsigned int)mp.opcode[4];
         const bool to_string = (bool)mp.opcode[5];
         CImg<charT> ss(sizs + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         if (sizd) cimg_mp_func_get(ptrd + 1,sizd,to_string,ss._data);
         else cimg_mp_func_get(ptrd,0,to_string,ss._data);
@@ -27805,7 +27809,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
         }
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        bool is_invalid_arguments = i_end<=4, is_outlined = false;
+        bool is_invalid_arguments = i_end<=4, is_outlined = false, is_closed = true;
         if (!is_invalid_arguments) {
           int nbv = (int)_mp_arg(4);
           if (!nbv) is_invalid_arguments = true;
@@ -27819,11 +27823,15 @@ namespace cimg_library {
             else { is_invalid_arguments = true; break; }
             if (!is_invalid_arguments) {
               if (i<i_end) opacity = (float)_mp_arg(i++);
-              if (is_outlined && i<i_end) pattern = (unsigned int)_mp_arg(i++);
+              if (is_outlined && i<i_end) {
+                double d_pattern = _mp_arg(i++);
+                if (d_pattern<0) { d_pattern = -d_pattern; is_closed = false; }
+                pattern = (unsigned int)d_pattern;
+              }
               cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
               else { color.resize(k,1,1,1,-1); break; }
               color.resize(img._spectrum,1,1,1,0,2);
-              if (is_outlined) img.draw_polygon(points,color._data,opacity,pattern);
+              if (is_outlined) img.draw_polygon(points,color._data,opacity,pattern,is_closed);
               else img.draw_polygon(points,color._data,opacity);
             }
           }
@@ -28101,7 +28109,7 @@ namespace cimg_library {
           sizs = (unsigned int)mp.opcode[2],
           sizd = (unsigned int)mp.opcode[4];
         CImg<charT> sd(sizd + 1);
-        cimg_for_inX(sd,0,sd.width() - 1,i) sd[i] = (char)ptrd[i];
+        cimg_for_inX(sd,0,sd.width() - 2,i) sd[i] = (char)ptrd[i];
         sd.back() = 0;
         if (sizs) cimg_mp_func_set(ptrs + 1,sizs,sd._data);
         else cimg_mp_func_set(ptrs,0,sd._data);
@@ -28401,7 +28409,7 @@ namespace cimg_library {
                                       "Specified image dimensions (%d,%d,%d,%d) are invalid.",
                                       pixel_type(),w,h,d,s);
         CImg<charT> ss(siz2 + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptr2[i];
         ss.back() = 0;
         if (siz1) cimg_mp_func_store(ptr1 + 1,siz1,
                                      (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
@@ -29283,7 +29291,7 @@ namespace cimg_library {
       static double _mp_vargkth(CImg<doubleT>& vec) {
         const double val = (+vec).get_shared_points(1,vec.width() - 1).
           kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
-        cimg_for_inX(vec,1,vec.width()-1,ind) if (vec[ind]==val) return ind - 1.;
+        cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind - 1.;
         return 1.;
       }
 
@@ -48838,8 +48846,8 @@ namespace cimg_library {
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int
             x = (int)(fx + 0.5f),
-            tx = (int)(ftx + 0.5f),
-            ty = (int)(fty + 0.5f);
+            tx = (int)ftx,
+            ty = (int)fty;
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
@@ -48927,8 +48935,8 @@ namespace cimg_library {
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int
             x = (int)(fx + 0.5f),
-            tx = (int)(ftxz/iz + 0.5f),
-            ty = (int)(ftyz/iz + 0.5f);
+            tx = (int)(ftxz/iz),
+            ty = (int)(ftyz/iz);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
@@ -49028,8 +49036,8 @@ namespace cimg_library {
           if (iz>=*ptrz) {
             *ptrz = (tz)iz;
             const int
-              tx = (int)(ftxz/iz + 0.5f),
-              ty = (int)(ftyz/iz + 0.5f);
+              tx = (int)(ftxz/iz),
+              ty = (int)(ftyz/iz);
             T *const ptrd = is_horizontal?data(y,x):data(x,y);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
@@ -49455,10 +49463,8 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "draw_triangle(): Specified color is (null).",
                                     cimg_instance);
-      draw_line(x0,y0,x1,y1,color,opacity,pattern,true).
-        draw_line(x1,y1,x2,y2,color,opacity,pattern,false).
-        draw_line(x2,y2,x0,y0,color,opacity,pattern,false);
-      return *this;
+      CImg<intT> points(3,2,1,1,x0,x1,x2,y0,y1,y2);
+      return draw_polygon(points,color,opacity,pattern);
     }
 
     //! Draw a filled 2D triangle, with z-buffering.
@@ -49941,8 +49947,8 @@ namespace cimg_library {
               txz = txzm + dtxzmM*xxm/dxmM,
               tyz = tyzm + dtyzmM*xxm/dxmM;
             const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz);
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
               const Tfloat val = cbs<=1?color[c*twhd]*cbs:(2 - cbs)*color[c*twhd] + (cbs - 1)*_sc_maxval;
@@ -50037,8 +50043,8 @@ namespace cimg_library {
                 txz = txzm + dtxzmM*xxm/dxmM,
                 tyz = tyzm + dtyzmM*xxm/dxmM;
               const int
-                tx = (int)cimg::round(txz/iz),
-                ty = (int)cimg::round(tyz/iz);
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               cimg_forC(*this,c) {
                 const Tfloat val = cbs<=1?color[c*twhd]*cbs:(2 - cbs)*color[c*twhd] + (cbs - 1)*_sc_maxval;
@@ -50426,8 +50432,8 @@ namespace cimg_library {
               tyz = tyzm + dtyzmM*xxm/dxmM,
               cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
             const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz);
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
               const tc col = color[c*twhd];
@@ -50527,8 +50533,8 @@ namespace cimg_library {
                 tyz = tyzm + dtyzmM*xxm/dxmM,
                 cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
               const int
-                tx = (int)cimg::round(txz/iz),
-                ty = (int)cimg::round(tyz/iz);
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               cimg_forC(*this,c) {
                 const tc col = color[c*twhd];
@@ -50762,10 +50768,10 @@ namespace cimg_library {
               lxz = lxzm + dlxzmM*xxm/dxmM,
               lyz = lyzm + dlyzmM*xxm/dxmM;
             const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz),
-              lx = (int)cimg::round(lxz/iz),
-              ly = (int)cimg::round(lyz/iz);
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz),
+              lx = (int)(lxz/iz),
+              ly = (int)(lyz/iz);
             const tc *const color = &texture._atXY(tx,ty);
             const tl *const lig = &light._atXY(lx,ly);
             cimg_forC(*this,c) {
@@ -50887,10 +50893,10 @@ namespace cimg_library {
                 lxz = lxzm + dlxzmM*xxm/dxmM,
                 lyz = lyzm + dlyzmM*xxm/dxmM;
               const int
-                tx = (int)cimg::round(txz/iz),
-                ty = (int)cimg::round(tyz/iz),
-                lx = (int)cimg::round(lxz/iz),
-                ly = (int)cimg::round(lyz/iz);
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz),
+                lx = (int)(lxz/iz),
+                ly = (int)(lyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               const tl *const lig = &light._atXY(lx,ly);
               cimg_forC(*this,c) {
@@ -51050,9 +51056,9 @@ namespace cimg_library {
         ymax = ipoints.get_shared_row(1).max_min(ymin);
       if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
       if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
-
       ymin = std::max(0,ymin);
       ymax = std::min(height() - 1,ymax);
+
       CImg<intT> Xs(ipoints._width,ymax - ymin + 1);
       CImg<uintT> count(Xs._height,1,1,1,0);
       unsigned int n = 0, nn = 1;
@@ -51083,7 +51089,7 @@ namespace cimg_library {
       }
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
-      cimg_forY(Xs,y) {
+      cimg_forY(Xs,y) if (count[y]) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         int px = width();
         for (unsigned int k = 0; k<Xsy._width; k+=2) {
@@ -51100,7 +51106,8 @@ namespace cimg_library {
     //! Draw a outlined 2D or 3D polygon \overloading.
     template<typename tp, typename tc>
     CImg<T>& draw_polygon(const CImg<tp>& points,
-                          const tc *const color, const float opacity, const unsigned int pattern) {
+                          const tc *const color, const float opacity, const unsigned int pattern,
+                          const bool is_closed=true) {
       if (is_empty() || !points) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
@@ -51118,18 +51125,26 @@ namespace cimg_library {
       if (ipoints._width==1) return draw_point(ipoints(0,0),ipoints(0,1),color,opacity);
       if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
                                               color,opacity,pattern);
-      if (ipoints._width==3) return draw_triangle(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
-                                                  ipoints(2,0),ipoints(2,1),color,opacity,pattern);
-      bool ninit_hatch = true;
-      const int x0 = ipoints(0,0), y0 = ipoints(0,1);
-      int ox = x0, oy = y0;
-      for (unsigned int i = 1; i<ipoints._width; ++i) {
-        const int x = ipoints(i,0), y = ipoints(i,1);
-        draw_line(ox,oy,x,y,color,opacity,pattern,ninit_hatch);
+      bool ninit_hatch = true, is_drawn = false;
+      int x = ipoints(0,0), y = ipoints(0,1);
+      const unsigned int N = ipoints._width - (is_closed?0:1);
+      for (unsigned int i = 0; i<N; ++i) {
+        const int
+          ni = (i + 1)%ipoints.width(),
+          nx = ipoints(ni,0), ny = ipoints(ni,1),
+          u = nx - x, v = ny - y,
+          l = std::max(std::abs(u),std::abs(v));
+        if (l) {
+          const int
+            nx1 = is_closed || i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
+            ny1 = is_closed || i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
+          draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
+          is_drawn = true;
+        }
         ninit_hatch = false;
-        ox = x; oy = y;
+        x = nx; y = ny;
       }
-      draw_line(ox,oy,x0,y0,color,opacity,pattern,false);
+      if (!is_drawn) draw_point(ipoints(0,0),ipoints(0,1),color,opacity); // All vertices were the same
       return *this;
     }
 
@@ -67407,12 +67422,43 @@ namespace cimg_library {
       return 0;
     }
 
-    //! Search path of an executable (Windows only).
+    //! Search path of an executable.
 #if cimg_OS==2
     inline bool win_searchpath(const char *const exec_name, char *const res, const unsigned int size_res) {
       char *ptr = 0;
       DWORD err = SearchPathA(0,exec_name,0,size_res,res,&ptr);
       return err!=0;
+    }
+#endif
+
+#if cimg_OS==1
+    inline bool posix_searchpath(const char *file) {
+      if (!file || !*file) return false;
+      const char *path = std::getenv("PATH");
+
+      if (!path) path = "/usr/local/bin:/bin:/usr/bin";
+      size_t file_len = strnlen(file,NAME_MAX + 1);
+      if (file_len>NAME_MAX) return false;
+      size_t path_total_len = strnlen(path,PATH_MAX - 1) + 1;
+
+      char *buf = new char[path_total_len + file_len + 1];
+      const char *p = path, *z = 0;
+      while (true) {
+        z = std::strchr(p,':');
+        if (!z) z = p + std::strlen(p);
+        if ((size_t)(z - p)>=path_total_len) {
+          if (!*z++) break;
+          continue;
+        }
+        std::memcpy(buf,p,z - p);
+        buf[z - p] = '/';
+        std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
+        if (cimg::is_file(buf)) { delete[] buf; return true; }
+        if (!*z++) break;
+        p = z;
+      }
+      delete[] buf;
+      return false;
     }
 #endif
 
@@ -67864,6 +67910,10 @@ namespace cimg_library {
         if (!path_found) {
           std::strcpy(s_path,"./convert");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        if (!path_found) {
+          std::strcpy(s_path,"magick");
+          if (posix_searchpath("magick")) path_found = true;
         }
         if (!path_found) std::strcpy(s_path,"convert");
 #endif
