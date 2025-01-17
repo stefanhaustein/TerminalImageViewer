@@ -60,6 +60,8 @@ constexpr int GRAYSCALE_STEPS[GRAYSCALE_STEP_COUNT] = {
 
 typedef std::function<unsigned long(int, int)> GetPixelFunction;
 
+unsigned char get_channel(unsigned long rgb, int index);
+
 int clamp_byte(int value);
 
 int best_index(int value, const int STEPS[], int count);

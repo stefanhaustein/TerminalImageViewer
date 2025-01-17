@@ -46,6 +46,7 @@
 // This #define tells CImg that we use the library without any display options
 // -- just for loading images.
 #define cimg_display 0
+#define cimg_use_png
 #include "CImg.h"
 
 #ifdef _POSIX_VERSION
@@ -176,20 +177,29 @@ std::ostream &operator<<(std::ostream &stream, size sz) {
  * that always returns a CImg image with 3 channels (RGB)
  *
  * @param filename The file to construct a CImg object on
+ * @param bgColor  The color to use as the background in case of a transparent image
  * @return cimg_library::CImg<unsigned char> Constructed CImg RGB image
  */
-cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename) {
+cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename, unsigned char* bgColor) {
     cimg_library::CImg<unsigned char> image(filename);
+    // Regular image, do nothing special
+    if (image.spectrum() == 3) return image;
+
+    cimg_library::CImg<unsigned char> rgb_image(
+        image.width(), image.height(), image.depth(), 3);
+
     if (image.spectrum() == 1) {
         // Greyscale. Just copy greyscale data to all channels
-        cimg_library::CImg<unsigned char> rgb_image(
-            image.width(), image.height(), image.depth(), 3);
-        for (unsigned int chn = 0; chn < 3; chn++) {
+        for (unsigned int chn = 0; chn < 3; chn++)
             rgb_image.draw_image(0, 0, 0, chn, image);
-        }
-        return rgb_image;
+    } else if (image.spectrum() == 4) {
+        // Transparent image, fill background then draw image over
+        for (unsigned int chn = 0; chn < 3; chn++)
+            rgb_image.get_shared_channel(chn).fill(bgColor[chn]);
+        rgb_image.draw_image(0, 0, image.get_shared_channels(0, 2), 
+                image.get_shared_channel(3), 1, 255);
     }
-    return image;
+    return rgb_image;
 }
 
 // Implements --help
@@ -205,6 +215,7 @@ usage: tiv [options] <image> [<image>...]
 --help    : Display this help text.
 -h <num>  : Set the maximum output height to <num> lines.
 -w <num>  : Set the maximum output width to <num> characters.
+-C <hex>  : Use hex color as background (0xFFFFFF (White) by default).
 -x        : Use new Unicode Teletext/legacy characters (experimental).)"
               << std::endl;
 }
@@ -219,6 +230,9 @@ int main(int argc, char *argv[]) {
     // implementations are welcome Fallback sizes when unsuccessful
     int maxWidth = 80;
     int maxHeight = 24;
+
+    // Default background color (white)
+    unsigned char bgColor[] = { 255, 255, 255 };
 
     // Reading input
     char flags = 0;    // bitwise representation of flags,
@@ -265,6 +279,15 @@ int main(int argc, char *argv[]) {
             flags |= FLAG_MODE_256;
         } else if (arg == "--help" || arg == "-help") {
             printUsage();
+        } else if (arg == "-C") {
+            if (i < argc - 1) {
+                unsigned long hexIn = std::strtol(argv[++i], nullptr, 16);
+                for (unsigned int chn = 0; chn < 3; chn++) 
+                      bgColor[chn] = get_channel(hexIn, chn);
+            } else {
+                std::cerr << "Error: -C requires an argument" << std::endl;
+                ret = EXITCODE_COMMAND_LINE_USAGE_ERROR;
+            }
         } else if (arg == "-x") {
             flags |= FLAG_TELETEXT;
         } else if (arg[0] == '-') {
@@ -326,7 +349,7 @@ int main(int argc, char *argv[]) {
         for (const auto &filename : file_names) {
             try {
                 cimg_library::CImg<unsigned char> image =
-                    load_rgb_CImg(filename.c_str());
+                    load_rgb_CImg(filename.c_str(), bgColor);
                 if (image.width() > maxWidth || image.height() > maxHeight) {
                     // scale image down to fit terminal size
                     size new_size =
@@ -358,7 +381,7 @@ int main(int argc, char *argv[]) {
                 std::string name = file_names[index++];
                 try {
                     cimg_library::CImg<unsigned char> original =
-                        load_rgb_CImg(name.c_str());
+                        load_rgb_CImg(name.c_str(), bgColor);
                     auto cut = name.find_last_of("/");
                     sb +=
                         cut == std::string::npos ? name : name.substr(cut + 1);
