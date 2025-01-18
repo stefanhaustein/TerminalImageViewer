@@ -30,14 +30,12 @@
  *     limitations under the License.
  */
 
+#include <algorithm>
 #include <array>
-#include <bitset>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
-#include <functional>
 #include <iostream>
-#include <map>
 #include <string>
 #include <vector>
 

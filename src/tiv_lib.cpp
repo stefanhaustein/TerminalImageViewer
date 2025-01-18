@@ -30,18 +30,14 @@
  *     limitations under the License.
  */
 
- #include "tiv_lib.h"
+#include "tiv_lib.h"
 
+#include <algorithm>
 #include <array>
 #include <bitset>
 #include <cmath>
-#include <filesystem>
-#include <fstream>
 #include <functional>
-#include <iostream>
 #include <map>
-#include <string>
-#include <vector>
 
 const int END_MARKER = 0;
 
@@ -55,9 +51,9 @@ constexpr unsigned int BITMAPS[] = {
 
     0x0000000f, 0x2581, 0,  // lower 1/8
     0x000000ff, 0x2582, 0,  // lower 1/4
-    0x00000fff, 0x2583, 0, 
+    0x00000fff, 0x2583, 0,
     0x0000ffff, 0x2584, 0,  // lower 1/2
-    0x000fffff, 0x2585, 0, 
+    0x000fffff, 0x2585, 0,
     0x00ffffff, 0x2586, 0,  // lower 3/4
     0x0fffffff, 0x2587, 0,
     // 0xffffffff, 0x2588,  // full; redundant with inverse space
@@ -68,9 +64,9 @@ constexpr unsigned int BITMAPS[] = {
 
     0x0000cccc, 0x2596, 0,  // quadrant lower left
     0x00003333, 0x2597, 0,  // quadrant lower right
-    0xcccc0000, 0x2598, 0, // quadrant upper left
+    0xcccc0000, 0x2598, 0,  // quadrant upper left
              // 0xccccffff, 0x2599,  // 3/4 redundant with inverse 1/4
-    0xcccc3333, 0x259a, 0, // diagonal 1/2
+    0xcccc3333, 0x259a, 0,  // diagonal 1/2
                          // 0xffffcccc, 0x259b,  // 3/4 redundant
     // 0xffff3333, 0x259c,  // 3/4 redundant
     0x33330000, 0x259d, 0,  // quadrant upper right
@@ -329,7 +325,8 @@ CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 4; x++) {
                 bits = bits << 1;
-                if (get_channel(get_pixel(x0 + x, y0 + y), splitIndex) > splitValue) {
+                if (get_channel(get_pixel(x0 + x, y0 + y),
+                                splitIndex) > splitValue) {
                     bits |= 1;
                 }
             }
