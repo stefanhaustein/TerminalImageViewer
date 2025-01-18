@@ -128,7 +128,7 @@ void printCodepoint(int codepoint) {
 void printImage(const cimg_library::CImg<unsigned char> &image,
                 const int &flags) {
     GetPixelFunction get_pixel = [&](int x, int y) -> unsigned long {
-        return (((unsigned long) image(x, y, 0, 0)) << 16) 
+        return (((unsigned long) image(x, y, 0, 0)) << 16)
             | (((unsigned long) image(x, y, 0, 1)) << 8)
             | (((unsigned long) image(x, y, 0, 2)));
     };
@@ -180,10 +180,19 @@ std::ostream &operator<<(std::ostream &stream, size sz) {
  * @param bgColor  The color to use as the background in case of a transparent image
  * @return cimg_library::CImg<unsigned char> Constructed CImg RGB image
  */
-cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename, unsigned char* bgColor) {
+cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename,
+                                                unsigned char* bgColor) {
     cimg_library::CImg<unsigned char> image(filename);
     // Regular image, do nothing special
-    if (image.spectrum() == 3) return image;
+    if (image.spectrum() == 3) {
+        if (!(bgColor[0] == 255 && bgColor[1] == 255 && bgColor[2] == 255)) {
+          std::cerr << "Warning: Background color argument '-C' was specified, "
+                       "but only PNGs and GIFs transparencies are supported "
+                       "at the moment. Using white background instead."
+              << std::endl;
+        }
+        return image;
+    }
 
     cimg_library::CImg<unsigned char> rgb_image(
         image.width(), image.height(), image.depth(), 3);
@@ -196,7 +205,7 @@ cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename, uns
         // Transparent image, fill background then draw image over
         for (unsigned int chn = 0; chn < 3; chn++)
             rgb_image.get_shared_channel(chn).fill(bgColor[chn]);
-        rgb_image.draw_image(0, 0, image.get_shared_channels(0, 2), 
+        rgb_image.draw_image(0, 0, image.get_shared_channels(0, 2),
                 image.get_shared_channel(3), 1, 255);
     }
     return rgb_image;
@@ -215,7 +224,7 @@ usage: tiv [options] <image> [<image>...]
 --help    : Display this help text.
 -h <num>  : Set the maximum output height to <num> lines.
 -w <num>  : Set the maximum output width to <num> characters.
--C <hex>  : Use hex color as background (0xFFFFFF (White) by default).
+-C <hex>  : Use hex color (0xFFFFFF (White) by default) as background for PNG/GIF.
 -x        : Use new Unicode Teletext/legacy characters (experimental).)"
               << std::endl;
 }
@@ -282,7 +291,7 @@ int main(int argc, char *argv[]) {
         } else if (arg == "-C") {
             if (i < argc - 1) {
                 unsigned long hexIn = std::strtol(argv[++i], nullptr, 16);
-                for (unsigned int chn = 0; chn < 3; chn++) 
+                for (unsigned int chn = 0; chn < 3; chn++)
                       bgColor[chn] = get_channel(hexIn, chn);
             } else {
                 std::cerr << "Error: -C requires an argument" << std::endl;
