@@ -60,6 +60,13 @@
 #include <system_error>
 #endif
 
+// Bitset implementation of flags in the main() method
+constexpr int FLAG_FG = 1;
+constexpr int FLAG_BG = 2;
+constexpr int FLAG_MODE_256 = 4;   // Limit colors to 256-color mode
+constexpr int FLAG_24BIT = 8;      // 24-bit color mode
+constexpr int FLAG_NOOPT = 16;     // Only use the same half-block character
+
 // Program exit code constants compatible with sysexits.h.
 #define EXITCODE_OK 0
 #define EXITCODE_COMMAND_LINE_USAGE_ERROR 64

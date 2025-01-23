@@ -38,13 +38,9 @@
 #include <array>
 #include <functional>
 
-// Implementation of flag representation for flags in the main() method
-constexpr int FLAG_FG = 1;
-constexpr int FLAG_BG = 2;
-constexpr int FLAG_MODE_256 = 4;   // Limit colors to 256-color mode
-constexpr int FLAG_24BIT = 8;      // 24-bit color mode
-constexpr int FLAG_NOOPT = 16;     // Only use the same half-block character
-constexpr int FLAG_TELETEXT = 32;  // Use teletext characters
+constexpr int FLAG_TELETEXT = 32;  // Bitset flag to use teletext characters.
+// 32 for backwards-compatibility reasons
+// as this was introduced after all the other client flags
 
 
 // Color saturation value steps from 0 to 255
@@ -98,4 +94,4 @@ CharData createCharData(GetPixelFunction get_pixel, int x0, int y0,
 CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
                       const int &flags);
 
-#endif 
+#endif
