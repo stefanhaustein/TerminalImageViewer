@@ -31,8 +31,8 @@
  *     limitations under the License.
  */
 
-#ifndef TIV_LIB_H
-#define TIV_LIB_H
+#ifndef TIV_LIB_H_
+#define TIV_LIB_H_
 
 
 #include <array>
@@ -94,4 +94,4 @@ CharData createCharData(GetPixelFunction get_pixel, int x0, int y0,
 CharData findCharData(GetPixelFunction get_pixel, int x0, int y0,
                       const int &flags);
 
-#endif
+#endif  // TIV_LIB_H_
