@@ -3,7 +3,7 @@ PROGNAME = tiv
 OBJECTS = tiv.o tiv_lib.o
   
 CXX      ?= g++
-CXXFLAGS ?= -O2 -fpermissive
+CXXFLAGS ?= -O2
 INSTALL  ?= install
 INSTALL_PROGRAM ?= $(INSTALL) -D
 
