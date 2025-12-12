@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2017-2023, Stefan Haustein, Aaron Liu
  *
@@ -40,7 +39,7 @@
 
 constexpr int FLAG_TELETEXT = 32;  // Bitset flag to use teletext characters.
 // 32 for backwards-compatibility reasons
-// as this was introduced after all the other client flags
+// as this was introduced after other bitset flags for the tiv CLI
 
 
 // Color saturation value steps from 0 to 255
@@ -53,13 +52,30 @@ constexpr int GRAYSCALE_STEPS[GRAYSCALE_STEP_COUNT] = {
     0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x62, 0x6c, 0x76,
     0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0, 0xda, 0xe4, 0xee};
 
-
+/**
+* @brief Function that returns a pixel from the image given its coordinates
+* @param x x-coordinate of the pixel
+* @param y y-coordinate of the pixel
+* @return The pixel value in 0xRRGGBB format
+*/
 typedef std::function<unsigned long(int, int)> GetPixelFunction;
 
+/**
+* @brief Get the value of a specific color channel for the specified pixel
+* @param rgb A pixel in 0xRRGGBB format
+* @param index 0, 1, or 2 for R, G, B
+* @return The pixel value between 0 and 255
+*/
 unsigned char get_channel(unsigned long rgb, int index);
 
 int clamp_byte(int value);
 
+/**
+* @brief Map color value to the closest possible color step
+* @param value Color value from 0 to 255
+* @param STEPS An array like COLOR_STEPS
+* @param count The distance between each color step (e.g. COLOR_STEP_COUNT)
+*/
 int best_index(int value, const int STEPS[], int count);
 
 /**
