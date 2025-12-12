@@ -62,8 +62,6 @@ int clamp_byte(int value);
 
 int best_index(int value, const int STEPS[], int count);
 
-double sqr(double n);
-
 /**
  * @brief Struct to represent a character to be drawn.
  * @param fgColor RGB

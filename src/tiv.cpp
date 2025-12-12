@@ -73,6 +73,8 @@ constexpr int FLAG_NOOPT = 16;     // Only use the same half-block character
 #define EXITCODE_DATA_FORMAT_ERROR 65
 #define EXITCODE_NO_INPUT_ERROR 66
 
+inline double sqr(double n) { return n * n; }
+
 void printTermColor(const int &flags, int r, int g, int b) {
     r = clamp_byte(r);
     g = clamp_byte(g);
@@ -219,7 +221,7 @@ cimg_library::CImg<unsigned char> load_rgb_CImg(const char *const &filename,
 // Implements --help
 void printUsage() {
     std::cerr << R"(
-Terminal Image Viewer v1.2.1
+Terminal Image Viewer v1.3
 usage: tiv [options] <image> [<image>...]
 -0        : No block character adjustment, always use top half block char.
 -2, --256 : Use 256-bit colors. Needed to display properly on macOS Terminal.

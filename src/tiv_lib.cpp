@@ -378,8 +378,6 @@ int clamp_byte(int value) {
     return value < 0 ? 0 : (value > 255 ? 255 : value);
 }
 
-double sqr(double n) { return n * n; }
-
 int best_index(int value, const int STEPS[], int count) {
     int best_diff = std::abs(STEPS[0] - value);
     int result = 0;
