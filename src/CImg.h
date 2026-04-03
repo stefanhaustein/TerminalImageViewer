@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 372
+#define cimg_version 374
 
 /*-----------------------------------------------------------
  #
@@ -431,6 +431,7 @@ enum {FALSE_WIN = 0};
 #endif
 #elif cimg_display==3
 #include <SDL3/SDL.h>
+#include <pthread.h>
 #if cimg_OS==1
 #include <csignal>
 #endif
@@ -653,12 +654,19 @@ extern "C" {
 #include "tinyexr.h"
 #endif
 
-// Try to define cimg_float16.
+// Define cimg_float16.
 #if defined(_HALF_H_) || defined(cimg_use_openexr)
 #define cimg_float16 half
 #define cimg_is_float16 1
 #else
 #define cimg_is_float16 0
+#endif
+
+// Define cimg_use_pthread
+#if defined(PTHREAD_H) || defined(_PTHREAD_H)
+#define cimg_use_pthread 1
+#else
+#define cimg_use_pthread 0
 #endif
 
 // Check if min/max/PI macros are defined.
@@ -3252,7 +3260,7 @@ namespace cimg_library {
         XInitThreads();
 #endif
 	pthread_mutexattr_init(&attr);
-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_RECURSIVE);
         pthread_mutex_init(&mutex_wait_event, &attr);
         pthread_mutex_init(&mutex_lock_display, &attr);
         pthread_cond_init(&wait_event,0);
@@ -3325,7 +3333,7 @@ namespace cimg_library {
       SDL_DisplayID display;
       SDL_ThreadID main_thread_id;
       const SDL_DisplayMode *mode;
-      SDL_Mutex *mutex_lock_display; //, *mutex_wait_event;
+      SDL_Mutex *mutex_lock_display;
 
       SDL3_attr():nb_cimg_displays(0),display(0),mode(0),mutex_lock_display(0) {
         bool init_failed = true;
@@ -3375,7 +3383,7 @@ namespace cimg_library {
 #endif
 
     struct Mutex_attr {
-#if cimg_OS==1 && (defined(cimg_use_pthread) || cimg_display==1)
+#if cimg_OS==1 && cimg_use_pthread==1
       pthread_mutex_t mutex[32];
       Mutex_attr() { for (unsigned int i = 0; i<32; ++i) pthread_mutex_init(&mutex[i],0); }
       void lock(const unsigned int n) { pthread_mutex_lock(&mutex[n]); }
@@ -5962,6 +5970,7 @@ namespace cimg_library {
     /**
        \param command C-string containing the command line to execute.
        \param module_name Module name.
+       \param is_verbose Tell if command must be silent or verbose when outputing messages.
        \return Status value of the executed command, whose meaning is OS-dependent.
        \note This function is similar to <tt>std::system()</tt>
        but it does not open an extra console windows
@@ -7703,7 +7712,7 @@ namespace cimg_library {
 
     //! Get file size.
     /**
-       \param filename Specified filename to get size from.
+       \param file Specified file to get size from.
        \return File size or '-1' if file does not exist.
     **/
     inline cimg_int64 fsize(std::FILE *const file) {
@@ -8150,7 +8159,10 @@ namespace cimg_library {
 
       std::fprintf(cimg::output(),"  > Display type:             %s%-13s%s %s('cimg_display'=%d)%s\n",
                    cimg::t_bold,
-                   cimg_display==0?"No display":cimg_display==1?"X11":cimg_display==2?"Windows GDI":"Unknown",
+                   cimg_display==0?"No display":
+                   cimg_display==1?"X11":
+                   cimg_display==2?"Windows GDI":
+                   cimg_display==3?"SDL3":"Unknown",
                    cimg::t_normal,cimg::t_green,
                    (int)cimg_display,
                    cimg::t_normal);
@@ -28027,7 +28039,7 @@ namespace cimg_library {
         if (mp.is_fill && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'resize()': "
-                                      "Cannot both fill and resize image (%u,%u,%u,%u) "
+                                      "Cannot both fill/eval and resize image (%u,%u,%u,%u) "
                                       "to new dimensions (%u,%u,%u,%u).",
                                       img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
         }
@@ -28113,7 +28125,7 @@ namespace cimg_library {
           st.move_to(mp.list_stats[ind]);
           cimg::mutex(13,0);
         }
-        return mp.list_stats(ind,k);
+        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():mp.list_stats(ind,k);
       }
 
       static double mp_image_std_static(_cimg_math_parser& mp) {
@@ -28129,7 +28141,7 @@ namespace cimg_library {
           st.move_to(mp.list_stats[ind]);
           cimg::mutex(13,0);
         }
-        return std::sqrt(mp.list_stats(ind,3));
+        return mp.list_stats[ind].is_empty()?cimg::type<double>::nan():std::sqrt(mp.list_stats(ind,3));
       }
 
       static double mp_image_swap(_cimg_math_parser& mp) {
@@ -29311,7 +29323,7 @@ namespace cimg_library {
           ptrd = (unsigned int)mp.opcode[1] + 1,
           siz = (unsigned int)mp.opcode[2];
         mp_func op = (mp_func)mp.opcode[3];
-        ulongT l_data[3];
+        ulongT l_data[3] = { 0 };
         CImg<ulongT> l_opcode(l_data,1,3,1,1,true);
         l_opcode[2] = mp.opcode[4]; // Scalar argument
         l_opcode.swap(mp.opcode);
@@ -29327,7 +29339,7 @@ namespace cimg_library {
           siz = (unsigned int)mp.opcode[2],
           ptrs = (unsigned int)mp.opcode[4] + 1;
         mp_func op = (mp_func)mp.opcode[3];
-        ulongT l_data[4];
+        ulongT l_data[4] = { 0 };
         CImg<ulongT> l_opcode(l_data,1,4,1,1,true);
         l_opcode.swap(mp.opcode);
         ulongT &target = mp.opcode[1], &argument = mp.opcode[2];
@@ -30013,8 +30025,8 @@ namespace cimg_library {
       }
 
       static double mp_vector_display(_cimg_math_parser& mp) {
-        const unsigned int
-          _siz = (unsigned int)mp.opcode[3],
+        const unsigned long
+          _siz = (unsigned long)mp.opcode[3],
           siz = _siz?_siz:1;
         const double *const ptr = &_mp_arg(1) + (_siz?1:0);
         const int
@@ -30024,8 +30036,12 @@ namespace cimg_library {
           s = (int)_mp_arg(7);
         CImg<doubleT> img;
         if (w>0 && h>0 && d>0 && s>0) {
-          if ((unsigned int)w*h*d*s<=siz) img.assign(ptr,w,h,d,s,true);
-          else img.assign(ptr,siz).resize(w,h,d,s,-1);
+          if ((unsigned long)w*h*d*s!=siz)
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'display()': "
+                                        "Invalid request to display a vector of size #%lu as a (%d,%d,%d,%d) image "
+                                        "(%lu values).",
+                                        mp.imgin.pixel_type(),siz,w,h,d,s,(unsigned long)w*h*d*s);
+          img.assign(ptr,w,h,d,s,true);
         } else img.assign(ptr,1,siz,1,1,true);
 
         CImg<charT> expr(mp.opcode[2]);
@@ -31521,9 +31537,9 @@ namespace cimg_library {
 
     //! Pointwise min operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the min operator.
+       \param value Value used as the reference argument of the min operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
-       \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{val})\f$.
+       \f$ \mathrm{min}(I_{(x,y,z,c)},\mathrm{val}) \f$.
      **/
     CImg<T>& min(const T& value) {
       if (is_empty()) return *this;
@@ -31579,7 +31595,7 @@ namespace cimg_library {
 
     //! Pointwise max operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the max operator.
+       \param value Value used as the reference argument of the max operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -31637,7 +31653,7 @@ namespace cimg_library {
 
     //! Pointwise minabs operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the minabs operator.
+       \param value Value used as the reference argument of the minabs operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -31696,7 +31712,7 @@ namespace cimg_library {
 
     //! Pointwise maxabs operator between instance image and a value.
     /**
-       \param val Value used as the reference argument of the maxabs operator.
+       \param value Value used as the reference argument of the maxabs operator.
        \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
        \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
      **/
@@ -32861,7 +32877,7 @@ namespace cimg_library {
 
     //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
-       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \fs *this represents \f$ B \f$,
+       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \c *this represents \f$ B \f$,
        and the argument \c A is the system matrix. This method supports both over-determined and
        under-determined systems by internally performing a QR decomposition.
 
@@ -35411,7 +35427,7 @@ namespace cimg_library {
 
     //! Add random noise to pixel values.
     /**
-       \param sigma Amplitude of the random additive noise. If \p sigma<0, it stands for a percentage of the
+       \param amplitude Amplitude of the random additive noise. If \p sigma<0, it stands for a percentage of the
          global value range.
        \param noise_type Type of additive noise (can be \p 0=gaussian, \p 1=uniform, \p 2=Salt and Pepper,
          \p 3=Poisson or \p 4=Rician).
@@ -36799,7 +36815,7 @@ namespace cimg_library {
     //! Return palette \e "flag", containing 256 colors entries in RGB.
     /**
        \return The following \c 256x1x1x3 colormap is returned:
-       \image html ref_palette_flag.jpg
+       \image html ref_colormap_flag.jpg
     **/
     static const CImg<Tuchar>& flag_LUT256() {
       static CImg<Tuchar> palette;
@@ -39854,7 +39870,7 @@ namespace cimg_library {
 
     //! Warp image content by a warping field.
     /**
-       \param warp Warping field.
+       \param p_warp Warping field.
        \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=foward-relative }
        \param interpolation Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
@@ -41981,8 +41997,8 @@ namespace cimg_library {
        \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
-       res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
-                    c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k).
+       \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
+                    c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k) \f$
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
@@ -42453,8 +42469,8 @@ namespace cimg_library {
        \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
-       res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
-                    - \beta_y\;(j - c_y),\alpha_z\;z - \beta_z\;(k - c_z))*kernel(i,j,k).
+       \f$ res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
+                    - \beta_y\;(j - c_y),\alpha_z\;z - \beta_z\;(k - c_z))*kernel(i,j,k) \f$.
     **/
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
@@ -47486,6 +47502,7 @@ namespace cimg_library {
        \param[in,out] imag Imaginary part of the pixel values.
        \param axis Axis along which the FFT is computed.
        \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param nb_threads Set the maximum number of threads used for FFT computation.
     **/
     static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_inverse=false,
                     const unsigned int nb_threads=0) {
@@ -49739,6 +49756,8 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch Tells if a reinitialization of the hash state must be done.
+       \param draw_last_pixel Tells if last pixel of the line must be drawn or not (e.g. can be disabled
+       when drawing multi-line curves with transparency).
        \note
        - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
        \par Example:
@@ -50816,9 +50835,9 @@ namespace cimg_library {
        \param y1 Y-coordinate of the second vertex in the image instance.
        \param x2 X-coordinate of the third vertex in the image instance.
        \param y2 Y-coordinate of the third vertex in the image instance.
-       \param color1 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the first vertex.
-       \param color2 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the second vertex.
-       \param color3 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the third vertex.
+       \param color0 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the first vertex.
+       \param color1 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the second vertex.
+       \param color2 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the third vertex.
        \param opacity Drawing opacity.
      **/
     template<typename tc>
@@ -52714,8 +52733,8 @@ namespace cimg_library {
        \param opacity Drawing opacity.
        \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
        \note To ensure thread-safety, this function uses mutex lock. For real multi-threading drawing of text,
-       use another version of `CImg<T>::draw_text()` with argument `font`, that must be a copy of what is returned
-       by `CImgList<T>::font()`.
+       use another version of \c CImg<T>::draw_text() with argument `font`, that must be a copy of what is returned
+       by \c CImgList<T>::font().
     **/
     template<typename tc1, typename tc2>
     CImg<T>& draw_text(const int x0, const int y0,
@@ -52991,6 +53010,7 @@ namespace cimg_library {
        \param pattern Drawing pattern.
        \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
        \param allow_zero Enable/disable the drawing of label '0' if found.
+       \param round_x
     **/
     template<typename t, typename tc>
     CImg<T>& draw_axis(const CImg<t>& values_x, const int y,
@@ -53041,6 +53061,7 @@ namespace cimg_library {
        \param pattern Drawing pattern.
        \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
        \param allow_zero Enable/disable the drawing of label '0' if found.
+       \param round_y
     **/
     template<typename t, typename tc>
     CImg<T>& draw_axis(const int x, const CImg<t>& values_y,
@@ -53095,6 +53116,8 @@ namespace cimg_library {
        \param pattern_y Drawing pattern for the Y-axis.
        \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
        \param allow_zero Enable/disable the drawing of label '0' if found.
+       \param round_x
+       \param round_y
     **/
     template<typename tx, typename ty, typename tc>
     CImg<T>& draw_axes(const CImg<tx>& values_x, const CImg<ty>& values_y,
@@ -53622,7 +53645,7 @@ namespace cimg_library {
        \param y0 Y-coordinate of the upper-left pixel.
        \param x1 X-coordinate of the lower-right pixel.
        \param y1 Y-coordinate of the lower-right pixel.
-       \param palette Colormap.
+       \param colormap Colormap.
        \param opacity Drawing opacity.
        \param z0r Real part of the upper-left fractal vertex.
        \param z0i Imaginary part of the upper-left fractal vertex.
@@ -55298,6 +55321,7 @@ namespace cimg_library {
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
        \param XYZ Pointer to 3 values X,Y,Z which tells about the projection point coordinates, for volumetric images.
        \param exit_on_anykey Exit function when any key is pressed.
+       \param is_deep_selection_default
     **/
     CImg<T>& select(CImgDisplay &disp,
                     const unsigned int feature_type=2, unsigned int *const XYZ=0,
@@ -57210,7 +57234,6 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "load_png(): Specified filename is (null).",
                                     cimg_instance);
-
 #ifndef cimg_use_png
       cimg::unused(bits_per_value);
       if (file)
@@ -59669,7 +59692,7 @@ namespace cimg_library {
 #endif
                       );
       } while (cimg::path_exists(filename_tmp));
-      cimg_snprintf(command,command._width,"\"%s\"%s \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"%s%s \"%s\" \"%s\"",
                     magick_path,
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                     s_filename.data(),
@@ -59914,7 +59937,7 @@ namespace cimg_library {
 
     //! Load image from a camera stream, using OpenCV.
     /**
-       \param index Index of the camera to capture images from (from 0 to 63).
+       \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
@@ -63645,7 +63668,7 @@ namespace cimg_library {
       save_pnm(filename_tmp);
 #endif
       const char *magick_path = cimg::imagemagick_path();
-      cimg_snprintf(command,command._width,"\"%s\" -quality %u \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"%s -quality %u \"%s\" \"%s\"",
                     magick_path,quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
@@ -67395,7 +67418,7 @@ namespace cimg_library {
                                             cimg::graphicsmagick_path(),
                                             CImg<charT>::string(filename)._system_strescape().data(),
                                             CImg<charT>::string(filename_tmp)._system_strescape().data());
-      else cimg_snprintf(command,command._width,"\"%s\" -coalesce \"%s\" \"%s.png\"",
+      else cimg_snprintf(command,command._width,"%s -coalesce \"%s\" \"%s.png\"",
                          cimg::imagemagick_path(),
                          CImg<charT>::string(filename)._system_strescape().data(),
                          CImg<charT>::string(filename_tmp)._system_strescape().data());
@@ -67904,7 +67927,7 @@ namespace cimg_library {
           frame.assign(frame.get_resize(-100,-100,1,4).draw_image(0,0,0,2,frame.get_shared_channel(0)),false);
         frame.save(filename_tmp2);
       }
-      cimg_snprintf(command,command._width,"\"%s\" -delay %u -loop %u -dispose previous",
+      cimg_snprintf(command,command._width,"%s -delay %u -loop %u -dispose previous",
                     cimg::imagemagick_path(),
                     (unsigned int)std::max(0.f,cimg::round(100/fps)),
                     nb_loops);
@@ -68463,9 +68486,9 @@ namespace cimg_library {
             writers[index] = 0;
             cimg::mutex(9,0);
             throw CImgIOException(_cimglist_instance
-                                  "save_video(): File '%s', unable to initialize video writer with codec '%c%c%c%c'.",
+                                  "save_video(): File '%s', unable to initialize video writer with codec '%s'.",
                                   cimglist_instance,filename,
-                                  codec0,codec1,codec2,codec3);
+                                  _codec);
           }
           CImg<charT>::string(filename).move_to(filenames[index]);
           sizes(index,0) = W;
@@ -68763,7 +68786,7 @@ namespace cimg_library {
 
     //! Return a CImg pre-defined font with requested height.
     /**
-       \param font_height Height of the desired font (exact match for 13,23,53,103).
+       \param requested_height Height of the desired font (exact match for 13,23,53,103).
        \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
        \note Beware, the returned reference is valid only until the next call to this function!
     **/
@@ -69521,6 +69544,18 @@ namespace cimg_library {
         if (!path_found) std::strcpy(s_path,"convert");
 #endif
         winformat_string(s_path);
+
+        // Put path between double quotes and append ' convert' to it if necessary.
+        const unsigned int siz = (unsigned int)std::strlen(s_path);
+        const bool is_magick = std::strstr(s_path,"magick")?true:false;
+        CImg<char> s_path2(3 + siz + (is_magick?8:0));
+        char *s = s_path2._data;
+        *(s++) = '\"';
+        std::memcpy(s,s_path._data,siz); s+=siz;
+        *(s++) = '\"';
+        if (is_magick) { std::memcpy(s," convert",8); s+=8; }
+        *s = 0;
+        s_path2.move_to(s_path);
       }
       cimg::mutex(7,0);
       return s_path;
