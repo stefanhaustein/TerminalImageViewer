@@ -5,7 +5,6 @@ OBJECTS = tiv.o tiv_lib.o
 CXX      ?= g++
 CXXFLAGS ?= -O2
 INSTALL  ?= install
-INSTALL_PROGRAM ?= $(INSTALL) -D
 
 # https://www.gnu.org/prep/standards/html_node/Directory-Variables.html#Directory-Variables
 prefix      ?= /usr/local
@@ -26,7 +25,8 @@ $(PROGNAME): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $^ -o $@ $(LOADLIBES) $(LDLIBS)
 
 install: all
-	$(INSTALL_PROGRAM) $(PROGNAME) $(DESTDIR)$(bindir)/$(PROGNAME)
+	mkdir -p $(DESTDIR)$(bindir)
+	$(INSTALL) $(PROGNAME) $(DESTDIR)$(bindir)/$(PROGNAME)
 
 clean:
 	$(RM) -f $(PROGNAME) *.o
