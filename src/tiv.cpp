@@ -385,9 +385,10 @@ int main(int argc, char *argv[]) {
         unsigned int index = 0;
         int cw = (((maxWidth / 4) - 2 * (columns - 1)) / columns);
         int tw = cw * 4;
+        int th = std::min(tw, maxHeight);
         cimg_library::CImg<unsigned char> image(
-            tw * columns + 2 * 4 * (columns - 1), tw, 1, 3);
-        size maxThumbSize(tw, tw);
+            tw * columns + 2 * 4 * (columns - 1), th, 1, 3);
+        size maxThumbSize(tw, th);
 
         while (index < file_names.size()) {
             image.fill(0);
@@ -405,7 +406,7 @@ int main(int argc, char *argv[]) {
                     original.resize(newSize.width, newSize.height, 1, -100, 5);
                     image.draw_image(
                         count * (tw + 8) + (tw - newSize.width) / 2,
-                        (tw - newSize.height) / 2, 0, 0, original);
+                        (th - newSize.height) / 2, 0, 0, original);
                     count++;
                     unsigned int sl = count * (cw + 2);
                     sb.resize(sl - 2, ' ');
